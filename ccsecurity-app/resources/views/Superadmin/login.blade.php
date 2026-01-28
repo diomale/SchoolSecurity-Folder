@@ -10,8 +10,8 @@
     <form method="POST" action="{{ route('superadmin.login.submit') }}">
     @csrf
 
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
+    <input type="email" name="email" placeholder="Email" autocomplete="off" required>
+    <input type="password" name="password" placeholder="Password" autocomplete="off" required>
 
     <button type="submit">Login</button>
 
