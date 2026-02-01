@@ -63,6 +63,15 @@ return [
             ]) : [],
         ],
 
+            'mysql_second' => [ 
+            'driver' => 'mysql',
+            'host' => env('DB_SECOND_HOST', '127.0.0.1'),
+            'database' => env('DB_SECOND_DATABASE', 'forge'),
+            'username' => env('DB_SECOND_USERNAME', 'root'),
+            'password' => env('DB_SECOND_PASSWORD', ''),
+            
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
