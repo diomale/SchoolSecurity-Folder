@@ -22,3 +22,8 @@ Route::middleware('auth:superadmin')->group(function () {
         return view('superadmin.dashboard');
     })->name('superadmin.dashboard');
 });
+
+use App\Http\Controllers\AdminController;
+
+Route::get('/admin/login', [AdminController::class, 'showAdminLogin'])
+    ->name('admin.login');
