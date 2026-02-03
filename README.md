@@ -1,12 +1,10 @@
-Here is the consolidated and professionally formatted `README.md` for your project. I have merged the routing logic, the SuperAdmin multi-database flow, and the Admin session management into one cohesive document.
-
----
+------------------------------------
 
 # Multi-Tier Admin Authentication System
 
 This Laravel project implements a robust, two-tiered authentication architecture. It distinguishes between **Super Administrators** (system-level control with multi-database access) and **Standard Administrators** (operational control).
 
----
+------------------------------------
 
 ## 🏛 System Architecture
 
@@ -18,8 +16,7 @@ The system is built on two primary pillars to ensure isolation and security:
 
 
 
----
-
+------------------------------------
 ## 🚦 Routing Structure
 
 Routes are organized into prefixed groups with specific middleware layers to protect the application state.
@@ -39,7 +36,7 @@ Managed by the `AdminController`.
 * **Guard Isolation:** Uses the `admin` guard to manage standard admin sessions independently from the web or superadmin guards.
 * **Named Routes:** All routes use naming conventions (e.g., `admin.login`) to ensure internal logic remains functional even if URLs are modified.
 
----
+------------------------------------
 
 ## 🎮 Controller Logic
 
@@ -77,7 +74,7 @@ if (Auth::guard('admin')->attempt([
 
 * **Session Management:** `logout()` explicitly destroys the `admin` guard session, leaving other potential sessions (like a SuperAdmin logged in on the same browser) untouched.
 
----
+------------------------------------
 
 ## 🛠 Configuration & Requirements
 
@@ -94,7 +91,7 @@ if (Auth::guard('admin')->attempt([
 * **Database**: A functional `mysql_second` connection defined in `.env` and `config/database.php`.
 * **Migrations**: An `admins` table on the secondary connection with an `active` status column.
 
----
+------------------------------------
 
 ### 📂 File Reference
 
