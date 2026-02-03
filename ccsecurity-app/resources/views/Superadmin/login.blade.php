@@ -8,17 +8,17 @@
 </head>
 <body>
     <form method="POST" action="{{ route('superadmin.login.submit') }}">
-    @csrf
+        @csrf
 
-    <input type="email" name="email" placeholder="Email" autocomplete="off" required>
-    <input type="password" name="password" placeholder="Password" autocomplete="off" required>
+        <input type="email" name="email" placeholder="Email" autocomplete="off" required>
+        <input type="password" name="password" placeholder="Password" autocomplete="off" required>
 
-    <button type="submit">Login</button>
+        <button type="submit">Login</button>
 
-    @error('email')
-        <p style="color:red">{{ $message }}</p>
-    @enderror
-</form>
+        @error('email')
+            <p style="color:red">{{ $message }}</p>
+        @enderror
+    </form>
 
 </body>
 </html>

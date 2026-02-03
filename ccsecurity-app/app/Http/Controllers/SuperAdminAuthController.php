@@ -68,12 +68,12 @@ class SuperAdminAuthController extends Controller
             ->with('success', 'New Admin created successfully!');
     }
 
-   /*
+   
     public function showTableAdmin($id)
     {
         $admin = Admin::findOrFail($id);
         return view('superadmin.admin_details', compact('admin'));
     }
-    */
+    
 }
     

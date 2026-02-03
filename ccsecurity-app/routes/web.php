@@ -33,6 +33,17 @@ Route::prefix('superadmin')->group(function () {
 
 // --- ADMIN ROUTES --- //
 Route::prefix('admin')->group(function () {
-    Route::get('/login', [AdminController::class, 'showAdminLogin'])->name('admin.login');
+
+
+    Route::middleware('guest:admin')->group(function(){
+        Route::get('/login', [AdminController::class, 'showAdminLogin'])->name('admin.login');
+        Route::post('/login',[AdminController::class, 'login'])->name('admin.login.submit');
+    });
+    
+    Route::middleware('auth:admin')->group(function(){
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+    });
+
     
 });
