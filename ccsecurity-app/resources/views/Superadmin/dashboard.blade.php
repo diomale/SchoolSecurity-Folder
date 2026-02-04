@@ -21,6 +21,18 @@
             <tr>
                 <td> {{ $admin->name }} </td>
                 <td> {{ $admin->email }} </td>
+                <td>
+                    <form action="{{ route('superadmin.admin.show',$admin->id  ) }}">
+                        <button type="submit">View</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="{{ route('superadmin.admin.delete', $admin->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
             </tr>
             @endforeach
         </tbody>

@@ -74,6 +74,15 @@ class SuperAdminAuthController extends Controller
         $admin = Admin::findOrFail($id);
         return view('superadmin.admin_details', compact('admin'));
     }
+
+    public function deleteAdmin($id)
+    {
+        $admin = Admin::findOrFail($id);
+        $admin->delete();
+
+        return redirect()->route('superadmin.dashboard')
+        ->with('success', 'Admin deleted successfully!');
+    }
     
 }
     

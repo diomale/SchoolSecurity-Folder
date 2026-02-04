@@ -26,6 +26,7 @@ Route::prefix('superadmin')->group(function () {
         
         Route::post('/store-admin', [SuperAdminAuthController::class, 'storeAdmin'])->name('superadmin.storeAdmin');
         Route::get('/admin/{id}', [SuperAdminAuthController::class, 'showTableAdmin'])->name('superadmin.admin.show');
+        Route::delete('/admin/{id}', [SuperAdminAuthController::class, 'deleteAdmin'])->name('superadmin.admin.delete');
         
         Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('superadmin.logout');
     });
