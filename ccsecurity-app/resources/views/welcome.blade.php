@@ -8,6 +8,14 @@
 </head>
 <body>
     <h1>Columban College Inc, Security System</h1>
+    <hr>
+
+    <h1>SuperAdmin</h1>
+    <a href="{{ route('superadmin.login') }}">Log In</a>
+    <br>
+    <h1>Admin</h1>
+    <a href="{{ route('admin.login') }}">Log In</a>
+    
 
     
 </body>
