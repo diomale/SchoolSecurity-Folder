@@ -69,7 +69,7 @@ class SuperAdminAuthController extends Controller
     }
 
    
-    public function showTableAdmin($id)
+    public function showAdminDetails($id)
     {
         $admin = Admin::findOrFail($id);
         return view('superadmin.admin_details', compact('admin'));
@@ -83,6 +83,15 @@ class SuperAdminAuthController extends Controller
         return redirect()->route('superadmin.dashboard')
         ->with('success', 'Admin deleted successfully!');
     }
+    
+    public function viewEditForm($id)
+    {
+        $admin = Admin::findOrFail($id);
+        return view('superadmin.admin_edit', compact('admin'));
+
+    }
+
+    
     
 }
     

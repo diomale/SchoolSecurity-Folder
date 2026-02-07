@@ -22,8 +22,13 @@
                 <td> {{ $admin->name }} </td>
                 <td> {{ $admin->email }} </td>
                 <td>
-                    <form action="{{ route('superadmin.admin.show',$admin->id  ) }}">
+                    <form action="{{ route('superadmin.admin.show', $admin->id  ) }}">
                         <button type="submit">View</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="{{ route('superadmin.admin.edit', $admin->id ) }} ">
+                        <button type="submit">Edit</button>
                     </form>
                 </td>
                 <td>
