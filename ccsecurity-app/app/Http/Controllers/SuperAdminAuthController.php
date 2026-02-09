@@ -49,6 +49,11 @@ class SuperAdminAuthController extends Controller
         return redirect()->route('superadmin.login');
     }
 
+    public function showAddForm()
+    {
+        return view('Superadmin.superadmin_add_form');
+    }
+
     public function storeAdmin(Request $request)
     {
         $validated = $request->validate([
@@ -61,7 +66,7 @@ class SuperAdminAuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'status' => 'active',
+            'status' => 1,
         ]);
 
         return redirect()->route('superadmin.dashboard')
@@ -72,7 +77,7 @@ class SuperAdminAuthController extends Controller
     public function showAdminDetails($id)
     {
         $admin = Admin::findOrFail($id);
-        return view('superadmin.admin_details', compact('admin'));
+        return view('superadmin.superadmin_details', compact('admin'));
     }
 
     public function deleteAdmin($id)
@@ -87,11 +92,32 @@ class SuperAdminAuthController extends Controller
     public function viewEditForm($id)
     {
         $admin = Admin::findOrFail($id);
-        return view('superadmin.admin_edit', compact('admin'));
-
+        return view('superadmin.superadmin_edit', compact('admin'));
     }
 
-    
+    public function updateAdmin(Request $request, $id)
+    {
+        $admin = Admin::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:150',
+            'email' => 'required|email|max:150|unique:mysql_second.admins,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'status' => 'required|boolean', 
+        ]);
+
+        $data = $request->only(['name', 'email', 'status']);
+
+        
+        if ($request->filled('password')) {
+            $data['password'] = $request->password;
+        }
+
+        $admin->update($data);
+
+        return redirect()->route('superadmin.dashboard')->with('Success', 'Admin updated successfully');
+    }
+
     
 }
     

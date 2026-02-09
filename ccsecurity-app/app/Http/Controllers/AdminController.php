@@ -27,7 +27,7 @@ class AdminController extends Controller
         if (Auth::guard('admin')->attempt([
             'email' => $request->email,
             'password' => $request->password,
-            'status' => 'active'
+            'status' => 1
         ])) {
             return redirect()->route('admin.dashboard');
         }

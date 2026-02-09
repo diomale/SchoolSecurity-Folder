@@ -24,10 +24,12 @@ Route::prefix('superadmin')->group(function () {
         
         Route::get('/dashboard', [SuperAdminAuthController::class, 'dashboard'])->name('superadmin.dashboard');
         
+        Route::get('/admin/form/', [SuperAdminAuthController::class, 'showAddForm'])->name('superadmin.admin.show.add.form');
         Route::post('/store-admin', [SuperAdminAuthController::class, 'storeAdmin'])->name('superadmin.storeAdmin');
         Route::get('/admin/{id}/details', [SuperAdminAuthController::class, 'showAdminDetails'])->name('superadmin.admin.show');
         Route::get('/admin/{id}/edit',[SuperAdminAuthController::class, 'viewEditForm' ])->name('superadmin.admin.edit');
         Route::delete('/admin/{id}', [SuperAdminAuthController::class, 'deleteAdmin'])->name('superadmin.admin.delete');
+        Route::put('/admin/{id}', [SuperAdminAuthController::class, 'updateAdmin'])->name('superadmin.admin.update');
         
         
         Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('superadmin.logout');

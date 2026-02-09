@@ -8,6 +8,8 @@
         <button type="submit">Logout</button>
     </form>
 
+    <a href="{{ route('superadmin.admin.show.add.form') }}">Add</a>
+
     <table>
         <thead>
             <tr>
