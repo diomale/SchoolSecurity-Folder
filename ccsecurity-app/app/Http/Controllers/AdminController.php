@@ -12,6 +12,11 @@ class AdminController extends Controller
         return view('admin.dashboard');
     }
 
+    public function showAdminCrud()
+    {
+        return view('Admin.admin_crud');
+    }
+
     public function showAdminLogin()
     {
         return view('Admin.login');

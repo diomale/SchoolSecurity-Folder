@@ -5,4 +5,6 @@
         @csrf
         <button type="submit">Logout</button>
     </form>
+
+    
 </div>
