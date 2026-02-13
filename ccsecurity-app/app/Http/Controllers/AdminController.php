@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\InsideUser;
 
 
 class AdminController extends Controller
@@ -12,10 +12,22 @@ class AdminController extends Controller
         return view('admin.dashboard');
     }
 
-    public function showAdminCrud()
+    public function showCrudSection()
     {
-        return view('Admin.admin_crud');
+
+        $inside_users = InsideUser::all();
+        return view('Admin.admin_crud', compact('inside_users'));
     }
+
+    public function showAddUserForm()
+    {
+        return view('Admin.inside_user_add_form');
+    }
+
+
+
+
+
 
     public function showAdminLogin()
     {

@@ -48,6 +48,8 @@ Route::prefix('admin')->group(function () {
     Route::middleware('auth:admin')->group(function(){
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+        Route::get('/crud', [AdminController::class,'showCrudSection'])->name('admin.show.crudSection');
+        Route::get('/add_form', [AdminController::class, 'showAddUserForm'])->name('admin.add.user');
     });
 
     

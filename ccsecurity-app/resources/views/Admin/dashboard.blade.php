@@ -6,5 +6,7 @@
         <button type="submit">Logout</button>
     </form>
 
+    <a href="{{ route('admin.show.crudSection') }}">ADD USER</a>
+
     
 </div>
