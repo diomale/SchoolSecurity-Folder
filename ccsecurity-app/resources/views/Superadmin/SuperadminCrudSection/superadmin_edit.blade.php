@@ -12,7 +12,7 @@
             <input type="email" name="email" value="{{ $admin->email }}" required>
 
             <label>Password</label>
-            <input type="password" name="password" value="{{ $admin->password }}" required>
+            <input type="password" name="password">
 
             <label for="status">Account Status</label>
             <select name="status" id="status">

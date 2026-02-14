@@ -12,11 +12,19 @@ class SuperAdmin extends Authenticatable
         'name',
         'email',
         'password',
-        'status'
+        'created_at',
+        'updated_at',
+        'status',
     ];
 
     protected $hidden = [
         'password',
+        'created_at',
+        'updated_at',
         'remember_token',
+    ];
+
+        protected $casts = [
+        'password' => 'hashed',
     ];
 }
