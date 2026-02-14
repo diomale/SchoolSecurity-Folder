@@ -21,10 +21,10 @@ class InsideUser extends Model
         'password',
         'created_at',
         'updated_at',
+        'status'
     ];
 
     protected $hidden = [
-        'password',
         'password',
         'created_at',
         'updated_at',
@@ -32,5 +32,6 @@ class InsideUser extends Model
 
     protected $casts = [
         'password' => 'hashed',
+        'updated_at' => 'datetime:Y-m-d h:i A',
     ];
 }
