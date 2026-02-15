@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdminAuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\InsideUserController;
 
 
 Route::get('/', function () {
@@ -62,4 +63,21 @@ Route::prefix('admin')->group(function () {
     });
 
     
+});
+
+Route::prefix('insideuser')->group(function(){
+
+
+    Route::middleware('guest:insideuser')->group(function(){
+        Route::get('/login',[InsideUserController::class, 'showUserLogin'])->name(name: 'user.login.show');
+        Route::post('/login',[InsideUserController::class, 'login'])->name('insideuser.login.submit');
+        
+    });
+
+    Route::middleware('auth:insideuser')->group(function(){
+        Route::get('/dashboard',[InsideUserController::class, 'dashboard'])->name('insideuser.dashboard');
+        Route::post('',[InsideUserController::class, 'logout'])->name('insideuser.logout');
+
+        Route::get('/profile', [InsideUserController::class, 'userProfile'])->name('insideuser.profile.show');
+    });
 });

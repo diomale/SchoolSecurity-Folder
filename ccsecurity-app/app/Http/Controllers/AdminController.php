@@ -90,7 +90,9 @@ class AdminController extends Controller
 
         $inside_user->update($data);
 
-        return redirect()->route('admin.show.crudSection')->with('Success', 'User updated successfully');
+        return redirect()
+        ->route('admin.show.crudSection')
+        ->with('Success', 'User updated successfully');
     }
 
     public function deleteUser($id)
@@ -126,7 +128,7 @@ class AdminController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials or not a super admin'
+            'email' => 'Invalid credentials'
         ]);
     }
 
