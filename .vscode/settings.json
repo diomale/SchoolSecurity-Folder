@@ -5,9 +5,15 @@
         "endforeach",
         "insideuser",
         "Laravel",
+        "maxlength",
+        "minlength",
         "navigations",
         "onclick",
+        "outsideuser",
+        "recaptcha",
+        "remoteip",
         "securitysystemdatabase",
+        "sitekey",
         "superadmin",
         "superadmins"
     ]

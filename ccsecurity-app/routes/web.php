@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\InsideUserController;
+use App\Http\Controllers\OutsideUserController;
 
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 // --- SUPER ADMIN ROUTES --- //
 Route::prefix('superadmin')->group(function () {
@@ -60,10 +61,16 @@ Route::prefix('admin')->group(function () {
         Route::get('/user-{id}-edit-form', [AdminController::class, 'viewEditForm'])->name('admin.user.edit.form');
         Route::delete('/user-{id}-delete', [AdminController::class,'deleteUser'])->name('admin.user.delete');
         Route::put('/update-{id}', [AdminController::class, 'updateUser'])->name('admin.update.user');
+
+        //list
+        Route::get('/outsider-waiting-list', [AdminController::class, 'ShowOutsiderList'])->name('show.admin.outsider.list');
+        Route::put('/outsider-approved', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
     });
 
     
 });
+
+//-- INSIDE USER --//
 
 Route::prefix('insideuser')->group(function(){
 
@@ -80,4 +87,20 @@ Route::prefix('insideuser')->group(function(){
 
         Route::get('/profile', [InsideUserController::class, 'userProfile'])->name('insideuser.profile.show');
     });
+});
+
+//-- OUTSIDE USER --/
+
+Route::prefix('outsideuser')->group(function(){
+
+
+    Route::middleware('guest:outsideuser')->group(function(){
+        Route::get('/signup', [OutsideUserController::class, 'showSignup'])->name('outsideuser.signup.show');
+        Route::post('/request',[OutsideUserController::class, 'SignupRequest'])->name('outsideuser.signup.request');
+    });
+
+    Route::middleware('auth:outsideuser')->group(function(){
+
+    });
+
 });

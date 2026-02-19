@@ -7,6 +7,7 @@
     </form>
 
     <a href="{{ route('admin.show.crudSection') }}">ADD USER</a>
+    <a href="{{ route('show.admin.outsider.list') }}">Show List</a>
 
     
 </div>

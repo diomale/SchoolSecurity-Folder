@@ -55,6 +55,11 @@ return [
             'driver' => 'session',
             'provider' => 'insideuser',
         ],
+
+        'outsideuser' => [
+            'driver' => 'session',
+            'provider' => 'outsideuser',
+        ],
     ],
 
     /*
@@ -93,7 +98,12 @@ return [
         'insideuser' => [
             'driver' => 'eloquent',
             'model' => App\Models\InsideUser::class,
-        ]
+        ],
+
+        'outsideuser' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\OutsideUser::class,
+        ],
     ],
 
 

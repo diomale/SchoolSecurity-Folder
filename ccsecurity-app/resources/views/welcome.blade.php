@@ -8,9 +8,24 @@
 </head>
 <body>
     <h1>Columban College Inc, Security System</h1>
+    <p>outsider</p>
+    <a href="{{ route('outsideuser.signup.show') }}">Sign up</a>
+
+
+    <p>Student</p>
     <a href="{{ route( 'user.login.show') }}">Log In</a>
 
     <hr>
+
+    @if ($errors->any())
+        <div class="alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     
 
     
