@@ -6,33 +6,39 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class InsideUser extends Authenticatable
+class OutsideUser extends Authenticatable
 {
-    protected $table = 'inside_user';
+    use HasFactory, Notifiable;
+
+    protected $table = 'outside_user';
     protected $connection = 'mysql_second';
     protected $primaryKey = 'id';
-    public $timestamps = false;
 
     protected $fillable = [
-        'role',
         'fullname',
-        'password',
         'first_name',
         'last_name',
         'email',
-        'created_at',
-        'updated_at',
-        'status'
+        'phone_number',
+        'password',
+        'profile_picture',
+        'status',
     ];
 
     protected $hidden = [
         'password',
-        'created_at',
-        'updated_at',
+        'remember_token',
     ];
 
     protected $casts = [
-        'password' => 'hashed',
+        'password'   => 'hashed',
+        'created_at' => 'datetime:Y-m-d h:i A',
         'updated_at' => 'datetime:Y-m-d h:i A',
+        'status'     => 'integer',
     ];
+
+    // Status constants
+    const STATUS_PENDING  = 0;
+    const STATUS_APPROVED = 1;
+    const STATUS_REJECTED = 2;
 }

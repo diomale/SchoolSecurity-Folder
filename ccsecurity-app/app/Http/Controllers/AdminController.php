@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 use App\Models\InsideUser;
+use App\Models\OutsideUser;
 
 
 class AdminController extends Controller
@@ -13,6 +14,33 @@ class AdminController extends Controller
     //Dashboard
     public function dashboard(){
         return view('admin.dashboard');
+    }
+
+    //approved the outsider user
+
+    public function ShowOutsiderList()
+    {
+        $outside_users = OutsideUser::all();
+        return view('Admin.AdminWaitingList.outside_user_list', compact('outside_users'));
+
+    }
+
+
+    public function ApprovedOutsider($id)
+    {
+        $outside_user = OutsideUser::findOrFail($id);
+        $outside_user->update(['status' => 'approved']);
+        return redirect()->route('admin.show.outsiderList')->with('success', 'User approved successfully!');
+    }
+
+    public function RejectedOutsider()
+    {
+
+    }
+
+    public function DeleteOutsider()
+    {
+
     }
 
 
@@ -34,7 +62,7 @@ class AdminController extends Controller
             'first_name'=>'required|string|max:150',
             'last_name'=>'required|string|max:150',
             'email'=>'required|string|max:150',
-            'password'=>'required|string|max:150',
+            'password'=>'required|string|min:8',
             'role'=>'required|string|max:250',
         ]);
 
@@ -90,7 +118,9 @@ class AdminController extends Controller
 
         $inside_user->update($data);
 
-        return redirect()->route('admin.show.crudSection')->with('Success', 'User updated successfully');
+        return redirect()
+        ->route('admin.show.crudSection')
+        ->with('Success', 'User updated successfully');
     }
 
     public function deleteUser($id)
@@ -126,7 +156,7 @@ class AdminController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials or not a super admin'
+            'email' => 'Invalid credentials'
         ]);
     }
 

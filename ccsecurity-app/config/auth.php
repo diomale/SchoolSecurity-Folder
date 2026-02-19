@@ -50,6 +50,16 @@ return [
             'driver' => 'session',
             'provider' => 'admin',
         ],
+
+        'insideuser' => [
+            'driver' => 'session',
+            'provider' => 'insideuser',
+        ],
+
+        'outsideuser' => [
+            'driver' => 'session',
+            'provider' => 'outsideuser',
+        ],
     ],
 
     /*
@@ -83,7 +93,17 @@ return [
         'admin' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
-        ]
+        ],
+
+        'insideuser' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\InsideUser::class,
+        ],
+
+        'outsideuser' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\OutsideUser::class,
+        ],
     ],
 
 
