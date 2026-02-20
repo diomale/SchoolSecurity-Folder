@@ -29,15 +29,40 @@ class AdminController extends Controller
     public function ApprovedOutsider($id)
     {
         $outside_user = OutsideUser::findOrFail($id);
-        $outside_user->update(['status' => 'approved']);
-        return redirect()->route('admin.show.outsiderList')->with('success', 'User approved successfully!');
+
+        
+        if ($outside_user->status === OutsideUser::STATUS_APPROVED) {
+            return redirect()->back()->with('info', 'This user is already approved.');
+        }
+
+        $outside_user->update([
+            'status' => OutsideUser::STATUS_APPROVED,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', "User {$outside_user->first_name} approved successfully!");
     }
 
-    public function RejectedOutsider()
+    public function RejectOutsider($id)
     {
+        $outside_user = OutsideUser::findOrFail($id);
 
+        
+        if ($outside_user->status === OutsideUser::STATUS_REJECTED) {
+            return redirect()->back()->with('info', 'This user is already rejected.');
+        }
+
+        $outside_user->update([
+            'status' => OutsideUser::STATUS_REJECTED,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', "User {$outside_user->first_name} rejected successfully!");
     }
-
     public function DeleteOutsider()
     {
 

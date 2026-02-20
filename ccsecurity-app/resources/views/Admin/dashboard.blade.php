@@ -6,8 +6,8 @@
         <button type="submit">Logout</button>
     </form>
 
-    <a href="{{ route('admin.show.crudSection') }}">ADD USER</a>
-    <a href="{{ route('show.admin.outsider.list') }}">Show List</a>
+    <a href="{{ route('admin.show.crudSection') }}">Add Inside User</a>
+    <a href="{{ route('show.admin.outsider.list') }}">Show Waiting List</a>
 
     
 </div>

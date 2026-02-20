@@ -9,7 +9,6 @@
                 <th>Email</th>
                 <th>Created At</th>
                 <th>Updated At</th>
-                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -20,29 +19,28 @@
                 <td>{{ $outside_user->email }}</td>
                 <td>{{ $outside_user->created_at }}</td>
                 <td>{{ $outside_user->updated_at }}</td>
-                <td>{{ $outside_user->status }}</td>
 
                 <td>
-                    <form action="{{ route('admin.approved.user', $outside_user->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit">Approved</button>
-                    </form>
-                </td>
+                    @if($outside_user->status === \App\Models\OutsideUser::STATUS_PENDING)
+                        <form action="{{ route('admin.approved.user', $outside_user->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit">Approve</button>
+                        </form>
 
-                <td>
-                    <form action="">
-                        <button type="submit">Edit</button>
-                    </form>
-                </td>
-
-                <td>
-                    <form action="">
-                        <button type="submit" onclick="return confirm('Are you sure?')">delete</button>
-                    </form>
+                        <form action="{{ route('admin.rejected.user', $outside_user->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit">Reject</button>
+                        </form>
+                    @else
+                        {{ $outside_user->status == 1 ? 'Approved' : 'Rejected' }}
+                    @endif
                 </td>
             </tr>
             @endforeach
         </tbody>
     </table>
+
+    <a href="{{ route('admin.dashboard') }}">Back</a>
 </div>

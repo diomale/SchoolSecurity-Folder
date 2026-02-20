@@ -64,7 +64,8 @@ Route::prefix('admin')->group(function () {
 
         //list
         Route::get('/outsider-waiting-list', [AdminController::class, 'ShowOutsiderList'])->name('show.admin.outsider.list');
-        Route::put('/outsider-approved', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
+        Route::patch('/outsider-approved/{id}', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
+        Route::patch('/outsider-rejected/{id}', [AdminController::class, 'RejectOutsider'])->name('admin.rejected.user');
     });
 
     

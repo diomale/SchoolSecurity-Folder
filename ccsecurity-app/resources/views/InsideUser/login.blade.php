@@ -9,7 +9,7 @@
         <label>Email: </label>
         <input type="email" name="email" required placeholder="email">
 
-        <label>Email: </label>
+        <label>Password: </label>
         <input type="password" name="password" required placeholder="password">
 
         <button type="submit">Login</button>
