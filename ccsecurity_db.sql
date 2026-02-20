@@ -11,37 +11,22 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema ccsecurity-db
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `ccsecurity-db` DEFAULT CHARACTER SET utf8 ;
+CREATE SCHEMA IF NOT EXISTS `ccsecurity-db` DEFAULT CHARACTER SET utf8mb3 ;
 -- -----------------------------------------------------
--- Schema sesvms-database
+-- Schema ccsecurity-db
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema sesvms-database
+-- Schema ccsecurity-db
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `sesvms-database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+CREATE SCHEMA IF NOT EXISTS `ccsecurity-db` DEFAULT CHARACTER SET utf8mb3 ;
+USE `ccsecurity-db` ;
 USE `ccsecurity-db` ;
 
 -- -----------------------------------------------------
--- Table `ccsecurity-db`.`super_admins`
+-- Table `ccsecurity-db`.`cache`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`super_admins` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(150) NULL,
-  `email` VARCHAR(150) NULL,
-  `password` VARCHAR(100) NULL,
-  `status` VARCHAR(145) NULL,
-  `remember_token` VARCHAR(145) NULL,
-  `updated_at` VARCHAR(145) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-USE `sesvms-database` ;
-
--- -----------------------------------------------------
--- Table `sesvms-database`.`cache`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`cache` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`cache` (
   `key` VARCHAR(255) NOT NULL,
   `value` MEDIUMTEXT NOT NULL,
   `expiration` INT NOT NULL,
@@ -52,9 +37,9 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`cache_locks`
+-- Table `ccsecurity-db`.`cache_locks`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`cache_locks` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`cache_locks` (
   `key` VARCHAR(255) NOT NULL,
   `owner` VARCHAR(255) NOT NULL,
   `expiration` INT NOT NULL,
@@ -65,9 +50,9 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`failed_jobs`
+-- Table `ccsecurity-db`.`failed_jobs`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`failed_jobs` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`failed_jobs` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `uuid` VARCHAR(255) NOT NULL,
   `connection` TEXT NOT NULL,
@@ -83,9 +68,9 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`job_batches`
+-- Table `ccsecurity-db`.`job_batches`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`job_batches` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`job_batches` (
   `id` VARCHAR(255) NOT NULL,
   `name` VARCHAR(255) NOT NULL,
   `total_jobs` INT NOT NULL,
@@ -103,9 +88,9 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`jobs`
+-- Table `ccsecurity-db`.`jobs`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`jobs` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`jobs` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `queue` VARCHAR(255) NOT NULL,
   `payload` LONGTEXT NOT NULL,
@@ -121,23 +106,40 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`migrations`
+-- Table `ccsecurity-db`.`migrations`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`migrations` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`migrations` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `migration` VARCHAR(255) NOT NULL,
   `batch` INT NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 6
+AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`password_reset_tokens`
+-- Table `ccsecurity-db`.`navigations`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`password_reset_tokens` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`navigations` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `route` VARCHAR(255) NOT NULL,
+  `icon` VARCHAR(255) NOT NULL,
+  `order` INT NOT NULL DEFAULT '0',
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
+
+
+-- -----------------------------------------------------
+-- Table `ccsecurity-db`.`password_reset_tokens`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`password_reset_tokens` (
   `email` VARCHAR(255) NOT NULL,
   `token` VARCHAR(255) NOT NULL,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
@@ -148,9 +150,9 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`sessions`
+-- Table `ccsecurity-db`.`sessions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`sessions` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`sessions` (
   `id` VARCHAR(255) NOT NULL,
   `user_id` BIGINT UNSIGNED NULL DEFAULT NULL,
   `ip_address` VARCHAR(45) NULL DEFAULT NULL,
@@ -166,44 +168,27 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`superadmins`
+-- Table `ccsecurity-db`.`super_admins`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`superadmins` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(100) NOT NULL,
-  `email` VARCHAR(150) NOT NULL,
-  `password` VARCHAR(255) NOT NULL,
-  `is_active` TINYINT(1) NOT NULL DEFAULT '1',
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`super_admins` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(150) NULL DEFAULT NULL,
+  `email` VARCHAR(150) NULL DEFAULT NULL,
+  `password` VARCHAR(100) NULL DEFAULT NULL,
+  `status` VARCHAR(145) NULL DEFAULT NULL,
+  `remember_token` VARCHAR(145) NULL DEFAULT NULL,
+  `updated_at` VARCHAR(145) NULL DEFAULT NULL,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
-  `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `superadmins_email_unique` (`email` ASC) VISIBLE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 2
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_unicode_ci;
-
-
--- -----------------------------------------------------
--- Table `sesvms-database`.`system_settings`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`system_settings` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `system_name` VARCHAR(150) NULL DEFAULT NULL,
-  `setup_completed` TINYINT(1) NULL DEFAULT '0',
-  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+AUTO_INCREMENT = 3
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `sesvms-database`.`users`
+-- Table `ccsecurity-db`.`users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sesvms-database`.`users` (
+CREATE TABLE IF NOT EXISTS `ccsecurity-db`.`users` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
