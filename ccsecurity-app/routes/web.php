@@ -5,7 +5,7 @@ use App\Http\Controllers\SuperAdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\InsideUserController;
 use App\Http\Controllers\OutsideUserController;
-
+use App\Http\Controllers\SecurityGuardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -84,9 +84,27 @@ Route::prefix('insideuser')->group(function(){
 
     Route::middleware('auth:insideuser')->group(function(){
         Route::get('/dashboard',[InsideUserController::class, 'dashboard'])->name('insideuser.dashboard');
-        Route::post('',[InsideUserController::class, 'logout'])->name('insideuser.logout');
+        Route::post('/logout',[InsideUserController::class, 'logout'])->name('insideuser.logout');
 
         Route::get('/profile', [InsideUserController::class, 'userProfile'])->name('insideuser.profile.show');
+
+
+    });
+});
+
+//securityguard
+Route::prefix('securityguard')->group(function(){
+
+
+    Route::middleware('guest:securityguard')->group(function(){
+        Route::get('/login', [SecurityGuardController::class, 'showLogin'])->name('security.login.show');
+        Route::post('/login', [SecurityGuardController::class, 'login'])->name('security.login.submit');
+        
+    });
+
+    Route::middleware('auth:securityguard')->group(function(){
+        Route::get('/dashboard', [SecurityGuardController::class, 'dashboard'])->name('security.dashboard');
+        Route::post('/logout', [SecurityGuardController::class, 'logout'])->name('security.logout');
     });
 });
 

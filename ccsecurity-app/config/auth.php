@@ -56,6 +56,11 @@ return [
             'provider' => 'insideuser',
         ],
 
+        'securityguard' => [
+            'driver' => 'session',
+            'provider' => 'outsideuser',
+        ],
+
         'outsideuser' => [
             'driver' => 'session',
             'provider' => 'outsideuser',
@@ -98,6 +103,11 @@ return [
         'insideuser' => [
             'driver' => 'eloquent',
             'model' => App\Models\InsideUser::class,
+        ],
+
+        'securityguard' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\securityguard::class,
         ],
 
         'outsideuser' => [
