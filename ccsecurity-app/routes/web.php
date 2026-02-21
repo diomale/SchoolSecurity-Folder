@@ -97,11 +97,13 @@ Route::prefix('outsideuser')->group(function(){
 
     Route::middleware('guest:outsideuser')->group(function(){
         Route::get('/signup', [OutsideUserController::class, 'showSignup'])->name('outsideuser.signup.show');
+        Route::get('/login', [OutsideUserController::class, 'ShowLogin'])->name('outsideuser.login.show');
+        Route::post('/login', [OutsideUserController::class, 'Login'])->name('outsideuser.login.submit');
         Route::post('/request',[OutsideUserController::class, 'SignupRequest'])->name('outsideuser.signup.request');
     });
 
     Route::middleware('auth:outsideuser')->group(function(){
-
+        Route::get('/dashboard', [OutsideUserController::class, 'dashboard'])->name('outsider.dashboard');
     });
 
 });
