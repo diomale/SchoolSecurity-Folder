@@ -22,30 +22,35 @@ class SecurityGuardController extends Controller
     //function
     public function login(Request $request)
     {
-        $request->validate([
-            'email'=>'required|email',
-            'password'=>'required'
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
         ]);
 
-        if (Auth::guard('securityguard')->attempt([
-            'email' => $request->email,
-            'password' => $request->password,
-            'status' => 1
-        ])){
-            return redirect()->route('security.dashboard');
+        // Add 'status' => 1 to ensure only active guards can log in
+        if (Auth::guard('securityguard')->attempt(array_merge($credentials, ['status' => 1]))) {
+            
+            // IMPORTANT: Regenerate session to prevent session fixation
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('security.dashboard')); 
         }
         
         return back()->withErrors([
-            'email' => 'invalid credentials'
-        ]);
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email'); // Keeps the email in the field for the user
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::guard('securityguard')->logout();
+
+        // IMPORTANT: Clear the session data and CSRF token
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('security.login.show');
     }
-
 
 
 }

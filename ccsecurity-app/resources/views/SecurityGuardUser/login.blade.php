@@ -1,23 +1,34 @@
 <div>
-    <!-- Act only according to that maxim whereby you can, at the same time, will that it should become a universal law. - Immanuel Kant -->
+    @if (session('success'))
+        <p style="color: green;">{{ session('success') }}</p>
+    @endif
 
     <h1>Login</h1>
-    <h2>SecurityGuard</h2>
+    <h2>Security Guard Portal</h2>
 
     <form method="POST" action="{{ route('security.login.submit') }}">
         @csrf
 
-        <label>Email: </label>
-        <input type="email" name="email" required placeholder="email">
+        <div>
+            <label for="email">Email: </label>
+            <input type="email" name="email" id="email" value="{{ old('email') }}" required placeholder="email">
+            @error('email')
+                <span style="color:red; display:block;">{{ $message }}</span>
+            @enderror
+        </div>
 
-        <label>Password: </label>
-        <input type="password" name="password" required placeholder="password">
+        <br>
+
+        <div>
+            <label for="password">Password: </label>
+            <input type="password" name="password" id="password" required placeholder="password">
+            @error('password')
+                <span style="color:red; display:block;">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <br>
 
         <button type="submit">Login</button>
-        
-        @error('email')
-            <p style="color:red">{{ $message }}</p>
-        @enderror
     </form>
-
 </div>

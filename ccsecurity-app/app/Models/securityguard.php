@@ -11,7 +11,7 @@ class securityguard extends Authenticatable
     protected $primaryKey = 'id';
     public $timestamps = false;
 
-    protected $fillable = [,
+    protected $fillable = [
         'first_name',
         'last_name',
         'email',

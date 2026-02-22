@@ -52,8 +52,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
+        //crud for security
+        Route::get('/security-user-table',[AdminController::class, 'showSecurityUserCrud'])->name('security.user.table.section');
+        Route::get('/security-user-add-section', [AdminController::class, 'showAddSecurityGuardUser'])->name('security.user.add.section');
+        Route::post('/security-store-user', [AdminController::class, 'storeSecurityGuard'])->name('security.add.accept');
 
-        //Create, Read, Update, Delete,
+        //Create, Read, Update, Delete, for insider
         Route::get('/crud-section', [AdminController::class,'showCrudSection'])->name('admin.show.crudSection');
         Route::get('/add-form', [AdminController::class, 'showAddUserForm'])->name('admin.add.user');
         Route::post('/user-store',[AdminController::class,'storeUser'])->name('admin.add.user.accept');
@@ -105,6 +109,7 @@ Route::prefix('securityguard')->group(function(){
     Route::middleware('auth:securityguard')->group(function(){
         Route::get('/dashboard', [SecurityGuardController::class, 'dashboard'])->name('security.dashboard');
         Route::post('/logout', [SecurityGuardController::class, 'logout'])->name('security.logout');
+
     });
 });
 

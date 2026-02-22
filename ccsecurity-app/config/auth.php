@@ -58,7 +58,7 @@ return [
 
         'securityguard' => [
             'driver' => 'session',
-            'provider' => 'outsideuser',
+            'provider' => 'securityguard',
         ],
 
         'outsideuser' => [

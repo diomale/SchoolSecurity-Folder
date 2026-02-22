@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
+use App\Models\securityguard;
 use App\Models\InsideUser;
 use App\Models\OutsideUser;
 
@@ -63,13 +63,44 @@ class AdminController extends Controller
             ->back()
             ->with('success', "User {$outside_user->first_name} rejected successfully!");
     }
-    public function DeleteOutsider()
-    {
 
+    //Crud for Security Guard
+    public function showSecurityUserCrud()
+    {
+        $security_guard_users = securityguard::all();
+        return view('Admin.SecurityCrudSection.security_table_section', compact('security_guard_users'));
     }
 
+    public function showAddSecurityGuardUser()
+    {
+        return view('Admin.SecurityCrudSection.security_add_section');
+    }
 
-    //Create, Read, Update, Delete
+    public function storeSecurityGuard(Request $request)
+    {
+        $validate = $request->validate([
+            'first_name'=>'required|string|max:150',
+            'last_name'=>'required|string|max:150',
+            'email'=>'required|string|max:150',
+            'password'=>'required|string|min:8',
+        ]);
+
+        securityguard::create([
+            'first_name' => $validate['first_name'],
+            'last_name' => $validate['last_name'],
+            'fullname' => $validate['first_name'] . ' ' . $validate['last_name'],
+            'email' => $validate['email'],
+            'password' => Hash::make($validate['password']),
+            'created_at' => now(),
+            'updated_at' => now(),
+            'status' => 1,
+        ]);
+
+        return redirect()->route('security.user.table.section')
+            ->with('success', 'New user created successfully!');
+    }
+
+    //Create, Read, Update, Delete for inside user
     public function showCrudSection()
     {
         $inside_users = InsideUser::all();
