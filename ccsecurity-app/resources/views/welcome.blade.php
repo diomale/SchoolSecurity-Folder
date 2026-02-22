@@ -8,9 +8,6 @@
 </head>
 <body>
     <h1>Columban College Inc, Security System</h1>
-    <p>outsider</p>
-    <a href="{{ route('outsideuser.signup.show') }}">Sign up</a>
-
 
     <p>Student</p>
     <a href="{{ route( 'user.login.show') }}">Log In</a>

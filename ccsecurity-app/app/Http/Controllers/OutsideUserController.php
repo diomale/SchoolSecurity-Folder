@@ -4,10 +4,45 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\OutsideUser;
 
 class OutsideUserController extends Controller
 {
+
+    public function dashboard()
+    {
+        return view('OutsideUser.dashboard');
+    }
+
+    public function Login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password,
+            'status' => 1 // Only allow active users
+        ];
+
+        if (Auth::guard('outsideuser')->attempt($credentials)) {
+            $request->session()->regenerate(); // Security: prevent session fixation
+            return redirect()->intended(route('outsider.dashboard'));
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
+
+    public function ShowLogin()
+    {
+        return view('OutsideUser.login');
+    }
+
     public function showSignup()
     {
         return view('OutsideUser.Signup');

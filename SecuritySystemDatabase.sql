@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`admins` (
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 10
+AUTO_INCREMENT = 12
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -56,7 +56,20 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`inside_user` (
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 14
+AUTO_INCREMENT = 15
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`migrations`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`migrations` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `migration` VARCHAR(255) NOT NULL,
+  `batch` INT NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -81,11 +94,10 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `securitysystemdatabase`.`secutity_guard_user`
+-- Table `securitysystemdatabase`.`security_guard_user`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`secutity_guard_user` (
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`security_guard_user` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `fullname` VARCHAR(200) NULL DEFAULT NULL,
   `first_name` VARCHAR(150) NULL DEFAULT NULL,
   `last_name` VARCHAR(150) NULL DEFAULT NULL,
   `email` VARCHAR(150) NULL DEFAULT NULL,
@@ -96,6 +108,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`secutity_guard_user` (
   `profile_picture` BLOB NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
+AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb3;
 
 
