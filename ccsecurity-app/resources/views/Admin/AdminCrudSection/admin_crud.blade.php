@@ -11,6 +11,8 @@
                 <th>Role</th>
                 <th>Created At</th>
                 <th>Updated At</th>
+                <th>QR Status</th>
+                <th>QR Value</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -22,6 +24,8 @@
                 <td>{{ $inside_user->role }}</td>
                 <td>{{ $inside_user->created_at }}</td>
                 <td>{{ $inside_user->updated_at }}</td>
+                <td>{{ $inside_user->qr_status }}</td>
+                <td>{{ $inside_user->qr_value }}</td>
 
                 <td>
                     <form action="{{ route('admin.user.details', $inside_user->id) }}">

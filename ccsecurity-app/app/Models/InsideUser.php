@@ -22,7 +22,9 @@ class InsideUser extends Authenticatable
         'email',
         'created_at',
         'updated_at',
-        'status'
+        'status',
+        'qr_value',
+        'qr_status',
     ];
 
     protected $hidden = [
@@ -35,4 +37,14 @@ class InsideUser extends Authenticatable
         'password' => 'hashed',
         'updated_at' => 'datetime:Y-m-d h:i A',
     ];
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            // Logic: Prefix + (Base Number + Auto-increment ID)
+            $user->qr_value = 'User-' . (1000 + $user->id);
+            
+            // Save without triggering events again to avoid infinite loops
+            $user->saveQuietly();
+        });
+    }
 }

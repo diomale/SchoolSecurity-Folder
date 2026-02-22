@@ -84,28 +84,29 @@ class AdminController extends Controller
     public function storeUser(Request $request)
     {
         $validate = $request->validate([
-            'first_name'=>'required|string|max:150',
-            'last_name'=>'required|string|max:150',
-            'email'=>'required|string|max:150',
-            'password'=>'required|string|min:8',
-            'role'=>'required|string|max:250',
+            'first_name' => 'required|string|max:150',
+            'last_name'  => 'required|string|max:150',
+            'email'      => 'required|email|max:150|unique:mysql_second.inside_user,email',
+            'password'   => 'required|string|min:8',
+            'role'       => 'required|string|max:250',
+            'qr_status'  => 'required|string|max:250',
         ]);
 
         InsideUser::create([
             'first_name' => $validate['first_name'],
-            'last_name' => $validate['last_name'],
-            'fullname' => $validate['first_name'] . ' ' . $validate['last_name'],
-            'email' => $validate['email'],
-            'role' => $validate['role'],
-            'password' => Hash::make($validate['password']),
+            'last_name'  => $validate['last_name'],
+            'fullname'   => $validate['first_name'] . ' ' . $validate['last_name'],
+            'email'      => $validate['email'],
+            'role'       => $validate['role'],
+            'password'   => $validate['password'], 
             'created_at' => now(),
             'updated_at' => now(),
-            'status' => 1,
+            'status'     => 1,
+            'qr_status'  => $validate['qr_status'],
         ]);
 
         return redirect()->route('admin.show.crudSection')
             ->with('success', 'New user created successfully!');
-
     }
 
     public function showUserDetail($id)

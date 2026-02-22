@@ -3,7 +3,8 @@
     <p> {{ auth('insideuser')->user()->fullname }}</p>
     <p>{{ auth('insideuser')->user()->role }}</p>
     <p>{{ auth('insideuser')->user()->email }}</p>
-
+    <p>{{ auth('insideuser')->user()->qr_value }}</p>
+    <p>{{ auth('insideuser')->user()->qr_status }}</p>
 
     <a href="{{ route('insideuser.dashboard') }}">Back</a>
 </div>
