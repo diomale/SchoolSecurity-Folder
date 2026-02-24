@@ -1,10 +1,17 @@
 <div>
-    <!-- Let all your things have their places; let each part of your business have its time. - Benjamin Franklin -->
-    <p> {{ auth('insideuser')->user()->fullname }}</p>
-    <p>{{ auth('insideuser')->user()->role }}</p>
-    <p>{{ auth('insideuser')->user()->email }}</p>
-    <p>{{ auth('insideuser')->user()->qr_value }}</p>
-    <p>{{ auth('insideuser')->user()->qr_status }}</p>
+    <h3>User Profile</h3>
+    <p><strong>Name:</strong> {{ auth('insideuser')->user()->fullname }}</p>
+    <p><strong>Email:</strong> {{ auth('insideuser')->user()->email }}</p>
+    
+    <div class="qr-code-section" style="margin: 20px 0;">
+        {!! QrCode::size(200)->margin(1)->generate(auth('insideuser')->user()->qr_value) !!}
+        
+        <p style="font-family: monospace; color: #666;">
+            {{ auth('insideuser')->user()->qr_value }}
+        </p>
+    </div>
 
-    <a href="{{ route('insideuser.dashboard') }}">Back</a>
+    <p><strong>Status:</strong> {{ auth('insideuser')->user()->qr_status }}</p>
+
+    <a href="{{ route('insideuser.dashboard') }}">Back to Dashboard</a>
 </div>

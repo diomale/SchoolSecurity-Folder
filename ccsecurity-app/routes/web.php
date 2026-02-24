@@ -103,12 +103,17 @@ Route::prefix('securityguard')->group(function(){
     Route::middleware('guest:securityguard')->group(function(){
         Route::get('/login', [SecurityGuardController::class, 'showLogin'])->name('security.login.show');
         Route::post('/login', [SecurityGuardController::class, 'login'])->name('security.login.submit');
-        
+
     });
 
     Route::middleware('auth:securityguard')->group(function(){
         Route::get('/dashboard', [SecurityGuardController::class, 'dashboard'])->name('security.dashboard');
         Route::post('/logout', [SecurityGuardController::class, 'logout'])->name('security.logout');
+
+        // QR Scanner routes
+        Route::get('/scanner', [SecurityGuardController::class, 'showScanner'])->name('security.scanner.show');
+        Route::post('/scan-qr', [SecurityGuardController::class, 'scanQR'])->name('security.scan.qr');
+        Route::get('/scan-history', [SecurityGuardController::class, 'scanHistory'])->name('security.scan.history');
 
     });
 });
