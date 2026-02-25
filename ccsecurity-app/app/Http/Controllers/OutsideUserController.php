@@ -25,11 +25,11 @@ class OutsideUserController extends Controller
         $credentials = [
             'email' => $request->email,
             'password' => $request->password,
-            'status' => 1 // Only allow active users
+            'status' => 1 
         ];
 
         if (Auth::guard('outsideuser')->attempt($credentials)) {
-            $request->session()->regenerate(); // Security: prevent session fixation
+            $request->session()->regenerate(); 
             return redirect()->intended(route('outsider.dashboard'));
         }
 
