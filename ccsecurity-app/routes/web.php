@@ -71,6 +71,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/outsider-waiting-list', [AdminController::class, 'ShowOutsiderList'])->name('show.admin.outsider.list');
         Route::patch('/outsider-approved/{id}', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
         Route::patch('/outsider-rejected/{id}', [AdminController::class, 'RejectOutsider'])->name('admin.rejected.user');
+
+        //QR Status Management
+        Route::get('/qr-status-management', [AdminController::class, 'showQrStatusManagement'])->name('admin.qr.status.management');
+        Route::patch('/qr-status-toggle/{id}', [AdminController::class, 'toggleQrStatus'])->name('admin.qr.status.toggle');
+        Route::post('/qr-status-bulk-toggle', [AdminController::class, 'bulkToggleQrStatus'])->name('admin.qr.status.bulk.toggle');
     });
 
     
@@ -116,6 +121,9 @@ Route::prefix('securityguard')->group(function(){
         Route::post('/scan-qr', [SecurityGuardController::class, 'scanQR'])->name('security.scan.qr');
         Route::get('/scan-history', [SecurityGuardController::class, 'scanHistory'])->name('security.scan.history');
 
+        // QR Status Management routes
+        Route::get('/qr-status-management', [SecurityGuardController::class, 'showQrStatusManagement'])->name('security.qr.status.management');
+        Route::patch('/qr-status-toggle/{id}', [SecurityGuardController::class, 'toggleQrStatus'])->name('security.qr.status.toggle');
     });
 });
 

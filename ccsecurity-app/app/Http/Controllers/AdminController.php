@@ -100,6 +100,61 @@ class AdminController extends Controller
             ->with('success', 'New user created successfully!');
     }
 
+    //QR Status Management
+    public function showQrStatusManagement(Request $request)
+    {
+        $query = InsideUser::query();
+        
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('fullname', 'LIKE', "%{$search}%")
+                  ->orWhere('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('id', 'LIKE', "%{$search}%")
+                  ->orWhere('qr_value', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $inside_users = $query->orderBy('id', 'desc')->paginate(15);
+        
+        return view('Admin.QrStatusManagement.qr_status_management', compact('inside_users'));
+    }
+
+    public function toggleQrStatus($id)
+    {
+        $inside_user = InsideUser::findOrFail($id);
+        
+        // Toggle between 'active' and 'inactive' (case-insensitive)
+        $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
+        
+        $inside_user->update([
+            'qr_status' => $newStatus,
+            'updated_at' => now(),
+        ]);
+        
+        return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
+    }
+
+    public function bulkToggleQrStatus(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:inside_user,id'
+        ]);
+        
+        $newStatus = $request->new_status ?? 'inactive';
+        
+        InsideUser::whereIn('id', $request->user_ids)->update([
+            'qr_status' => $newStatus,
+            'updated_at' => now(),
+        ]);
+        
+        return redirect()->back()->with('success', "QR status updated for " . count($request->user_ids) . " users!");
+    }
+
     public function showSecurityUserDetail($id)
     {
         $security_guard_user = securityguard::findOrFail($id);
