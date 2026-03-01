@@ -16,17 +16,13 @@ class EntryLog extends Model
     public $timestamps = false;
 
     protected $fillable = [
-    
+
         'inside_user_id',
         'security_guard_user_id',
         'scan_at',
         'scan_type',
     ];
 
-
-    protected $hidden = [
-        'scan_at',
-    ];
 
     protected $casts = [
         'scan_at' => 'datetime',

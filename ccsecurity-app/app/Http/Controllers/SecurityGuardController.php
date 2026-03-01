@@ -91,10 +91,14 @@ class SecurityGuardController extends Controller
         $scanType = 'entry';
         $message = 'Entry logged successfully';
 
-        if ($lastEntryLog) {
+        if ($lastEntryLog && $lastEntryLog->scan_type === 'entry') {
             // If last scan was entry, this is an exit
             $scanType = 'exit';
             $message = 'Exit logged successfully';
+        } elseif ($lastEntryLog && $lastEntryLog->scan_type === 'exit') {
+            // If last scan was exit, this is a new entry
+            $scanType = 'entry';
+            $message = 'Entry logged successfully';
         }
 
         // Create entry log
@@ -109,6 +113,7 @@ class SecurityGuardController extends Controller
             'success' => true,
             'message' => $message,
             'scan_type' => $scanType,
+            'scan_at' => $entryLog->scan_at,
             'inside_user' => [
                 'id' => $insideUser->id,
                 'fullname' => $insideUser->fullname,

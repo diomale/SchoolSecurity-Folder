@@ -13,6 +13,13 @@
         .animate-fade-in {
             animation: fade-in 0.3s ease-out;
         }
+        #reader {
+            min-height: 400px;
+        }
+        #reader video {
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -123,13 +130,13 @@
 
     function initCamera() {
         html5QrcodeScanner = new Html5Qrcode("reader");
-        
-        const config = { 
-            fps: 10, 
-            qrbox: { width: 250, height: 250 },
+
+        const config = {
+            fps: 10,
+            qrbox: { width: 600, height: 600 },
             aspectRatio: 1.0
         };
-        
+
         html5QrcodeScanner.start(
             { facingMode: "environment" },
             config,
@@ -230,10 +237,10 @@
                 resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
                 resultDiv.classList.add('bg-blue-100', 'border', 'border-blue-400');
                 scanMessage.textContent = `${data.message} - ${data.inside_user.fullname}`;
-                
-                // Add to scan history
+
+                // Add to scan history with server timestamp
                 addToHistory(data);
-                
+
                 // Hide result after 5 seconds
                 setTimeout(() => {
                     resultDiv.classList.add('hidden');
@@ -261,17 +268,34 @@
         console.warn(`Code scan error = ${error}`);
     }
 
+    // Format date/time from server timestamp
+    function formatServerDateTime(scanAt) {
+        if (!scanAt) {
+            const now = new Date();
+            return {
+                timeString: now.toLocaleTimeString(),
+                dateString: now.toLocaleDateString()
+            };
+        }
+        
+        const serverDate = new Date(scanAt);
+        return {
+            timeString: serverDate.toLocaleTimeString(),
+            dateString: serverDate.toLocaleDateString()
+        };
+    }
+
+    // Add scan to history display
     function addToHistory(data) {
         const historyDiv = document.getElementById('scan-history');
-        const now = new Date();
-        const timeString = now.toLocaleTimeString();
-        const dateString = now.toLocaleDateString();
         
+        const { timeString, dateString } = formatServerDateTime(data.scan_at);
+
         const isEntry = data.scan_type === 'entry';
         const typeColor = isEntry ? 'text-green-600' : 'text-orange-600';
         const typeLabel = isEntry ? 'ENTRY' : 'EXIT';
         const bgColor = isEntry ? 'bg-green-50' : 'bg-orange-50';
-        
+
         const historyItem = `
             <div class="${bgColor} border rounded-lg p-3 animate-fade-in">
                 <div class="flex justify-between items-center">
@@ -284,9 +308,9 @@
                 </div>
             </div>
         `;
-        
+
         historyDiv.insertAdjacentHTML('afterbegin', historyItem);
-        
+
         // Keep only last 10 scans
         while (historyDiv.children.length > 10) {
             historyDiv.removeChild(historyDiv.lastChild);
@@ -306,11 +330,12 @@
     .then(data => {
         const historyDiv = document.getElementById('scan-history');
         if (data.scans && data.scans.length > 0) {
-            data.scans.forEach(scan => {
+            // Reverse the array so oldest is added first, then newer ones on top
+            data.scans.reverse().forEach(scan => {
                 addToHistory({
                     inside_user: scan.inside_user,
                     scan_type: scan.scan_type,
-                    created_at: scan.created_at
+                    scan_at: scan.scan_at
                 });
             });
         }
