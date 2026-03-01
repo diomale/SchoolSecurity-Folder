@@ -85,7 +85,7 @@ class SecurityGuardController extends Controller
 
         // Check if user has an active entry (no exit logged)
         $lastEntryLog = EntryLog::where('inside_user_id', $insideUser->id)
-            ->orderBy('id', 'desc')
+            ->latest('id')
             ->first();
 
         $scanType = 'entry';

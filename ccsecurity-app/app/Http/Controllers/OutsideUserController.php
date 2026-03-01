@@ -15,6 +15,12 @@ class OutsideUserController extends Controller
         return view('OutsideUser.dashboard');
     }
 
+    public function logout()
+    {
+        Auth::guard('outsideuser')->logout();
+        return redirect()->route('outsideuser.login.show');
+    }
+
     public function Login(Request $request)
     {
         $request->validate([
