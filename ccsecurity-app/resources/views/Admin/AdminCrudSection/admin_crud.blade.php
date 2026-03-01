@@ -1,5 +1,5 @@
 <div>
-    <h1>CRUD USER</h1>
+    <h1>Add Inside User</h1>
 
     <a href="{{ route('admin.add.user') }}">Add+</a>
 

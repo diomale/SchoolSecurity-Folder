@@ -19,7 +19,7 @@
                 <h2 class="text-xl font-semibold text-blue-600 mb-2">📷 QR Scanner</h2>
                 <p class="text-gray-600">Scan QR codes to log entry and exit of users</p>
             </a>
-
+            <br>
             <!-- Dashboard Info Card -->
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-2">ℹ️ Account Info</h2>

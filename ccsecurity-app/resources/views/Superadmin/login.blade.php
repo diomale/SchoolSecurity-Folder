@@ -20,5 +20,7 @@
         @enderror
     </form>
 
+    <a href="{{ route('welcome') }}">Back</a>
+
 </body>
 </html>
