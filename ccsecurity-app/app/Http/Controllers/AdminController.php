@@ -100,6 +100,13 @@ class AdminController extends Controller
             ->with('success', 'New user created successfully!');
     }
 
+    public function showSecurityUserDetail($id)
+    {
+        $security_guard_user = securityguard::findOrFail($id);
+        return view('Admin.SecurityCrudSection.security_user_details', compact('security_guard_user'));
+    }
+
+   
     //Create, Read, Update, Delete for inside user
     public function showCrudSection()
     {

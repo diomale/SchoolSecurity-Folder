@@ -22,7 +22,7 @@
                 <td>{{ $security_guard_user->updated_at }}</td>
 
                 <td>
-                    <form action="">
+                    <form action="{{ route('security.guard.user.details', $security_guard_user->id) }}">
                         <button type="submit">View</button>
                     </form>
                 </td>
