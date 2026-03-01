@@ -15,6 +15,12 @@ class OutsideUserController extends Controller
         return view('OutsideUser.dashboard');
     }
 
+    public function logout()
+    {
+        Auth::guard('outsideuser')->logout();
+        return redirect()->route('outsideuser.login.show');
+    }
+
     public function Login(Request $request)
     {
         $request->validate([
@@ -25,11 +31,11 @@ class OutsideUserController extends Controller
         $credentials = [
             'email' => $request->email,
             'password' => $request->password,
-            'status' => 1 // Only allow active users
+            'status' => 1 
         ];
 
         if (Auth::guard('outsideuser')->attempt($credentials)) {
-            $request->session()->regenerate(); // Security: prevent session fixation
+            $request->session()->regenerate(); 
             return redirect()->intended(route('outsider.dashboard'));
         }
 

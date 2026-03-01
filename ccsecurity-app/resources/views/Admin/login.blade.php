@@ -13,4 +13,6 @@
             <p style="color:red">{{ $message }}</p>
         @enderror
     </form>
+
+    <a href="{{ route('welcome') }}">Back</a>
 </div>

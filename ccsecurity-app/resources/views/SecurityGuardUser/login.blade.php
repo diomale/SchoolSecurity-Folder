@@ -31,4 +31,6 @@
 
         <button type="submit">Login</button>
     </form>
+
+    <a href="{{ route('welcome') }}">Back</a>
 </div>

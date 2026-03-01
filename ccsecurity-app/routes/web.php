@@ -81,7 +81,7 @@ Route::prefix('insideuser')->group(function(){
 
 
     Route::middleware('guest:insideuser')->group(function(){
-        Route::get('/login',[InsideUserController::class, 'showUserLogin'])->name(name: 'user.login.show');
+        Route::get('/login',[InsideUserController::class, 'showUserLogin'])->name('user.login.show');
         Route::post('/login',[InsideUserController::class, 'login'])->name('insideuser.login.submit');
         
     });
@@ -132,6 +132,7 @@ Route::prefix('outsideuser')->group(function(){
 
     Route::middleware('auth:outsideuser')->group(function(){
         Route::get('/dashboard', [OutsideUserController::class, 'dashboard'])->name('outsider.dashboard');
+        Route::post('/logout', [OutsideUserController::class, 'logout'])->name('outsideuser.logout');
     });
 
 });

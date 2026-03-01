@@ -13,5 +13,5 @@
 
     <p><strong>Status:</strong> {{ auth('insideuser')->user()->qr_status }}</p>
 
-    <a href="{{ route('insideuser.dashboard') }}">Back to Dashboard</a>
+    <a href="{{ route('insideuser.dashboard') }}">Back</a>
 </div>

@@ -27,7 +27,7 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">QR Scanner</h1>
-            <a href="{{ route('security.dashboard') }}" class="text-blue-600 hover:text-blue-800 no-underline">← Back to Dashboard</a>
+            <a href="{{ route('security.dashboard') }}" class="text-blue-600 hover:text-blue-800 no-underline">Back to Dashboard</a>
         </div>
         
         <!-- Scanner Section -->

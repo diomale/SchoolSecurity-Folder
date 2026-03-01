@@ -1,22 +1,36 @@
-<div>
-    <!-- Act only according to that maxim whereby you can, at the same time, will that it should become a universal law. - Immanuel Kant -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Login as a Authorized user</h1>
+    <div>
+        <!-- Act only according to that maxim whereby you can, at the same time, will that it should become a universal law. - Immanuel Kant -->
 
-    <h1>Login</h1>
+        <form method="POST" action="{{ route('insideuser.login.submit') }}">
+            @csrf
 
-    <form method="POST" action="{{ route('insideuser.login.submit') }}">
-        @csrf
-
-        <label>Email: </label>
-        <input type="email" name="email" required placeholder="email">
-
-        <label>Password: </label>
-        <input type="password" name="password" required placeholder="password">
-
-        <button type="submit">Login</button>
+            <label>Email: </label>
+            <input type="email" name="email" required placeholder="email">
+            <br>
+            <label>Password: </label>
+            <input type="password" name="password" required placeholder="password">
+            <br>
+            @error('email')
+                <p style="color:red">{{ $message }}</p>
+            @enderror
+            <button type="submit">Login</button>
         
-        @error('email')
-            <p style="color:red">{{ $message }}</p>
-        @enderror
-    </form>
+        </form>
+        <a href="{{ route( 'user.login.show') }}"></a>
 
-</div>
+        <a href="{{ route('welcome') }}">Back</a>
+
+    </div>
+
+</body>
+</html>
