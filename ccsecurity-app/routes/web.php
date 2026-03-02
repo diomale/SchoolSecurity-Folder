@@ -117,7 +117,7 @@ Route::prefix('insideuser')->group(function(){
     });
 });
 
-//securityguard
+//security guard user
 Route::prefix('securityguard')->group(function(){
 
 
