@@ -16,38 +16,34 @@
             <!-- QR Scanner Card -->
             <div>
                 <a href="{{ route('security.scanner.show') }}">
-                    <h2>📷 QR Scanner</h2>
-                    <p>Scan QR codes to log entry and exit of users</p>
+                    <h2>QR Scanner</h2>
                 </a>
             </div>
 
             <!-- Entry/Exit Logs Card -->
             <div>
                 <a href="{{ route('security.entry.logs') }}">
-                    <h2>📋 Entry/Exit Logs</h2>
-                    <p>View all people entering and exiting the premises</p>
-                </a>
-            </div>
-
-            <!-- Shift Management Card -->
-            <div>
-                <a href="{{ route('security.shift.management') }}">
-                    <h2>🕐 Shift Management</h2>
-                    <p>Clock in/out and view your shift schedule</p>
+                    <h2>Entry/Exit Logs</h2>
                 </a>
             </div>
 
             <!-- QR Status Management Card -->
             <div>
                 <a href="{{ route('security.qr.status.management') }}">
-                    <h2>🔐 QR Status Management</h2>
-                    <p>Activate or deactivate user QR codes</p>
+                    <h2>Inside User QR Status Management</h2>
+                </a>
+            </div>
+
+            <!-- Shift Management Card -->
+            <div>
+                <a href="{{ route('security.shift.management') }}">
+                    <h2>Shift Management</h2>
                 </a>
             </div>
 
             <!-- Dashboard Info Card -->
             <div>
-                <h2>ℹ️ Account Info</h2>
+                <h2>Account Info</h2>
                 <p>Email: {{ auth('securityguard')->user()->email }}</p>
                 <p>Status: {{ auth('securityguard')->user()->status }}</p>
             </div>
