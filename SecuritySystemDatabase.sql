@@ -140,6 +140,59 @@ AUTO_INCREMENT = 8
 DEFAULT CHARACTER SET = utf8;
 
 
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`shifts`
+-- -----------------------------------------------------
+-- Stores scheduled shifts for security guards
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shifts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `security_guard_user_id` INT(11) NOT NULL,
+  `shift_date` DATE NOT NULL,
+  `start_time` TIME NOT NULL,
+  `end_time` TIME NOT NULL,
+  `status` VARCHAR(50) NULL DEFAULT 'scheduled',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_shifts_security_guard_user_idx` (`security_guard_user_id` ASC),
+  CONSTRAINT `fk_shifts_security_guard_user`
+    FOREIGN KEY (`security_guard_user_id`)
+    REFERENCES `securitysystemdatabase`.`security_guard_user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`shift_logs`
+-- -----------------------------------------------------
+-- Tracks actual clock in/out times and handover notes
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shift_logs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `security_guard_user_id` INT(11) NOT NULL,
+  `shift_id` INT NULL,
+  `clock_in_time` DATETIME NULL,
+  `clock_out_time` DATETIME NULL,
+  `handover_note` TEXT NULL,
+  `status` VARCHAR(50) NULL DEFAULT 'active',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_shift_logs_security_guard_user_idx` (`security_guard_user_id` ASC),
+  INDEX `fk_shift_logs_shift_idx` (`shift_id` ASC),
+  CONSTRAINT `fk_shift_logs_security_guard_user`
+    FOREIGN KEY (`security_guard_user_id`)
+    REFERENCES `securitysystemdatabase`.`security_guard_user` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_shift_logs_shift`
+    FOREIGN KEY (`shift_id`)
+    REFERENCES `securitysystemdatabase`.`shifts` (`id`)
+    ON DELETE SET NULL)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

@@ -57,6 +57,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/security-user-add-section', [AdminController::class, 'showAddSecurityGuardUser'])->name('security.user.add.section');
         Route::post('/security-store-user', [AdminController::class, 'storeSecurityGuard'])->name('security.add.accept');
 
+        // Shift Management for Admin
+        Route::get('/shift-management', [AdminController::class, 'showShiftManagement'])->name('admin.shift.management');
+        Route::post('/assign-shift', [AdminController::class, 'assignShift'])->name('admin.assign.shift');
+        Route::delete('/shift-{id}-delete', [AdminController::class, 'deleteShift'])->name('admin.shift.delete');
+        Route::get('/security-{id}-shifts', [AdminController::class, 'showGuardShifts'])->name('admin.guard.shifts');
+
         //Create, Read, Update, Delete, for insider
         Route::get('/crud-section', [AdminController::class,'showCrudSection'])->name('admin.show.crudSection');
         Route::get('/add-form', [AdminController::class, 'showAddUserForm'])->name('admin.add.user');
@@ -119,6 +125,17 @@ Route::prefix('securityguard')->group(function(){
         Route::get('/scanner', [SecurityGuardController::class, 'showScanner'])->name('security.scanner.show');
         Route::post('/scan-qr', [SecurityGuardController::class, 'scanQR'])->name('security.scan.qr');
         Route::get('/scan-history', [SecurityGuardController::class, 'scanHistory'])->name('security.scan.history');
+
+        // Entry/Exit Logs routes
+        Route::get('/entry-logs', [SecurityGuardController::class, 'viewEntryLogs'])->name('security.entry.logs');
+
+        // Shift Management routes
+        Route::get('/shift-management', [SecurityGuardController::class, 'showShiftManagement'])->name('security.shift.management');
+        Route::post('/clock-in', [SecurityGuardController::class, 'clockIn'])->name('security.clock.in');
+        Route::post('/clock-out', [SecurityGuardController::class, 'clockOut'])->name('security.clock.out');
+        Route::post('/submit-handover', [SecurityGuardController::class, 'submitHandover'])->name('security.submit.handover');
+        Route::get('/shift-schedule', [SecurityGuardController::class, 'showShiftSchedule'])->name('security.shift.schedule');
+        Route::get('/shift-history', [SecurityGuardController::class, 'showShiftHistory'])->name('security.shift.history');
 
         // QR Status Management routes
         Route::get('/qr-status-management', [SecurityGuardController::class, 'showQrStatusManagement'])->name('security.qr.status.management');
