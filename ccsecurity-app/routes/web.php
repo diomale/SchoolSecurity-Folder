@@ -7,9 +7,7 @@ use App\Http\Controllers\InsideUserController;
 use App\Http\Controllers\OutsideUserController;
 use App\Http\Controllers\SecurityGuardController;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::get('/', function () {return view('welcome');})->name('welcome');
 
 // --- SUPER ADMIN ROUTES --- //
 Route::prefix('superadmin')->group(function () {
@@ -29,12 +27,12 @@ Route::prefix('superadmin')->group(function () {
 
         
         //Create, Read, Update, Delete,
-        Route::get('/admin-form', [SuperAdminAuthController::class, 'showAddForm'])->name('superadmin.admin.show.add.form');
-        Route::post('/store-admin', [SuperAdminAuthController::class, 'storeAdmin'])->name('superadmin.storeAdmin');
-        Route::get('/admin-{id}-details', [SuperAdminAuthController::class, 'showAdminDetails'])->name('superadmin.admin.show');
-        Route::get('/admin-{id}-edit',[SuperAdminAuthController::class, 'viewEditForm' ])->name('superadmin.admin.edit');
-        Route::delete('/admin-{id}', [SuperAdminAuthController::class, 'deleteAdmin'])->name('superadmin.admin.delete');
-        Route::put('/admin-{id}-update', [SuperAdminAuthController::class, 'updateAdmin'])->name('superadmin.admin.update');
+        Route::get('/admin/form', [SuperAdminAuthController::class, 'showAddForm'])->name('superadmin.admin.show.add.form');
+        Route::post('/store/admin', [SuperAdminAuthController::class, 'storeAdmin'])->name('superadmin.storeAdmin');
+        Route::get('/admin/{id}/details', [SuperAdminAuthController::class, 'showAdminDetails'])->name('superadmin.admin.show');
+        Route::get('/admin/{id}/edit',[SuperAdminAuthController::class, 'viewEditForm' ])->name('superadmin.admin.edit');
+        Route::delete('/admin/{id}', [SuperAdminAuthController::class, 'deleteAdmin'])->name('superadmin.admin.delete');
+        Route::put('/admin/{id}/update', [SuperAdminAuthController::class, 'updateAdmin'])->name('superadmin.admin.update');
         
     });
 });
@@ -53,34 +51,34 @@ Route::prefix('admin')->group(function () {
         Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
         //crud for security
-        Route::get('/security-user-table',[AdminController::class, 'showSecurityUserCrud'])->name('security.user.table.section');
-        Route::get('/security-user-add-section', [AdminController::class, 'showAddSecurityGuardUser'])->name('security.user.add.section');
-        Route::post('/security-store-user', [AdminController::class, 'storeSecurityGuard'])->name('security.add.accept');
-        Route::get('/security-guard-user-details/{id}', [AdminController::class, 'showSecurityUserDetail'])->name('security.guard.user.details');
-        Route::get('/security-guard-user-edit/{id}', [AdminController::class, 'viewSecurityUserForm'])->name('security.guard.user.edit');
-        Route::put('/update-{id}-user', [AdminController::class, 'updateSecurityUser'])->name('security.guard.user.update');
-        Route::delete('/security-guard-user-{id}-delete', [AdminController::class,'deleteSecurityUser'])->name('security.guard.user.delete');
+        Route::get('/security/user/table',[AdminController::class, 'showSecurityUserCrud'])->name('security.user.table.section');
+        Route::get('/security/user/add-section', [AdminController::class, 'showAddSecurityGuardUser'])->name('security.user.add.section');
+        Route::post('/security/store-user', [AdminController::class, 'storeSecurityGuard'])->name('security.add.accept');
+        Route::get('/security/guard-user-details/{id}', [AdminController::class, 'showSecurityUserDetail'])->name('security.guard.user.details');
+        Route::get('/security/guard-user-edit/{id}', [AdminController::class, 'viewSecurityUserForm'])->name('security.guard.user.edit');
+        Route::put('/update/{id}/user', [AdminController::class, 'updateSecurityUser'])->name('security.guard.user.update');
+        Route::delete('/security/guard-user/{id}/delete', [AdminController::class,'deleteSecurityUser'])->name('security.guard.user.delete');
 
         // Shift Management for Admin
         Route::get('/shift-management', [AdminController::class, 'showShiftManagement'])->name('admin.shift.management');
         Route::post('/assign-shift', [AdminController::class, 'assignShift'])->name('admin.assign.shift');
-        Route::delete('/shift-{id}-delete', [AdminController::class, 'deleteShift'])->name('admin.shift.delete');
-        Route::get('/security-{id}-shifts', [AdminController::class, 'showGuardShifts'])->name('admin.guard.shifts');
+        Route::delete('/shift/{id}/delete', [AdminController::class, 'deleteShift'])->name('admin.shift.delete');
+        Route::get('/security/{id}/shifts', [AdminController::class, 'showGuardShifts'])->name('admin.guard.shifts');
 
         
         //Create, Read, Update, Delete; for insider
         Route::get('/crud-section', [AdminController::class,'showCrudSection'])->name('admin.show.crudSection');
         Route::get('/add-form', [AdminController::class, 'showAddUserForm'])->name('admin.add.user');
         Route::post('/user-store',[AdminController::class,'storeUser'])->name('admin.add.user.accept');
-        Route::get('/user-{id}-details', [AdminController::class, 'showUserDetail'])->name('admin.user.details');
-        Route::get('/user-{id}-edit-form', [AdminController::class, 'viewEditForm'])->name('admin.user.edit.form');
-        Route::delete('/user-{id}-delete', [AdminController::class,'deleteUser'])->name('admin.user.delete');
-        Route::put('/update-{id}', [AdminController::class, 'updateUser'])->name('admin.update.user');
+        Route::get('/user/{id}/details', [AdminController::class, 'showUserDetail'])->name('admin.user.details');
+        Route::get('/user/{id}/edit-form', [AdminController::class, 'viewEditForm'])->name('admin.user.edit.form');
+        Route::delete('/user/{id}/delete', [AdminController::class,'deleteUser'])->name('admin.user.delete');
+        Route::put('/update/{id}', [AdminController::class, 'updateUser'])->name('admin.update.user');
 
         //list
-        Route::get('/outsider-waiting-list', [AdminController::class, 'ShowOutsiderList'])->name('show.admin.outsider.list');
-        Route::patch('/outsider-approved/{id}', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
-        Route::patch('/outsider-rejected/{id}', [AdminController::class, 'RejectOutsider'])->name('admin.rejected.user');
+        Route::get('/outsider/waiting-list', [AdminController::class, 'ShowOutsiderList'])->name('show.admin.outsider.list');
+        Route::patch('/outsider/approved/{id}', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
+        Route::patch('/outsider/rejected/{id}', [AdminController::class, 'RejectOutsider'])->name('admin.rejected.user');
 
         // Visit Requests Management
         Route::get('/visit-requests', [AdminController::class, 'showVisitRequests'])->name('admin.visit.requests');
