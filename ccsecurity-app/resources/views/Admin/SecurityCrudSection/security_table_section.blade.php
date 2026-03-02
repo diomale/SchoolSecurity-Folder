@@ -1,7 +1,10 @@
 <div>
     <!-- The whole future lies in uncertainty: live immediately. - Seneca -->
 
-    <a href="{{ route('security.user.add.section') }}">Add+</a>
+    <div>
+        <a href="{{ route('security.user.add.section') }}">Add+</a>
+        <a href="{{ route('admin.shift.management') }}">🕐 Manage Shifts</a>
+    </div>
 
     <table>
         <thead>
@@ -16,7 +19,7 @@
         <tbody>
             @foreach ($security_guard_users as $security_guard_user)
             <tr>
-                <td>{{ $security_guard_user->first_name }}</td>
+                <td>{{ $security_guard_user->first_name }} {{ $security_guard_user->last_name }}</td>
                 <td>{{ $security_guard_user->email }}</td>
                 <td>{{ $security_guard_user->created_at }}</td>
                 <td>{{ $security_guard_user->updated_at }}</td>

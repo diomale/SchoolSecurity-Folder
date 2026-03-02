@@ -61,6 +61,13 @@ Route::prefix('admin')->group(function () {
         Route::put('/update-{id}-user', [AdminController::class, 'updateSecurityUser'])->name('security.guard.user.update');
         Route::delete('/security-guard-user-{id}-delete', [AdminController::class,'deleteSecurityUser'])->name('security.guard.user.delete');
 
+        // Shift Management for Admin
+        Route::get('/shift-management', [AdminController::class, 'showShiftManagement'])->name('admin.shift.management');
+        Route::post('/assign-shift', [AdminController::class, 'assignShift'])->name('admin.assign.shift');
+        Route::delete('/shift-{id}-delete', [AdminController::class, 'deleteShift'])->name('admin.shift.delete');
+        Route::get('/security-{id}-shifts', [AdminController::class, 'showGuardShifts'])->name('admin.guard.shifts');
+
+        
         //Create, Read, Update, Delete; for insider
         Route::get('/crud-section', [AdminController::class,'showCrudSection'])->name('admin.show.crudSection');
         Route::get('/add-form', [AdminController::class, 'showAddUserForm'])->name('admin.add.user');
@@ -74,6 +81,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/outsider-waiting-list', [AdminController::class, 'ShowOutsiderList'])->name('show.admin.outsider.list');
         Route::patch('/outsider-approved/{id}', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
         Route::patch('/outsider-rejected/{id}', [AdminController::class, 'RejectOutsider'])->name('admin.rejected.user');
+
+        // Visit Requests Management
+        Route::get('/visit-requests', [AdminController::class, 'showVisitRequests'])->name('admin.visit.requests');
+        Route::patch('/visit-request-approve/{id}', [AdminController::class, 'approveVisitRequest'])->name('admin.visit.approve');
+        Route::patch('/visit-request-reject/{id}', [AdminController::class, 'rejectVisitRequest'])->name('admin.visit.reject');
 
         //QR Status Management
         Route::get('/qr-status-management', [AdminController::class, 'showQrStatusManagement'])->name('admin.qr.status.management');
@@ -124,6 +136,17 @@ Route::prefix('securityguard')->group(function(){
         Route::post('/scan-qr', [SecurityGuardController::class, 'scanQR'])->name('security.scan.qr');
         Route::get('/scan-history', [SecurityGuardController::class, 'scanHistory'])->name('security.scan.history');
 
+        // Entry/Exit Logs routes
+        Route::get('/entry-logs', [SecurityGuardController::class, 'viewEntryLogs'])->name('security.entry.logs');
+
+        // Shift Management routes
+        Route::get('/shift-management', [SecurityGuardController::class, 'showShiftManagement'])->name('security.shift.management');
+        Route::post('/clock-in', [SecurityGuardController::class, 'clockIn'])->name('security.clock.in');
+        Route::post('/clock-out', [SecurityGuardController::class, 'clockOut'])->name('security.clock.out');
+        Route::post('/submit-handover', [SecurityGuardController::class, 'submitHandover'])->name('security.submit.handover');
+        Route::get('/shift-schedule', [SecurityGuardController::class, 'showShiftSchedule'])->name('security.shift.schedule');
+        Route::get('/shift-history', [SecurityGuardController::class, 'showShiftHistory'])->name('security.shift.history');
+
         // QR Status Management routes
         Route::get('/qr-status-management', [SecurityGuardController::class, 'showQrStatusManagement'])->name('security.qr.status.management');
         Route::patch('/qr-status-toggle/{id}', [SecurityGuardController::class, 'toggleQrStatus'])->name('security.qr.status.toggle');
@@ -145,6 +168,12 @@ Route::prefix('outsideuser')->group(function(){
     Route::middleware('auth:outsideuser')->group(function(){
         Route::get('/dashboard', [OutsideUserController::class, 'dashboard'])->name('outsider.dashboard');
         Route::post('/logout', [OutsideUserController::class, 'logout'])->name('outsideuser.logout');
+        
+        // Visit Request routes
+        Route::get('/visit-request', [OutsideUserController::class, 'showVisitRequest'])->name('outsideuser.visit.request');
+        Route::post('/visit-request', [OutsideUserController::class, 'submitVisitRequest'])->name('outsideuser.visit.submit');
+        Route::get('/visit-history', [OutsideUserController::class, 'visitHistory'])->name('outsideuser.visit.history');
+        Route::get('/reactivate-qr', [OutsideUserController::class, 'reactivateQR'])->name('outsideuser.reactivate.qr');
     });
 
 });

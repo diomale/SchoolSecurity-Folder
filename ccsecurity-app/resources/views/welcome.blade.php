@@ -36,17 +36,25 @@
             @endif
 
             <button type="submit">Login</button>
-            
+
             <br>
 
         </form>
     </div>
 
     <div>
+        <h3>Visitor Registration (Parents/Guests)</h3>
+        <p>Register to request visits and get QR code access</p>
+        <a href="{{ route('outsideuser.signup.show') }}">Register as Visitor</a> | 
+        <a href="{{ route('outsideuser.login.show') }}">Visitor Login</a>
+    </div>
+
+    <div>
         <div>
-            <p>Are you a Visitor? <a href="{{ route('outsideuser.login.show') }}">Click Here</a></p>
+            <p>Are you a Student or Staff? <a href="{{ route('user.login.show') }}">Login Here</a></p>
+            <p>Are you a Visitor? <a href="{{ route('outsideuser.login.show') }}">Login Here</a></p>
         </div>
     </div>
-    
+
 </body>
 </html>

@@ -3,42 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Visitor Login - School Security</title>
 </head>
 <body>
-    <h1>Log in as a Visitor</h1>
     <div>
-    <form method="POST" action="{{ route('outsideuser.login.submit') }}">
-        @csrf
+        <h1>Visitor Login</h1>
+        <p>Login to manage your visit requests and QR code</p>
 
+        @if(session('success'))
         <div>
-            <label for="email">Email: </label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="email">
+            {{ session('success') }}
         </div>
-
-        <div>
-            <label for="password">Password: </label>
-            <input type="password" id="password" name="password" required placeholder="password">
-        </div>
-
-        @error('email')
-            <p style="color:red">{{ $message }}</p>
-        @enderror
-
-        @if (session('success'))
-            <p style="color:green">{{ session('success') }}</p>
         @endif
 
-        <button type="submit">Login</button>
-        
-    </form>
+        @if(session('error'))
+        <div>
+            {{ session('error') }}
+        </div>
+        @endif
 
-    <p>Are you a Student or Staff ? <a href="{{ route('user.login.show') }}">Click Here</a></p>
-    
-    <a href="{{ route('outsideuser.signup.show') }}">Create New Account</a>
-    <br>
-    <a href="{{ route('welcome') }}">Back</a>
-</div>
+        <form method="POST" action="{{ route('outsideuser.login.submit') }}">
+            @csrf
+
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+            </div>
+
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            @error('email')
+                <div>{{ $message }}</div>
+            @enderror
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div>
+            <p>Don't have an account? <a href="{{ route('outsideuser.signup.show') }}">Register here</a></p>
+            <p><a href="{{ route('welcome') }}">Back to Home</a></p>
+        </div>
+    </div>
 </body>
 </html>

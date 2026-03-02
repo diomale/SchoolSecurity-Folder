@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\securityguard;
 use App\Models\InsideUser;
 use App\Models\OutsideUser;
+use App\Models\Shift;
+use App\Models\VisitRequest;
+use Carbon\Carbon;
 
 
 class AdminController extends Controller
@@ -326,5 +330,137 @@ class AdminController extends Controller
         return redirect()->route('admin.login');
     }
 
-    
+    // Shift Management for Admin
+    public function showShiftManagement()
+    {
+        $securityGuards = securityguard::where('status', 1)->get();
+        $shifts = Shift::with('securityGuardUser')
+            ->where('shift_date', '>=', today())
+            ->orderBy('shift_date', 'asc')
+            ->orderBy('start_time', 'asc')
+            ->paginate(20);
+
+        return view('Admin.ShiftManagement.shift_management', compact('securityGuards', 'shifts'));
+    }
+
+    public function assignShift(Request $request)
+    {
+        $request->validate([
+            'security_guard_user_id' => ['required', function($attribute, $value, $fail) {
+                $exists = DB::connection('mysql_second')
+                    ->table('security_guard_user')
+                    ->where('id', $value)
+                    ->exists();
+                if (!$exists) {
+                    $fail('The selected security guard does not exist.');
+                }
+            }],
+            'shift_date' => 'required_if:recurring_type,single|nullable|date|after_or_equal:today',
+            'start_time' => 'required',
+            'end_time' => 'required|after:start_time',
+            'recurring_type' => 'required|in:single,recurring',
+            'recurring_days' => 'required_if:recurring_type,recurring|array',
+            'recurring_days.*' => 'required_if:recurring_type,recurring|integer|between:0,6',
+            'recurring_end_date' => 'required_if:recurring_type,recurring|date|after_or_equal:shift_date',
+        ]);
+
+        if ($request->recurring_type === 'single') {
+            // Single day shift
+            Shift::create([
+                'security_guard_user_id' => $request->security_guard_user_id,
+                'shift_date' => $request->shift_date,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'status' => 'scheduled',
+            ]);
+        } else {
+            // Recurring shifts
+            $startDate = $request->shift_date ? Carbon::parse($request->shift_date) : Carbon::today();
+            $endDate = Carbon::parse($request->recurring_end_date);
+            $recurringDays = $request->recurring_days; // Array of days (0=Sunday, 1=Monday, etc.)
+            
+            $currentDate = clone $startDate;
+            $shiftsCreated = 0;
+
+            while ($currentDate <= $endDate) {
+                // Check if current day of week matches any selected recurring day
+                if (in_array($currentDate->dayOfWeek, $recurringDays)) {
+                    Shift::create([
+                        'security_guard_user_id' => $request->security_guard_user_id,
+                        'shift_date' => $currentDate->format('Y-m-d'),
+                        'start_time' => $request->start_time,
+                        'end_time' => $request->end_time,
+                        'status' => 'scheduled',
+                    ]);
+                    $shiftsCreated++;
+                }
+                $currentDate->addDay();
+            }
+
+            return redirect()->back()->with('success', "{$shiftsCreated} recurring shifts assigned successfully!");
+        }
+
+        return redirect()->back()->with('success', 'Shift assigned successfully!');
+    }
+
+    public function deleteShift($id)
+    {
+        $shift = Shift::findOrFail($id);
+        $shift->delete();
+
+        return redirect()->back()->with('success', 'Shift deleted successfully!');
+    }
+
+    public function showGuardShifts($guardId)
+    {
+        $guard = securityguard::findOrFail($guardId);
+        $shifts = Shift::where('security_guard_user_id', $guardId)
+            ->orderBy('shift_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->paginate(20);
+
+        return view('Admin.ShiftManagement.guard_shifts', compact('guard', 'shifts'));
+    }
+
+    // Visit Requests Management
+    public function showVisitRequests()
+    {
+        $visitRequests = VisitRequest::with('outsideUser')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('Admin.VisitRequests.visit_requests', compact('visitRequests'));
+    }
+
+    public function approveVisitRequest($id)
+    {
+        $visitRequest = VisitRequest::findOrFail($id);
+        
+        $visitRequest->update([
+            'status' => 'approved',
+            'admin_remarks' => 'Approved by admin',
+        ]);
+
+        // Activate the user's QR code and approve account
+        $visitRequest->outsideUser->update([
+            'qr_status' => 'active',
+            'status' => OutsideUser::STATUS_APPROVED,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Visit request approved and QR code activated!');
+    }
+
+    public function rejectVisitRequest($id)
+    {
+        $visitRequest = VisitRequest::findOrFail($id);
+        
+        $visitRequest->update([
+            'status' => 'rejected',
+            'admin_remarks' => 'Request rejected by admin',
+        ]);
+
+        return redirect()->back()->with('success', 'Visit request rejected.');
+    }
+
 }
