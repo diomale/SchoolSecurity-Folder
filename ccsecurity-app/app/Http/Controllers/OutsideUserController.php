@@ -183,4 +183,42 @@ class OutsideUserController extends Controller
 
         return view('OutsideUser.visit_request');
     }
+
+    /**
+     * Show profile page
+     */
+    public function showProfile()
+    {
+        $outsideUser = Auth::guard('outsideuser')->user();
+        return view('OutsideUser.profile', compact('outsideUser'));
+    }
+
+    /**
+     * Update profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $outsideUser = Auth::guard('outsideuser')->user();
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:150',
+            'last_name' => 'required|string|max:150',
+            'phone_number' => 'required|string|max:20',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $outsideUser->first_name = $validated['first_name'];
+        $outsideUser->last_name = $validated['last_name'];
+        $outsideUser->fullname = $validated['first_name'] . ' ' . $validated['last_name'];
+        $outsideUser->phone_number = $validated['phone_number'];
+
+        if ($request->filled('password')) {
+            $outsideUser->password = Hash::make($validated['password']);
+        }
+
+        $outsideUser->updated_at = now();
+        $outsideUser->save();
+
+        return redirect()->back()->with('success', 'Profile updated successfully!');
+    }
 }

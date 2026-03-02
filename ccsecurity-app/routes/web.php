@@ -174,6 +174,10 @@ Route::prefix('outsideuser')->group(function(){
         Route::post('/visit-request', [OutsideUserController::class, 'submitVisitRequest'])->name('outsideuser.visit.submit');
         Route::get('/visit-history', [OutsideUserController::class, 'visitHistory'])->name('outsideuser.visit.history');
         Route::get('/reactivate-qr', [OutsideUserController::class, 'reactivateQR'])->name('outsideuser.reactivate.qr');
+        
+        // Profile routes
+        Route::get('/profile', [OutsideUserController::class, 'showProfile'])->name('outsideuser.profile.show');
+        Route::post('/profile/update', [OutsideUserController::class, 'updateProfile'])->name('outsideuser.profile.update');
     });
 
 });

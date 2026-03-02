@@ -25,6 +25,10 @@
                 <td>{{ $security_guard_user->updated_at }}</td>
 
                 <td>
+                    <a href="{{ route('admin.guard.shifts', $security_guard_user->id) }}">View Shifts</a>
+                </td>
+
+                <td>
                     <form action="{{ route('security.guard.user.details', $security_guard_user->id) }}">
                         <button type="submit">View</button>
                     </form>

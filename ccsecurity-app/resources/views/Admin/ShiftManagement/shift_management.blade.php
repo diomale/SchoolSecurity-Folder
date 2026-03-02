@@ -13,17 +13,23 @@
             <a href="{{ route('admin.dashboard') }}">← Back to Dashboard</a>
         </div>
 
-        <!-- Success Message -->
+        <!-- Messages -->
         @if(session('success'))
-        <div>
+        <div style="color: green; padding: 10px; border: 1px solid green; margin-bottom: 10px;">
             {{ session('success') }}
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div style="color: red; padding: 10px; border: 1px solid red; margin-bottom: 10px;">
+            {{ session('error') }}
         </div>
         @endif
 
         <!-- Assign Shift Section -->
         <div>
             <h3>📅 Assign New Shift</h3>
-            <button type="button" onclick="document.getElementById('assignShiftModal').style.display = 'block'">
+            <button type="button" onclick="openAssignShiftModal()">
                 + Assign Shift
             </button>
         </div>
@@ -33,7 +39,7 @@
             <h3>📋 Upcoming Shifts</h3>
             @if($shifts->count() > 0)
             <div>
-                <table>
+                <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -49,26 +55,20 @@
                     <tbody>
                         @foreach($shifts as $shift)
                         <tr>
-                            <td><strong>#{{ $shift->id }}</strong></td>
+                            <td>{{ $shift->id }}</td>
                             <td>{{ $shift->securityGuardUser->first_name ?? 'N/A' }} {{ $shift->securityGuardUser->last_name ?? '' }}</td>
                             <td>{{ $shift->shift_date->format('M d, Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }}</td>
                             <td>{{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}</td>
                             <td>{{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hrs</td>
+                            <td>{{ ucfirst($shift->status) }}</td>
                             <td>
-                                <span>
-                                    {{ ucfirst($shift->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                <div>
-                                    <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
-                                    <form method="POST" action="{{ route('admin.shift.delete', $shift->id) }}" onsubmit="return confirm('Delete this shift?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit">Delete</button>
-                                    </form>
-                                </div>
+                                <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
+                                <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         @endforeach
@@ -82,35 +82,35 @@
             </div>
             @endif
             @else
-            <p>📭 No upcoming shifts scheduled.</p>
+            <p>No upcoming shifts scheduled.</p>
             @endif
         </div>
     </div>
 
     <!-- Assign Shift Modal -->
-    <div id="assignShiftModal" style="display:none;">
-        <div>
-            <div>
-                <h3>📅 Assign New Shift</h3>
-                <button type="button" onclick="document.getElementById('assignShiftModal').style.display = 'none'">&times;</button>
+    <div id="assignShiftModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 600px; border-radius: 8px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                <h3 style="margin: 0;">📅 Assign New Shift</h3>
+                <button type="button" onclick="closeAssignShiftModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
             </div>
-            <form method="POST" action="{{ route('admin.assign.shift') }}" id="assignShiftForm">
+            <form method="POST" action="{{ route('admin.assign.shift') }}">
                 @csrf
-                <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div>
-                        <label for="security_guard_user_id">Security Guard *</label>
-                        <select id="security_guard_user_id" name="security_guard_user_id" required>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Security Guard *</label>
+                        <select id="security_guard_user_id" name="security_guard_user_id" required style="width: 100%; padding: 8px;">
                             <option value="">Select Guard</option>
                             @foreach($securityGuards as $guard)
                             <option value="{{ $guard->id }}">
-                                {{ $guard->first_name }} {{ $guard->last_name }} ({{ $guard->email }})
+                                {{ $guard->first_name }} {{ $guard->last_name }}
                             </option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="recurring_type">Shift Type *</label>
-                        <select id="recurring_type" name="recurring_type" required onchange="toggleRecurringOptions()">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Shift Type *</label>
+                        <select id="recurring_type" name="recurring_type" required onchange="toggleRecurringOptions()" style="width: 100%; padding: 8px;">
                             <option value="single">Single Day</option>
                             <option value="recurring">Recurring</option>
                         </select>
@@ -118,113 +118,123 @@
                 </div>
 
                 <!-- Single Day Option -->
-                <div id="single_day_option">
+                <div id="single_day_option" style="margin-bottom: 15px;">
                     <div>
-                        <label for="shift_date">Shift Date *</label>
-                        <input 
-                            type="date" 
-                            id="shift_date" 
-                            name="shift_date" 
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Shift Date *</label>
+                        <input
+                            type="date"
+                            id="shift_date"
+                            name="shift_date"
                             min="{{ today()->format('Y-m-d') }}"
+                            style="width: 100%; padding: 8px;"
                         >
                     </div>
                 </div>
 
                 <!-- Recurring Options -->
                 <div id="recurring_options" style="display: none;">
-                    <div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div>
-                            <label for="recurring_start_date">Start Date *</label>
-                            <input 
-                                type="date" 
-                                id="recurring_start_date" 
-                                name="shift_date" 
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Start Date *</label>
+                            <input
+                                type="date"
+                                id="recurring_start_date"
+                                name="shift_date"
                                 min="{{ today()->format('Y-m-d') }}"
+                                style="width: 100%; padding: 8px;"
                             >
                         </div>
                         <div>
-                            <label for="recurring_end_date">End Date *</label>
-                            <input 
-                                type="date" 
-                                id="recurring_end_date" 
-                                name="recurring_end_date" 
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">End Date *</label>
+                            <input
+                                type="date"
+                                id="recurring_end_date"
+                                name="recurring_end_date"
                                 min="{{ today()->format('Y-m-d') }}"
+                                style="width: 100%; padding: 8px;"
                             >
                         </div>
                     </div>
-                    <div>
-                        <label>Repeat On *</label>
-                        <div>
-                            <label>
-                                <input type="checkbox" name="recurring_days[]" value="0">
-                                <span>Sun</span>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">Repeat On *</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="recurring_days[]" value="0"> Sun
                             </label>
-                            <label>
-                                <input type="checkbox" name="recurring_days[]" value="1">
-                                <span>Mon</span>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="recurring_days[]" value="1"> Mon
                             </label>
-                            <label>
-                                <input type="checkbox" name="recurring_days[]" value="2">
-                                <span>Tue</span>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="recurring_days[]" value="2"> Tue
                             </label>
-                            <label>
-                                <input type="checkbox" name="recurring_days[]" value="3">
-                                <span>Wed</span>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="recurring_days[]" value="3"> Wed
                             </label>
-                            <label>
-                                <input type="checkbox" name="recurring_days[]" value="4">
-                                <span>Thu</span>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="recurring_days[]" value="4"> Thu
                             </label>
-                            <label>
-                                <input type="checkbox" name="recurring_days[]" value="5">
-                                <span>Fri</span>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="recurring_days[]" value="5"> Fri
                             </label>
-                            <label>
-                                <input type="checkbox" name="recurring_days[]" value="6">
-                                <span>Sat</span>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="recurring_days[]" value="6"> Sat
                             </label>
                         </div>
                     </div>
-                    <div>
-                        <button type="button" onclick="selectWeekdays()">Weekdays (Mon-Fri)</button>
-                        <button type="button" onclick="selectWeekend()">Weekends (Sat-Sun)</button>
+                    <div style="margin-bottom: 15px;">
+                        <button type="button" onclick="selectWeekdays()" style="margin-right: 5px;">Weekdays (Mon-Fri)</button>
+                        <button type="button" onclick="selectWeekend()" style="margin-right: 5px;">Weekends (Sat-Sun)</button>
                         <button type="button" onclick="clearDays()">Clear</button>
                     </div>
                 </div>
 
-                <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div>
-                        <label for="start_time">Start Time *</label>
-                        <input 
-                            type="time" 
-                            id="start_time" 
-                            name="start_time" 
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Start Time *</label>
+                        <input
+                            type="time"
+                            id="start_time"
+                            name="start_time"
                             required
+                            style="width: 100%; padding: 8px;"
                         >
                     </div>
                     <div>
-                        <label for="end_time">End Time *</label>
-                        <input 
-                            type="time" 
-                            id="end_time" 
-                            name="end_time" 
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">End Time *</label>
+                        <input
+                            type="time"
+                            id="end_time"
+                            name="end_time"
                             required
+                            style="width: 100%; padding: 8px;"
                         >
                     </div>
                 </div>
-                <div>
-                    <button type="button" onclick="document.getElementById('assignShiftModal').style.display = 'none'">
-                        Cancel
-                    </button>
-                    <button type="submit">
-                        Assign Shift
-                    </button>
+                <div style="text-align: right;">
+                    <button type="button" onclick="closeAssignShiftModal()" style="margin-right: 10px;">Cancel</button>
+                    <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer;">Assign Shift</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        function openAssignShiftModal() {
+            document.getElementById('assignShiftModal').style.display = 'block';
+        }
+
+        function closeAssignShiftModal() {
+            document.getElementById('assignShiftModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('assignShiftModal');
+            if (event.target == modal) {
+                closeAssignShiftModal();
+            }
+        }
+
         function toggleRecurringOptions() {
             const recurringType = document.getElementById('recurring_type').value;
             const singleDayOption = document.getElementById('single_day_option');
