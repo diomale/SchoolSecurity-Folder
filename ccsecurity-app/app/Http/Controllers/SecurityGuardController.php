@@ -106,68 +106,116 @@ class SecurityGuardController extends Controller
      */
     public function scanQR(Request $request)
     {
-        $request->validate([
-            'qr_value' => 'required|string'
-        ]);
+        try {
+            $request->validate([
+                'qr_value' => 'required|string'
+            ]);
 
-        $qrValue = $request->qr_value;
-        $guardId = Auth::guard('securityguard')->id();
+            $qrValue = $request->qr_value;
+            $guardId = Auth::guard('securityguard')->id();
 
-        // Find inside user by qr_value
-        $insideUser = InsideUser::where('qr_value', $qrValue)->first();
+            if (!$guardId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: Guard not logged in'
+                ], 401);
+            }
 
-        if (!$insideUser) {
+            // Try to find inside user first
+            $insideUser = InsideUser::where('qr_value', $qrValue)->first();
+            $outsideUser = null;
+            $userType = 'inside';
+            $user = null;
+
+            // If not found, try outside user
+            if (!$insideUser) {
+                $outsideUser = OutsideUser::where('qr_value', $qrValue)->first();
+                $userType = 'outside';
+                $user = $outsideUser;
+            } else {
+                $user = $insideUser;
+            }
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ]);
+            }
+
+            // Check if user's QR status is active
+            if (!in_array(strtolower($user->qr_status), ['active'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'QR code is inactive. User is not authorized.'
+                ]);
+            }
+
+            // For inside users, check entry/exit logic
+            if ($userType === 'inside') {
+                $lastEntryLog = EntryLog::where('inside_user_id', $insideUser->id)
+                    ->latest('id')
+                    ->first();
+
+                $scanType = 'entry';
+                $message = 'Entry logged successfully';
+
+                if ($lastEntryLog && $lastEntryLog->scan_type === 'entry') {
+                    $scanType = 'exit';
+                    $message = 'Exit logged successfully';
+                }
+
+                // Create entry log for inside user
+                $entryLog = EntryLog::create([
+                    'inside_user_id' => $insideUser->id,
+                    'outside_user_id' => null,
+                    'security_guard_user_id' => $guardId,
+                    'scan_at' => Carbon::now()->toDateTimeString(),
+                    'scan_type' => $scanType,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'scan_type' => $scanType,
+                    'scan_at' => $entryLog->scan_at,
+                    'user_type' => $userType,
+                    'inside_user' => [ // Matching the key expected by frontend
+                        'id' => $insideUser->id,
+                        'fullname' => $insideUser->fullname,
+                        'qr_value' => $insideUser->qr_value,
+                    ]
+                ]);
+            } else {
+                // For outside users, just log the visit (entry)
+                $entryLog = EntryLog::create([
+                    'inside_user_id' => null,
+                    'outside_user_id' => $outsideUser->id,
+                    'security_guard_user_id' => $guardId,
+                    'scan_at' => Carbon::now()->toDateTimeString(),
+                    'scan_type' => 'entry',
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Visitor entry logged successfully',
+                    'scan_type' => 'entry',
+                    'scan_at' => $entryLog->scan_at,
+                    'user_type' => $userType,
+                    'inside_user' => [ // Frontend expects 'inside_user' key even for visitors
+                        'id' => $outsideUser->id,
+                        'fullname' => $outsideUser->fullname,
+                        'qr_value' => $outsideUser->qr_value,
+                    ]
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Scan error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'User not found'
-            ]);
+                'message' => 'Error processing scan: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Check if user's QR status is active
-        if (!in_array(strtolower($insideUser->qr_status), ['active'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'QR code is inactive. User is not authorized.'
-            ]);
-        }
-
-        // Check if user has an active entry (no exit logged)
-        $lastEntryLog = EntryLog::where('inside_user_id', $insideUser->id)
-            ->latest('id')
-            ->first();
-
-        $scanType = 'entry';
-        $message = 'Entry logged successfully';
-
-        if ($lastEntryLog && $lastEntryLog->scan_type === 'entry') {
-            // If last scan was entry, this is an exit
-            $scanType = 'exit';
-            $message = 'Exit logged successfully';
-        } elseif ($lastEntryLog && $lastEntryLog->scan_type === 'exit') {
-            // If last scan was exit, this is a new entry
-            $scanType = 'entry';
-            $message = 'Entry logged successfully';
-        }
-
-        // Create entry log
-        $entryLog = EntryLog::create([
-            'inside_user_id' => $insideUser->id,
-            'security_guard_user_id' => $guardId,
-            'scan_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'scan_type' => $scanType,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => $message,
-            'scan_type' => $scanType,
-            'scan_at' => $entryLog->scan_at,
-            'inside_user' => [
-                'id' => $insideUser->id,
-                'fullname' => $insideUser->fullname,
-                'qr_value' => $insideUser->qr_value,
-            ]
-        ]);
     }
 
     /**
@@ -178,13 +226,26 @@ class SecurityGuardController extends Controller
         $guardId = Auth::guard('securityguard')->id();
 
         $scans = EntryLog::where('security_guard_user_id', $guardId)
-            ->with('insideUser')
+            ->with(['insideUser', 'outsideUser'])
             ->orderBy('id', 'desc')
             ->limit(10)
             ->get();
 
+        // Map scans to a consistent format for the frontend
+        $formattedScans = $scans->map(function($scan) {
+            $user = $scan->insideUser ?: $scan->outsideUser;
+            return [
+                'inside_user' => [
+                    'fullname' => $user ? $user->fullname : 'Unknown User',
+                    'qr_value' => $user ? $user->qr_value : 'N/A',
+                ],
+                'scan_type' => $scan->scan_type,
+                'scan_at' => $scan->scan_at,
+            ];
+        });
+
         return response()->json([
-            'scans' => $scans
+            'scans' => $formattedScans
         ]);
     }
 

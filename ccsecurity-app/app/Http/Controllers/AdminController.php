@@ -9,6 +9,7 @@ use App\Models\securityguard;
 use App\Models\InsideUser;
 use App\Models\OutsideUser;
 use App\Models\Shift;
+use App\Models\VisitRequest;
 use Carbon\Carbon;
 
 
@@ -371,6 +372,47 @@ class AdminController extends Controller
             ->paginate(20);
 
         return view('Admin.ShiftManagement.guard_shifts', compact('guard', 'shifts'));
+    }
+
+    // Visit Requests Management
+    public function showVisitRequests()
+    {
+        $visitRequests = VisitRequest::with('outsideUser')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('Admin.VisitRequests.visit_requests', compact('visitRequests'));
+    }
+
+    public function approveVisitRequest($id)
+    {
+        $visitRequest = VisitRequest::findOrFail($id);
+        
+        $visitRequest->update([
+            'status' => 'approved',
+            'admin_remarks' => 'Approved by admin',
+        ]);
+
+        // Activate the user's QR code and approve account
+        $visitRequest->outsideUser->update([
+            'qr_status' => 'active',
+            'status' => OutsideUser::STATUS_APPROVED,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Visit request approved and QR code activated!');
+    }
+
+    public function rejectVisitRequest($id)
+    {
+        $visitRequest = VisitRequest::findOrFail($id);
+        
+        $visitRequest->update([
+            'status' => 'rejected',
+            'admin_remarks' => 'Request rejected by admin',
+        ]);
+
+        return redirect()->back()->with('success', 'Visit request rejected.');
     }
 
 }

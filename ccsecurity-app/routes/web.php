@@ -77,6 +77,11 @@ Route::prefix('admin')->group(function () {
         Route::patch('/outsider-approved/{id}', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
         Route::patch('/outsider-rejected/{id}', [AdminController::class, 'RejectOutsider'])->name('admin.rejected.user');
 
+        // Visit Requests Management
+        Route::get('/visit-requests', [AdminController::class, 'showVisitRequests'])->name('admin.visit.requests');
+        Route::patch('/visit-request-approve/{id}', [AdminController::class, 'approveVisitRequest'])->name('admin.visit.approve');
+        Route::patch('/visit-request-reject/{id}', [AdminController::class, 'rejectVisitRequest'])->name('admin.visit.reject');
+
         //QR Status Management
         Route::get('/qr-status-management', [AdminController::class, 'showQrStatusManagement'])->name('admin.qr.status.management');
         Route::patch('/qr-status-toggle/{id}', [AdminController::class, 'toggleQrStatus'])->name('admin.qr.status.toggle');
@@ -158,6 +163,12 @@ Route::prefix('outsideuser')->group(function(){
     Route::middleware('auth:outsideuser')->group(function(){
         Route::get('/dashboard', [OutsideUserController::class, 'dashboard'])->name('outsider.dashboard');
         Route::post('/logout', [OutsideUserController::class, 'logout'])->name('outsideuser.logout');
+        
+        // Visit Request routes
+        Route::get('/visit-request', [OutsideUserController::class, 'showVisitRequest'])->name('outsideuser.visit.request');
+        Route::post('/visit-request', [OutsideUserController::class, 'submitVisitRequest'])->name('outsideuser.visit.submit');
+        Route::get('/visit-history', [OutsideUserController::class, 'visitHistory'])->name('outsideuser.visit.history');
+        Route::get('/reactivate-qr', [OutsideUserController::class, 'reactivateQR'])->name('outsideuser.reactivate.qr');
     });
 
 });
