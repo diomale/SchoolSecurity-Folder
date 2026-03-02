@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\Recaptcha;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -83,33 +84,19 @@ class OutsideUserController extends Controller
             'email'                => 'required|string|email|max:155|unique:mysql_second.outside_user,email',
             'phone_number'         => 'required|string|max:20',
             'password'             => 'required|string|min:8|confirmed',
-            'g-recaptcha-response' => 'required',
+            'g-recaptcha-response' => ['required', new Recaptcha],
         ]);
 
-        /** @var \Illuminate\Http\Client\Response $response */
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret'   => env('RECAPTCHA_SECRET_KEY'),
-            'response' => $request->input('g-recaptcha-response'),
-            'remoteip' => $request->ip(),
-        ]);
-
-
-        if ($response->failed() || !$response->json('success')) {
-            return back()
-                ->withErrors(['captcha' => 'Captcha verification failed. Please try again.'])
-                ->withInput();
-        }
-
-        // Generate unique QR value
+      
         $qrValue = 'OUT-' . strtoupper(uniqid() . rand(1000, 9999));
 
+        
         OutsideUser::create([
             'first_name'   => $validated['first_name'],
             'last_name'    => $validated['last_name'],
-            'fullname'     => $validated['first_name'] . ' ' . $validated['last_name'],
             'email'        => $validated['email'],
             'phone_number' => $validated['phone_number'],
-            'password'     => Hash::make($validated['password']),
+            'password'     => Hash::make($validated['password']), 
             'qr_value'     => $qrValue,
             'qr_status'    => 'inactive',
             'status'       => OutsideUser::STATUS_PENDING,
@@ -118,7 +105,7 @@ class OutsideUserController extends Controller
         ]);
 
         return redirect()->route('outsideuser.login.show')
-            ->with('success', 'Account created! Please login and request a visit for QR activation.');
+            ->with('success', 'Account created! Please login and request a visit.');
     }
 
     /**
