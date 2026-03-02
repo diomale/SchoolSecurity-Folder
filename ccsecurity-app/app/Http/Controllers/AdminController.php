@@ -159,6 +159,54 @@ class AdminController extends Controller
         return redirect()->back()->with('success', "QR status updated for " . count($request->user_ids) . " users!");
     }
 
+    public function showSecurityUserDetail($id)
+    {
+        $security_guard_user = securityguard::findOrFail($id);
+        return view('Admin.SecurityCrudSection.security_user_details', compact('security_guard_user'));
+    }
+
+    public function viewSecurityUserForm($id)
+    {
+        $security_guard_user = securityguard::findOrFail($id);
+        return view('Admin.SecurityCrudSection.security_user_edit_form', compact('security_guard_user'));
+    }
+
+    public function updateSecurityUser(Request $request, $id)
+    {
+        $security_guard_user = securityguard::findOrFail($id);
+
+        $request->validate([
+            'first_name'=>'required|string|max:150',
+            'last_name'=>'required|string|max:150',
+            'email'=>'required|string|unique:mysql_second.inside_user,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'status' => 'required|boolean', 
+        ]);
+
+        $data = $request->only(['first_name', 'last_name', 'email', 'status']);
+
+        if ($request->filled('password')){
+            $data['password'] = $request->password; 
+        }
+
+        $data['updated_at'] = now(); 
+
+        $security_guard_user->update($data);
+
+        return redirect()
+        ->route('security.user.table.section')
+        ->with('Success', 'Security Guard User updated successfully');
+    }
+
+    public function deleteSecurityUser($id)
+    {
+        $security_guard_user = securityguard::findOrFail($id);
+        $security_guard_user->delete();
+
+        return redirect()->route('security.user.table.section')->with('Success', 'Deleted Successfully');
+    }
+
+   
     //Create, Read, Update, Delete for inside user
     public function showCrudSection()
     {

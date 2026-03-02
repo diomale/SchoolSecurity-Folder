@@ -25,17 +25,19 @@
                 <td>{{ $security_guard_user->updated_at }}</td>
 
                 <td>
-                    <a href="{{ route('admin.guard.shifts', $security_guard_user->id) }}">View Shifts</a>
+                    <form action="{{ route('security.guard.user.details', $security_guard_user->id) }}">
+                        <button type="submit">View</button>
+                    </form>
                 </td>
 
                 <td>
-                    <form action="">
+                    <form action="{{ route('security.guard.user.edit', $security_guard_user->id) }}">
                         <button type="submit">Edit</button>
                     </form>
                 </td>
 
                 <td>
-                    <form action="" method="POST">
+                    <form action="{{ route('security.guard.user.delete', $security_guard_user->id) }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="submit" onclick="return confirm('Are you sure?')">delete</button>

@@ -1,7 +1,7 @@
 <div>
     <h1>Edit Admin</h1>
 
-    {{-- Global Error List (Good for debugging until frontend team styles it) --}}
+    
     @if ($errors->any())
         <div style="color: red;">
             <ul>
