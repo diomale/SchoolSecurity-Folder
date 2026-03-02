@@ -8,4 +8,6 @@
             <li>Email: {{ $security_guard_user->email }}</li>
         </ul>
     </div>
+
+    <a href="{{ route('security.user.table.section') }}">Back</a>
 </div>

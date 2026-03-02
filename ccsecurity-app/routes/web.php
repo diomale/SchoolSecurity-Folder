@@ -56,7 +56,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/security-user-table',[AdminController::class, 'showSecurityUserCrud'])->name('security.user.table.section');
         Route::get('/security-user-add-section', [AdminController::class, 'showAddSecurityGuardUser'])->name('security.user.add.section');
         Route::post('/security-store-user', [AdminController::class, 'storeSecurityGuard'])->name('security.add.accept');
-        Route::get('/security-guard-user-details{id}', [AdminController::class, 'showSecurityUserDetail'])->name('security.guard.user.details');
+        Route::get('/security-guard-user-details/{id}', [AdminController::class, 'showSecurityUserDetail'])->name('security.guard.user.details');
+        Route::get('/security-guard-user-edit/{id}', [AdminController::class, 'viewSecurityUserForm'])->name('security.guard.user.edit');
+        Route::put('/update-{id}-user', [AdminController::class, 'updateSecurityUser'])->name('security.guard.user.update');
+        Route::delete('/security-guard-user-{id}-delete', [AdminController::class,'deleteSecurityUser'])->name('security.guard.user.delete');
 
         //Create, Read, Update, Delete; for insider
         Route::get('/crud-section', [AdminController::class,'showCrudSection'])->name('admin.show.crudSection');

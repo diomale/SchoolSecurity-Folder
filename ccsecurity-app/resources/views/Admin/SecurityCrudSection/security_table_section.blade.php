@@ -28,13 +28,13 @@
                 </td>
 
                 <td>
-                    <form action="">
+                    <form action="{{ route('security.guard.user.edit', $security_guard_user->id) }}">
                         <button type="submit">Edit</button>
                     </form>
                 </td>
 
                 <td>
-                    <form action="" method="POST">
+                    <form action="{{ route('security.guard.user.delete', $security_guard_user->id) }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="submit" onclick="return confirm('Are you sure?')">delete</button>

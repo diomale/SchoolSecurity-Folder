@@ -2,7 +2,15 @@
     <h1>Add Inside User</h1>
 
     <a href="{{ route('admin.add.user') }}">Add+</a>
-
+    @if ($errors->any())
+        <div style="color: red;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <table>
         <thead>
             <tr>
