@@ -94,6 +94,18 @@
                 <h3 style="margin: 0;">📅 Assign New Shift</h3>
                 <button type="button" onclick="closeAssignShiftModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
             </div>
+
+            @if ($errors->any())
+            <div style="color: red; padding: 10px; border: 1px solid red; margin-bottom: 10px;">
+                <strong>Please fix the following errors:</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             <form method="POST" action="{{ route('admin.assign.shift') }}">
                 @csrf
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
@@ -102,7 +114,7 @@
                         <select id="security_guard_user_id" name="security_guard_user_id" required style="width: 100%; padding: 8px;">
                             <option value="">Select Guard</option>
                             @foreach($securityGuards as $guard)
-                            <option value="{{ $guard->id }}">
+                            <option value="{{ $guard->id }}" {{ old('security_guard_user_id') == $guard->id ? 'selected' : '' }}>
                                 {{ $guard->first_name }} {{ $guard->last_name }}
                             </option>
                             @endforeach
@@ -111,8 +123,8 @@
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: bold;">Shift Type *</label>
                         <select id="recurring_type" name="recurring_type" required onchange="toggleRecurringOptions()" style="width: 100%; padding: 8px;">
-                            <option value="single">Single Day</option>
-                            <option value="recurring">Recurring</option>
+                            <option value="single" {{ old('recurring_type') === 'single' ? 'selected' : '' }}>Single Day</option>
+                            <option value="recurring" {{ old('recurring_type') === 'recurring' ? 'selected' : '' }}>Recurring</option>
                         </select>
                     </div>
                 </div>
@@ -126,6 +138,7 @@
                             id="shift_date"
                             name="shift_date"
                             min="{{ today()->format('Y-m-d') }}"
+                            value="{{ old('shift_date') }}"
                             style="width: 100%; padding: 8px;"
                         >
                     </div>
@@ -141,6 +154,7 @@
                                 id="recurring_start_date"
                                 name="shift_date"
                                 min="{{ today()->format('Y-m-d') }}"
+                                value="{{ old('shift_date') }}"
                                 style="width: 100%; padding: 8px;"
                             >
                         </div>
@@ -151,6 +165,7 @@
                                 id="recurring_end_date"
                                 name="recurring_end_date"
                                 min="{{ today()->format('Y-m-d') }}"
+                                value="{{ old('recurring_end_date') }}"
                                 style="width: 100%; padding: 8px;"
                             >
                         </div>
@@ -276,6 +291,16 @@
             document.querySelectorAll('input[type="date"]').forEach(input => {
                 input.min = today;
             });
+
+            // Handle recurring options visibility on page load (for validation errors)
+            const recurringType = document.getElementById('recurring_type').value;
+            const singleDayOption = document.getElementById('single_day_option');
+            const recurringOptions = document.getElementById('recurring_options');
+            
+            if (recurringType === 'recurring') {
+                singleDayOption.style.display = 'none';
+                recurringOptions.style.display = 'block';
+            }
         });
     </script>
 </body>
