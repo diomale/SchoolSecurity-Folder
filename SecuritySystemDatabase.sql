@@ -21,6 +21,24 @@ CREATE SCHEMA IF NOT EXISTS `securitysystemdatabase` DEFAULT CHARACTER SET utf8 
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `securitysystemdatabase` DEFAULT CHARACTER SET utf8 ;
 USE `securitysystemdatabase` ;
+USE `securitysystemdatabase` ;
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`admins`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`admins` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(150) NULL DEFAULT NULL,
+  `email` VARCHAR(155) NULL DEFAULT NULL,
+  `password` VARCHAR(100) NULL DEFAULT NULL,
+  `status` VARCHAR(145) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 11
+DEFAULT CHARACTER SET = utf8;
+
 
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`inside_user`
@@ -40,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`inside_user` (
   `qr_status` VARCHAR(200) NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 17
+AUTO_INCREMENT = 21
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -60,57 +78,35 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`security_guard_user` (
   `profile_picture` BLOB NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
+AUTO_INCREMENT = 3
 DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `securitysystemdatabase`.`Entry_logs`
+-- Table `securitysystemdatabase`.`entry_logs`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`Entry_logs` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `inside_user_id` INT(11) NULL,
-  `outside_user_id` INT(11) NULL,
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `inside_user_id` INT(11) NULL DEFAULT NULL,
+  `outside_user_id` INT(11) NULL DEFAULT NULL,
   `security_guard_user_id` INT(11) NOT NULL,
-  `scan_at` VARCHAR(45) NULL,
-  `scan_type` VARCHAR(50) NULL,
+  `scan_at` VARCHAR(45) NULL DEFAULT NULL,
+  `scan_type` VARCHAR(50) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_Entry_logs_inside_user_idx` (`inside_user_id` ASC),
-  INDEX `fk_Entry_logs_outside_user_idx` (`outside_user_id` ASC),
-  INDEX `fk_Entry_logs_security_guard_user1_idx` (`security_guard_user_id` ASC),
+  INDEX `fk_Entry_logs_inside_user_idx` (`inside_user_id` ASC) ,
+  INDEX `fk_Entry_logs_security_guard_user1_idx` (`security_guard_user_id` ASC) ,
   CONSTRAINT `fk_Entry_logs_inside_user`
     FOREIGN KEY (`inside_user_id`)
     REFERENCES `securitysystemdatabase`.`inside_user` (`id`)
-    ON DELETE SET NULL
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Entry_logs_outside_user`
-    FOREIGN KEY (`outside_user_id`)
-    REFERENCES `securitysystemdatabase`.`outside_user` (`id`)
-    ON DELETE SET NULL
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Entry_logs_security_guard_user1`
     FOREIGN KEY (`security_guard_user_id`)
     REFERENCES `securitysystemdatabase`.`security_guard_user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-USE `securitysystemdatabase` ;
-
--- -----------------------------------------------------
--- Table `securitysystemdatabase`.`admins`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`admins` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(150) NULL DEFAULT NULL,
-  `email` VARCHAR(155) NULL DEFAULT NULL,
-  `password` VARCHAR(100) NULL DEFAULT NULL,
-  `status` VARCHAR(145) NULL DEFAULT NULL,
-  `created_at` TIMESTAMP NULL DEFAULT NULL,
-  `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 11
+AUTO_INCREMENT = 67
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -147,77 +143,77 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`outside_user` (
   `purpose_of_visit` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 8
+AUTO_INCREMENT = 9
 DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `securitysystemdatabase`.`visit_requests`
+-- Table `securitysystemdatabase`.`notifications`
 -- -----------------------------------------------------
--- Stores visit requests from outside users (parents/guests)
-CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`visit_requests` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`notifications` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `outside_user_id` INT(11) NOT NULL,
-  `visit_date` DATE NOT NULL,
-  `visit_time` TIME NOT NULL,
-  `purpose` TEXT NULL,
-  `person_to_meet` VARCHAR(150) NULL,
-  `status` VARCHAR(50) NULL DEFAULT 'pending',
-  `admin_remarks` TEXT NULL,
-  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `type` VARCHAR(100) NOT NULL COMMENT 'e.g., visit_approved, visit_rejected',
+  `title` VARCHAR(200) NOT NULL,
+  `message` TEXT NOT NULL,
+  `is_read` TINYINT(1) NULL DEFAULT 0,
+  `related_type` VARCHAR(100) NULL DEFAULT NULL COMMENT 'e.g., visit_request',
+  `related_id` INT(11) NULL DEFAULT NULL COMMENT 'e.g., visit request ID',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
-  INDEX `fk_visit_requests_outside_user_idx` (`outside_user_id` ASC),
-  CONSTRAINT `fk_visit_requests_outside_user`
+  INDEX `fk_notifications_outside_user_idx` (`outside_user_id` ASC) ,
+  INDEX `fk_notifications_outside_user_is_read_idx` (`outside_user_id` ASC, `is_read` ASC) ,
+  CONSTRAINT `fk_notifications_outside_user`
     FOREIGN KEY (`outside_user_id`)
     REFERENCES `securitysystemdatabase`.`outside_user` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 3
 DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`shifts`
 -- -----------------------------------------------------
--- Stores scheduled shifts for security guards
 CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shifts` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `security_guard_user_id` INT(11) NOT NULL,
   `shift_date` DATE NOT NULL,
   `start_time` TIME NOT NULL,
   `end_time` TIME NOT NULL,
   `status` VARCHAR(50) NULL DEFAULT 'scheduled',
-  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
-  INDEX `fk_shifts_security_guard_user_idx` (`security_guard_user_id` ASC),
+  INDEX `fk_shifts_security_guard_user_idx` (`security_guard_user_id` ASC) ,
   CONSTRAINT `fk_shifts_security_guard_user`
     FOREIGN KEY (`security_guard_user_id`)
     REFERENCES `securitysystemdatabase`.`security_guard_user` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 57
 DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`shift_logs`
 -- -----------------------------------------------------
--- Tracks actual clock in/out times and handover notes
 CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shift_logs` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `security_guard_user_id` INT(11) NOT NULL,
-  `shift_id` INT NULL,
-  `clock_in_time` DATETIME NULL,
-  `clock_out_time` DATETIME NULL,
-  `handover_note` TEXT NULL,
+  `shift_id` INT(11) NULL DEFAULT NULL,
+  `clock_in_time` DATETIME NULL DEFAULT NULL,
+  `clock_out_time` DATETIME NULL DEFAULT NULL,
+  `handover_note` TEXT NULL DEFAULT NULL,
   `status` VARCHAR(50) NULL DEFAULT 'active',
-  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
-  INDEX `fk_shift_logs_security_guard_user_idx` (`security_guard_user_id` ASC),
-  INDEX `fk_shift_logs_shift_idx` (`shift_id` ASC),
+  INDEX `fk_shift_logs_security_guard_user_idx` (`security_guard_user_id` ASC) ,
+  INDEX `fk_shift_logs_shift_idx` (`shift_id` ASC) ,
   CONSTRAINT `fk_shift_logs_security_guard_user`
     FOREIGN KEY (`security_guard_user_id`)
     REFERENCES `securitysystemdatabase`.`security_guard_user` (`id`)
@@ -227,115 +223,36 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shift_logs` (
     REFERENCES `securitysystemdatabase`.`shifts` (`id`)
     ON DELETE SET NULL)
 ENGINE = InnoDB
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `securitysystemdatabase`.`notifications`
+-- Table `securitysystemdatabase`.`visit_requests`
 -- -----------------------------------------------------
--- Stores notifications for outside users (e.g., visit request approved/rejected)
-CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`notifications` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`visit_requests` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `outside_user_id` INT(11) NOT NULL,
-  `type` VARCHAR(100) NOT NULL COMMENT 'e.g., visit_approved, visit_rejected',
-  `title` VARCHAR(200) NOT NULL,
-  `message` TEXT NOT NULL,
-  `is_read` TINYINT(1) NULL DEFAULT 0,
-  `related_type` VARCHAR(100) NULL COMMENT 'e.g., visit_request',
-  `related_id` INT NULL COMMENT 'e.g., visit request ID',
-  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `visit_date` DATE NOT NULL,
+  `visit_time` TIME NOT NULL,
+  `purpose` TEXT NULL DEFAULT NULL,
+  `person_to_meet` VARCHAR(150) NULL DEFAULT NULL,
+  `status` VARCHAR(50) NULL DEFAULT 'pending',
+  `admin_remarks` TEXT NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
-  INDEX `fk_notifications_outside_user_idx` (`outside_user_id` ASC),
-  INDEX `fk_notifications_outside_user_is_read_idx` (`outside_user_id` ASC, `is_read` ASC),
-  CONSTRAINT `fk_notifications_outside_user`
+  INDEX `fk_visit_requests_outside_user_idx` (`outside_user_id` ASC) ,
+  CONSTRAINT `fk_visit_requests_outside_user`
     FOREIGN KEY (`outside_user_id`)
     REFERENCES `securitysystemdatabase`.`outside_user` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
-DELIMITER $$
-
--- Add fullname column to outside_user
-CREATE PROCEDURE add_outside_user_columns()
-BEGIN
-    -- Add fullname column
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'outside_user' 
-        AND COLUMN_NAME = 'fullname'
-    ) THEN
-        ALTER TABLE `outside_user` ADD COLUMN `fullname` VARCHAR(200) NULL AFTER `last_name`;
-    END IF;
-
-    -- Add qr_value column
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'outside_user' 
-        AND COLUMN_NAME = 'qr_value'
-    ) THEN
-        ALTER TABLE `outside_user` ADD COLUMN `qr_value` VARCHAR(200) NULL AFTER `updated_at`;
-    END IF;
-
-    -- Add qr_status column
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'outside_user' 
-        AND COLUMN_NAME = 'qr_status'
-    ) THEN
-        ALTER TABLE `outside_user` ADD COLUMN `qr_status` VARCHAR(200) NULL DEFAULT 'inactive' AFTER `qr_value`;
-    END IF;
-
-    -- Add purpose_of_visit column
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'outside_user' 
-        AND COLUMN_NAME = 'purpose_of_visit'
-    ) THEN
-        ALTER TABLE `outside_user` ADD COLUMN `purpose_of_visit` VARCHAR(255) NULL DEFAULT NULL AFTER `qr_status`;
-    END IF;
-
-    -- Add outside_user_id column to Entry_logs
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'Entry_logs' 
-        AND COLUMN_NAME = 'outside_user_id'
-    ) THEN
-        ALTER TABLE `Entry_logs` ADD COLUMN `outside_user_id` INT(11) NULL AFTER `inside_user_id`;
-    END IF;
-END$$
-
-DELIMITER ;
-
--- Execute the procedure
-CALL add_outside_user_columns();
-
--- Drop the procedure after execution
-DROP PROCEDURE IF EXISTS add_outside_user_columns;
-
--- Update existing outside_user records with fullname
-SET SQL_SAFE_UPDATES = 0;
-UPDATE `outside_user`
-SET `fullname` = CONCAT(`first_name`, ' ', `last_name`)
-WHERE `fullname` IS NULL OR `fullname` = '';
-SET SQL_SAFE_UPDATES = 1;
-
--- Modify inside_user_id to be nullable (if not already)
-ALTER TABLE `Entry_logs`
-MODIFY COLUMN `inside_user_id` INT(11) NULL;
-
--- Modify scan_type to be VARCHAR (if not already)
-ALTER TABLE `Entry_logs`
-MODIFY COLUMN `scan_type` VARCHAR(50) NULL;
