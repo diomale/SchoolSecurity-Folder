@@ -4,11 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visitor Dashboard - School Security</title>
+    <style>
+        .notification-badge {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .notification-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .notification-item.unread {
+            background-color: #e7f3ff;
+            border-left: 3px solid #007bff;
+        }
+        .notification-item.read {
+            background-color: #f9f9f9;
+            border-left: 3px solid #ccc;
+        }
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .notification-message {
+            color: #666;
+            font-size: 14px;
+        }
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        .btn-mark-read {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <div>
-        <h1>Welcome, {{ auth('outsideuser')->user()->fullname }}</h1>
-        
+        <div>
+            <h1>Welcome, {{ auth('outsideuser')->user()->fullname }}</h1>
+            <a href="{{ route('outsideuser.profile.show') }}"> My Profile</a>
+            <a href="{{ route('outsideuser.notifications') }}">
+                Notifications
+                @if($unreadNotificationsCount > 0)
+                    <span class="notification-badge">{{ $unreadNotificationsCount }}</span>
+                @endif
+            </a>
+        </div>
+
         @if(session('success'))
         <div>
             {{ session('success') }}
@@ -21,34 +70,40 @@
         </div>
         @endif
 
-        <!-- Account Status -->
+        @if($notifications->count() > 0)
         <div>
-            <h2>Account Status</h2>
-            <p><strong>Email:</strong> {{ auth('outsideuser')->user()->email }}</p>
-            <p><strong>Phone:</strong> {{ auth('outsideuser')->user()->phone_number }}</p>
-            <p><strong>QR Code:</strong> {{ auth('outsideuser')->user()->qr_value }}</p>
-            <p><strong>QR Status:</strong> 
-                @if(auth('outsideuser')->user()->qr_status === 'active')
-                    <span>Active ✓</span>
-                @else
-                    <span>Inactive ✗</span>
+            <h2>Recent Notifications</h2>
+            @foreach($notifications as $notification)
+            <div class="notification-item {{ $notification->is_read ? 'read' : 'unread' }}">
+                <div class="notification-title">
+                    @if($notification->type === 'visit_approved')
+                        ✓ {{ $notification->title }}
+                    @elseif($notification->type === 'visit_rejected')
+                        ✗ {{ $notification->title }}
+                    @else
+                        {{ $notification->title }}
+                    @endif
+                    @if(!$notification->is_read)
+                        <span class="notification-badge">New</span>
+                    @endif
+                </div>
+                <div class="notification-message">{{ $notification->message }}</div>
+                <div class="notification-time">{{ $notification->created_at->format('M d, Y h:i A') }}</div>
+                @if(!$notification->is_read)
+                <form action="{{ route('outsideuser.notifications.read', $notification->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn-mark-read">Mark as Read</button>
+                </form>
                 @endif
-            </p>
-            <p><strong>Account Status:</strong> 
-                @if(auth('outsideuser')->user()->status == 1)
-                    <span>Approved ✓</span>
-                @elseif(auth('outsideuser')->user()->status == 2)
-                    <span>Rejected ✗</span>
-                @else
-                    <span>Pending ⏳</span>
-                @endif
-            </p>
+            </div>
+            @endforeach
+            <p><a href="{{ route('outsideuser.notifications') }}">View All Notifications</a></p>
         </div>
+        @endif
 
-        <!-- Quick Actions -->
         <div>
             <h2>Quick Actions</h2>
-            
+
             @if(auth('outsideuser')->user()->status == 1)
                 <div>
                     <h3>Request a Visit</h3>
@@ -57,84 +112,18 @@
                 </div>
 
                 <div>
-                    <h3>My QR Code Pass</h3>
-                    <p>Present this QR code to the guard at the entrance.</p>
-                    <div style="margin-top: 15px; margin-bottom: 20px; padding: 20px; background: white; border: 2px solid #333; border-radius: 12px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
-                        @if(auth('outsideuser')->user()->qr_value)
-                            <div style="background: white; padding: 10px; border-radius: 4px;">
-                                {!! QrCode::size(250)->margin(1)->generate(auth('outsideuser')->user()->qr_value) !!}
-                            </div>
-                            <div style="margin-top: 15px;">
-                                <span style="font-family: monospace; font-size: 1.2rem; font-weight: bold; background: #f0f0f0; padding: 5px 10px; border-radius: 4px;">
-                                    {{ auth('outsideuser')->user()->qr_value }}
-                                </span>
-                            </div>
-                            <p style="margin-top: 10px; font-weight: bold;">
-                                Status: 
-                                @if(auth('outsideuser')->user()->qr_status === 'active')
-                                    <span style="color: #28a745;">● ACTIVE (You can visit)</span>
-                                @else
-                                    <span style="color: #dc3545;">● INACTIVE (Visit request needed)</span>
-                                @endif
-                            </p>
-                        @else
-                            <p>Loading your pass...</p>
-                        @endif
-                    </div>
+                    <h3>Visit History</h3>
+                    <p>View your past and upcoming visit requests</p>
+                    <a href="{{ route('outsideuser.visit.history') }}">View Visit History</a>
                 </div>
+
             @else
                 <div>
                     <p>Your account is pending admin approval. Please wait for approval before requesting visits.</p>
                 </div>
             @endif
-
-            <div>
-                <h3>Visit History</h3>
-                <p>View your past and upcoming visit requests</p>
-                <a href="{{ route('outsideuser.visit.history') }}">View Visit History</a>
-            </div>
         </div>
 
-        <!-- Recent Visit Requests -->
-        <div>
-            <h2>Recent Visit Requests</h2>
-            @if($visitRequests->count() > 0)
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Purpose</th>
-                        <th>Person to Meet</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($visitRequests as $request)
-                    <tr>
-                        <td>{{ $request->visit_date->format('M d, Y') }}</td>
-                        <td>{{ $request->visit_time->format('h:i A') }}</td>
-                        <td>{{ $request->purpose }}</td>
-                        <td>{{ $request->person_to_meet }}</td>
-                        <td>
-                            @if($request->status === 'approved')
-                                Approved ✓
-                            @elseif($request->status === 'rejected')
-                                Rejected ✗
-                            @else
-                                Pending ⏳
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @else
-            <p>No visit requests yet.</p>
-            @endif
-        </div>
-
-        <!-- Logout -->
         <div>
             <form method="POST" action="{{ route('outsideuser.logout') }}">
                 @csrf
