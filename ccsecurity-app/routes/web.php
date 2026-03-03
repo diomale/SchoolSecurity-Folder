@@ -49,6 +49,7 @@ Route::prefix('admin')->group(function () {
     Route::middleware('auth:admin')->group(function(){
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+        Route::get('/profile', [AdminController::class, 'showProfile'])->name('admin.profile.show');
 
         //crud for security
         Route::get('/security/user/table',[AdminController::class, 'showSecurityUserCrud'])->name('security.user.table.section');

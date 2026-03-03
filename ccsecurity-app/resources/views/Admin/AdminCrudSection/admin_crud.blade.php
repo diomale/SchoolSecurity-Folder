@@ -1,6 +1,14 @@
 <div>
     <h1>Add Inside User</h1>
 
+    <!-- QR Status Management Card -->
+    <div>
+        <a href="{{ route('admin.qr.status.management') }}">
+            <h3>QR Status Management</h3>
+            
+        </a>
+    </div>
+
     <a href="{{ route('admin.add.user') }}">Add+</a>
     @if ($errors->any())
         <div style="color: red;">
