@@ -168,16 +168,21 @@ Route::prefix('outsideuser')->group(function(){
     Route::middleware('auth:outsideuser')->group(function(){
         Route::get('/dashboard', [OutsideUserController::class, 'dashboard'])->name('outsider.dashboard');
         Route::post('/logout', [OutsideUserController::class, 'logout'])->name('outsideuser.logout');
-        
+
         // Visit Request routes
         Route::get('/visit-request', [OutsideUserController::class, 'showVisitRequest'])->name('outsideuser.visit.request');
         Route::post('/visit-request', [OutsideUserController::class, 'submitVisitRequest'])->name('outsideuser.visit.submit');
         Route::get('/visit-history', [OutsideUserController::class, 'visitHistory'])->name('outsideuser.visit.history');
         Route::get('/reactivate-qr', [OutsideUserController::class, 'reactivateQR'])->name('outsideuser.reactivate.qr');
-        
+
         // Profile routes
         Route::get('/profile', [OutsideUserController::class, 'showProfile'])->name('outsideuser.profile.show');
         Route::post('/profile/update', [OutsideUserController::class, 'updateProfile'])->name('outsideuser.profile.update');
+
+        // Notification routes
+        Route::get('/notifications', [OutsideUserController::class, 'notifications'])->name('outsideuser.notifications');
+        Route::post('/notifications/{id}/read', [OutsideUserController::class, 'markNotificationAsRead'])->name('outsideuser.notifications.read');
+        Route::post('/notifications/read-all', [OutsideUserController::class, 'markAllNotificationsAsRead'])->name('outsideuser.notifications.read-all');
     });
 
 });

@@ -230,6 +230,33 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
 
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`notifications`
+-- -----------------------------------------------------
+-- Stores notifications for outside users (e.g., visit request approved/rejected)
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`notifications` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `outside_user_id` INT(11) NOT NULL,
+  `type` VARCHAR(100) NOT NULL COMMENT 'e.g., visit_approved, visit_rejected',
+  `title` VARCHAR(200) NOT NULL,
+  `message` TEXT NOT NULL,
+  `is_read` TINYINT(1) NULL DEFAULT 0,
+  `related_type` VARCHAR(100) NULL COMMENT 'e.g., visit_request',
+  `related_id` INT NULL COMMENT 'e.g., visit request ID',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_notifications_outside_user_idx` (`outside_user_id` ASC),
+  INDEX `fk_notifications_outside_user_is_read_idx` (`outside_user_id` ASC, `is_read` ASC),
+  CONSTRAINT `fk_notifications_outside_user`
+    FOREIGN KEY (`outside_user_id`)
+    REFERENCES `securitysystemdatabase`.`outside_user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

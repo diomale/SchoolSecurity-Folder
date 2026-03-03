@@ -10,6 +10,7 @@ use App\Models\InsideUser;
 use App\Models\OutsideUser;
 use App\Models\Shift;
 use App\Models\VisitRequest;
+use App\Models\Notification;
 use Carbon\Carbon;
 
 
@@ -435,7 +436,7 @@ class AdminController extends Controller
     public function approveVisitRequest($id)
     {
         $visitRequest = VisitRequest::findOrFail($id);
-        
+
         $visitRequest->update([
             'status' => 'approved',
             'admin_remarks' => 'Approved by admin',
@@ -448,16 +449,40 @@ class AdminController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Create notification for the outside user
+        Notification::create([
+            'outside_user_id' => $visitRequest->outside_user_id,
+            'type' => 'visit_approved',
+            'title' => 'Visit Request Approved',
+            'message' => "Your visit request for {$visitRequest->visit_date->format('M d, Y')} at {$visitRequest->visit_time->format('h:i A')} has been approved. Your QR code is now active.",
+            'related_type' => 'visit_request',
+            'related_id' => $visitRequest->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         return redirect()->back()->with('success', 'Visit request approved and QR code activated!');
     }
 
     public function rejectVisitRequest($id)
     {
         $visitRequest = VisitRequest::findOrFail($id);
-        
+
         $visitRequest->update([
             'status' => 'rejected',
             'admin_remarks' => 'Request rejected by admin',
+        ]);
+
+        // Create notification for the outside user
+        Notification::create([
+            'outside_user_id' => $visitRequest->outside_user_id,
+            'type' => 'visit_rejected',
+            'title' => 'Visit Request Rejected',
+            'message' => "Your visit request for {$visitRequest->visit_date->format('M d, Y')} at {$visitRequest->visit_time->format('h:i A')} has been rejected. Remarks: {$visitRequest->admin_remarks}",
+            'related_type' => 'visit_request',
+            'related_id' => $visitRequest->id,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return redirect()->back()->with('success', 'Visit request rejected.');
