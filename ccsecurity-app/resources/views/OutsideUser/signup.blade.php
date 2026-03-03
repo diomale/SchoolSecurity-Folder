@@ -1,77 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign Up - Outside User</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Registration - School Security</title>
+    
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        // 2. The callback function called by the button
+        function onSubmit(token) {
+            document.getElementById("signup-form").submit();
+        }
+    </script>
 </head>
-
 <body>
+    <div>
+        <h1>Visitor Registration (Parents/Guests)</h1>
+        
+        @if(session('success'))
+            <div style="color: green;">{{ session('success') }}</div>
+        @endif
 
-<div class="signup-container">
+        @if ($errors->any())
+            <div style="color: red;">
+                <strong>Please fix the errors:</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-<h2>Create Account</h2>
-<p>Please fill in the details below to request access.</p>
+        <form action="{{ route('outsideuser.signup.request') }}" method="POST" id="signup-form">
+            @csrf
 
-@if ($errors->any())
-<div>
-    <strong>Please fix the following errors:</strong>
-    <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
+            <div>
+                <label>First Name</label>
+                <input type="text" name="first_name" value="{{ old('first_name') }}" required>
+            </div>
 
-<form action="{{ route('outsideuser.signup.request') }}" method="POST" id="signup-form">
-@csrf
+            <div>
+                <label>Last Name</label>
+                <input type="text" name="last_name" value="{{ old('last_name') }}" required>
+            </div>
 
-<label>First Name</label>
-<input type="text" name="first_name" value="{{ old('first_name') }}" required>
+            <div>
+                <label>Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" required>
+            </div>
 
-<label>Last Name</label>
-<input type="text" name="last_name" value="{{ old('last_name') }}" required>
+            <div>
+                <label>Phone Number</label>
+                <input type="text" name="phone_number" value="{{ old('phone_number') }}" required>
+            </div>
 
-<label>Email</label>
-<input type="email" name="email" value="{{ old('email') }}" required>
+            <div>
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
 
-<label>Phone Number</label>
-<input type="text" name="phone_number" value="{{ old('phone_number') }}" required>
+            <div>
+                <label>Confirm Password *</label>
+                <input type="password" name="password_confirmation" required>
+            </div>
 
-<label>Password</label>
-<input type="password" name="password" required>
-
-<label>Confirm Password</label>
-<input type="password" name="password_confirmation" required>
-
-<br><br>
-
-<button
-    class="g-recaptcha"
-    data-sitekey="{{ config('services.recaptcha.site_key') }}"
-    data-callback="onSubmit"
-    data-action="submit">
-    Register Account
-</button>
-
-@error('captcha')
-<p>{{ $message }}</p>
-@enderror
-
-</form>
-
-</div>
-
-    <a href="{{ route('welcome') }}">Back</a>
-
-<script>
-function onSubmit(token) {
-    document.getElementById("signup-form").submit();
-}
-</script>
-
+            <button class="g-recaptcha" 
+                    data-sitekey="{{ config('services.recaptcha.site_key') }}" 
+                    data-callback='onSubmit' 
+                    data-action='submit'>
+                Submit Registration
+            </button>
+        </form>
+    </div>
 </body>
 </html>
