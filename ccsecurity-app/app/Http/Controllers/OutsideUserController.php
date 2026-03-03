@@ -40,8 +40,9 @@ class OutsideUserController extends Controller
             ->where('is_read', false)
             ->count();
 
-        // Get recent notifications
+        // Get recent unread notifications only (hide read notifications)
         $notifications = Notification::where('outside_user_id', $outsideUser->id)
+            ->where('is_read', false)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
