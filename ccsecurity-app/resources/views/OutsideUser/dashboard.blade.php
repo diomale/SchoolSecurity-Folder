@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visitor Dashboard - School Security</title>
     <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button.active { font-weight: bold; text-decoration: underline; }
         .notification-badge {
             background-color: #dc3545;
             color: white;
@@ -13,95 +16,106 @@
             font-size: 12px;
             margin-left: 5px;
         }
-        .notification-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .notification-item.unread {
-            background-color: #e7f3ff;
-            border-left: 3px solid #007bff;
-        }
-        .notification-item.read {
-            background-color: #f9f9f9;
-            border-left: 3px solid #ccc;
-        }
-        .notification-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .notification-message {
-            color: #666;
-            font-size: 14px;
-        }
-        .notification-time {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
-        .btn-mark-read {
-            padding: 5px 10px;
-            font-size: 12px;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
     <div>
+        <!-- Header -->
         <div>
             <h1>Welcome, {{ auth('outsideuser')->user()->fullname }}</h1>
-            <a href="{{ route('outsideuser.profile.show') }}"> My Profile</a>
-            <a href="{{ route('outsideuser.notifications') }}">
-                Notifications
-                @if($unreadNotificationsCount > 0)
-                    <span class="notification-badge">{{ $unreadNotificationsCount }}</span>
-                @endif
-            </a>
+            <div>
+                <a href="{{ route('outsideuser.notifications') }}">
+                    Notifications
+                    @if($unreadNotificationsCount > 0)
+                        <span class="notification-badge">{{ $unreadNotificationsCount }}</span>
+                    @endif
+                </a> |
+                <form method="POST" action="{{ route('outsideuser.logout') }}" style="display:inline;">
+                    @csrf
+                    <button type="submit">Logout</button>
+                </form>
+            </div>
         </div>
 
         @if(session('success'))
         <div>
-            {{ session('success') }}
+            <strong>Success:</strong> {{ session('success') }}
         </div>
         @endif
 
         @if(session('error'))
         <div>
-            {{ session('error') }}
+            <strong>Error:</strong> {{ session('error') }}
         </div>
         @endif
 
-        @if($notifications->count() > 0)
+        <!-- Tab Navigation -->
         <div>
-            <h2>Recent Notifications</h2>
-            @foreach($notifications as $notification)
-            <div class="notification-item {{ $notification->is_read ? 'read' : 'unread' }}">
-                <div class="notification-title">
-                    @if($notification->type === 'visit_approved')
-                        ✓ {{ $notification->title }}
-                    @elseif($notification->type === 'visit_rejected')
-                        ✗ {{ $notification->title }}
+            <button class="tab-button active" onclick="switchTab('profile')">User Profile</button>
+            <button class="tab-button" onclick="switchTab('quick-actions')">Quick Actions</button>
+            <button class="tab-button" onclick="switchTab('visit-history')">Visit History</button>
+        </div>
+
+        <hr>
+
+        <!-- User Profile Tab -->
+        <div id="profile" class="tab-content active">
+            <h2>User Profile</h2>
+            
+            <div>
+                <h3>Profile Information</h3>
+                <p><strong>Name:</strong> {{ auth('outsideuser')->user()->fullname }}</p>
+                <p><strong>Email:</strong> {{ auth('outsideuser')->user()->email }}</p>
+                <p><strong>Phone:</strong> {{ auth('outsideuser')->user()->phone_number }}</p>
+                <p>
+                    <strong>Account Status:</strong>
+                    @if(auth('outsideuser')->user()->status == 1)
+                        ✓ Approved
+                    @elseif(auth('outsideuser')->user()->status == 2)
+                        ✗ Rejected
                     @else
-                        {{ $notification->title }}
+                         Pending Approval
                     @endif
-                    @if(!$notification->is_read)
-                        <span class="notification-badge">New</span>
+                </p>
+                <p>
+                    <strong>QR Status:</strong>
+                    @if(auth('outsideuser')->user()->qr_status === 'active')
+                        ● ACTIVE
+                    @else
+                        ● INACTIVE
                     @endif
-                </div>
-                <div class="notification-message">{{ $notification->message }}</div>
-                <div class="notification-time">{{ $notification->created_at->format('M d, Y h:i A') }}</div>
-                @if(!$notification->is_read)
-                <form action="{{ route('outsideuser.notifications.read', $notification->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="btn-mark-read">Mark as Read</button>
-                </form>
+                </p>
+                <a href="{{ route('outsideuser.profile.show') }}">Edit Profile</a>
+            </div>
+
+            <div>
+                <h3>My QR Code Pass</h3>
+                @if(auth('outsideuser')->user()->qr_value)
+                    <div>
+                        {!! QrCode::size(200)->margin(1)->generate(auth('outsideuser')->user()->qr_value) !!}
+                    </div>
+                    <p><strong>QR Value:</strong> {{ auth('outsideuser')->user()->qr_value }}</p>
+                    <p>
+                        <em>Present this QR code to the guard at the entrance.</em>
+                    </p>
+                @else
+                    <p>No QR code generated yet.</p>
                 @endif
             </div>
-            @endforeach
-            <p><a href="{{ route('outsideuser.notifications') }}">View All Notifications</a></p>
-        </div>
-        @endif
 
-        <div>
+            <div>
+                <h3>Statistics</h3>
+                <ul>
+                    <li><strong>Total Requests:</strong> {{ $visitRequests->count() }}</li>
+                    <li><strong>Approved:</strong> {{ $visitRequests->where('status', 'approved')->count() }}</li>
+                    <li><strong>Pending:</strong> {{ $visitRequests->where('status', 'pending')->count() }}</li>
+                    <li><strong>Rejected:</strong> {{ $visitRequests->where('status', 'rejected')->count() }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Quick Actions Tab -->
+        <div id="quick-actions" class="tab-content">
             <h2>Quick Actions</h2>
 
             @if(auth('outsideuser')->user()->status == 1)
@@ -111,25 +125,135 @@
                     <a href="{{ route('outsideuser.visit.request') }}">Request Visit</a>
                 </div>
 
+                <hr>
+
                 <div>
-                    <h3>Visit History</h3>
+                    <h3>View Visit History</h3>
                     <p>View your past and upcoming visit requests</p>
-                    <a href="{{ route('outsideuser.visit.history') }}">View Visit History</a>
+                    <a href="{{ route('outsideuser.visit.history') }}">View History</a>
                 </div>
 
+                @if(auth('outsideuser')->user()->qr_status === 'active')
+                <hr>
+                <div>
+                    <h3>Request Another Visit</h3>
+                    <p>Your QR is currently active. Request a new visit to extend access.</p>
+                    <a href="{{ route('outsideuser.reactivate.qr') }}">Request Another Visit</a>
+                </div>
+                @endif
             @else
                 <div>
-                    <p>Your account is pending admin approval. Please wait for approval before requesting visits.</p>
+                    <p><strong>⚠ Your account is pending admin approval.</strong></p>
+                    <p>Please wait for approval before requesting visits.</p>
                 </div>
             @endif
         </div>
 
-        <div>
-            <form method="POST" action="{{ route('outsideuser.logout') }}">
-                @csrf
-                <button type="submit">Logout</button>
-            </form>
+        <!-- Visit History Tab -->
+        <div id="visit-history" class="tab-content">
+            <h2>Visit History</h2>
+
+            @if($visitRequests->count() > 0)
+            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Visit Date</th>
+                        <th>Time</th>
+                        <th>Purpose</th>
+                        <th>Person to Meet</th>
+                        <th>Status</th>
+                        <th>Admin Remarks</th>
+                        <th>Requested On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($visitRequests as $request)
+                    <tr>
+                        <td>{{ $request->visit_date->format('M d, Y') }}</td>
+                        <td>{{ $request->visit_time->format('h:i A') }}</td>
+                        <td>{{ $request->purpose }}</td>
+                        <td>{{ $request->person_to_meet }}</td>
+                        <td>
+                            @if($request->status === 'approved')
+                                ✓ Approved
+                            @elseif($request->status === 'rejected')
+                                ✗ Rejected
+                            @else
+                                 Pending
+                            @endif
+                        </td>
+                        <td>
+                            @if($request->admin_remarks)
+                                {{ $request->admin_remarks }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @else
+            <p>No visit requests found.</p>
+            <a href="{{ route('outsideuser.visit.request') }}">Request a Visit</a>
+            @endif
         </div>
+
+        <!-- Notifications Section -->
+        @if($notifications->count() > 0)
+        <hr>
+        <div>
+            <h2>Recent Notifications</h2>
+            @foreach($notifications as $notification)
+            <div>
+                <strong>
+                    @if($notification->type === 'visit_approved')
+                        ✓
+                    @elseif($notification->type === 'visit_rejected')
+                        ✗
+                    @endif
+                    {{ $notification->title }}
+                    @if(!$notification->is_read)
+                        <span class="notification-badge">New</span>
+                    @endif
+                </strong>
+                <p>{{ $notification->message }}</p>
+                <small>{{ $notification->created_at->format('M d, Y h:i A') }}</small>
+                @if(!$notification->is_read)
+                <form action="{{ route('outsideuser.notifications.read', $notification->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit">Mark as Read</button>
+                </form>
+                @endif
+                <hr>
+            </div>
+            @endforeach
+            <p><a href="{{ route('outsideuser.notifications') }}">View All Notifications</a></p>
+        </div>
+        @endif
     </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            var contents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].classList.remove('active');
+            }
+
+            // Remove active class from all buttons
+            var buttons = document.getElementsByClassName('tab-button');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
 </html>
