@@ -16,18 +16,28 @@ use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    //Dashboard
+    // =========================================================================
+    // DASHBOARD & PROFILE
+    // =========================================================================
+
     public function dashboard(){
         return view('admin.dashboard');
     }
 
-    //approved the outsider user
+    public function showProfile()
+    {
+        return view('Admin.user_profile');
+    }
+
+
+    // =========================================================================
+    // OUTSIDE USER APPROVAL WORKFLOW
+    // =========================================================================
 
     public function ShowOutsiderList()
     {
         $outside_users = OutsideUser::all();
         return view('Admin.AdminWaitingList.outside_user_list', compact('outside_users'));
-
     }
 
 
@@ -35,7 +45,6 @@ class AdminController extends Controller
     {
         $outside_user = OutsideUser::findOrFail($id);
 
-        
         if ($outside_user->status === OutsideUser::STATUS_APPROVED) {
             return redirect()->back()->with('info', 'This user is already approved.');
         }
@@ -54,7 +63,6 @@ class AdminController extends Controller
     {
         $outside_user = OutsideUser::findOrFail($id);
 
-        
         if ($outside_user->status === OutsideUser::STATUS_REJECTED) {
             return redirect()->back()->with('info', 'This user is already rejected.');
         }
@@ -69,7 +77,11 @@ class AdminController extends Controller
             ->with('success', "User {$outside_user->first_name} rejected successfully!");
     }
 
-    //Crud for Security Guard
+
+    // =========================================================================
+    // SECURITY GUARD MANAGEMENT (CRUD)
+    // =========================================================================
+
     public function showSecurityUserCrud()
     {
         $security_guard_users = securityguard::all();
@@ -103,61 +115,6 @@ class AdminController extends Controller
 
         return redirect()->route('security.user.table.section')
             ->with('success', 'New user created successfully!');
-    }
-
-    //QR Status Management
-    public function showQrStatusManagement(Request $request)
-    {
-        $query = InsideUser::query();
-        
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('fullname', 'LIKE', "%{$search}%")
-                  ->orWhere('first_name', 'LIKE', "%{$search}%")
-                  ->orWhere('last_name', 'LIKE', "%{$search}%")
-                  ->orWhere('id', 'LIKE', "%{$search}%")
-                  ->orWhere('qr_value', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%");
-            });
-        }
-        
-        $inside_users = $query->orderBy('id', 'desc')->paginate(15);
-        
-        return view('Admin.QrStatusManagement.qr_status_management', compact('inside_users'));
-    }
-
-    public function toggleQrStatus($id)
-    {
-        $inside_user = InsideUser::findOrFail($id);
-        
-        // Toggle between 'active' and 'inactive' (case-insensitive)
-        $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
-        
-        $inside_user->update([
-            'qr_status' => $newStatus,
-            'updated_at' => now(),
-        ]);
-        
-        return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
-    }
-
-    public function bulkToggleQrStatus(Request $request)
-    {
-        $request->validate([
-            'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:inside_user,id'
-        ]);
-        
-        $newStatus = $request->new_status ?? 'inactive';
-        
-        InsideUser::whereIn('id', $request->user_ids)->update([
-            'qr_status' => $newStatus,
-            'updated_at' => now(),
-        ]);
-        
-        return redirect()->back()->with('success', "QR status updated for " . count($request->user_ids) . " users!");
     }
 
     public function showSecurityUserDetail($id)
@@ -207,8 +164,68 @@ class AdminController extends Controller
         return redirect()->route('security.user.table.section')->with('Success', 'Deleted Successfully');
     }
 
-   
-    //Create, Read, Update, Delete for inside user
+
+    // =========================================================================
+    // QR CODE STATUS MANAGEMENT
+    // =========================================================================
+
+    public function showQrStatusManagement(Request $request)
+    {
+        $query = InsideUser::query();
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('fullname', 'LIKE', "%{$search}%")
+                  ->orWhere('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('id', 'LIKE', "%{$search}%")
+                  ->orWhere('qr_value', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $inside_users = $query->orderBy('id', 'desc')->paginate(15);
+        
+        return view('Admin.QrStatusManagement.qr_status_management', compact('inside_users'));
+    }
+
+    public function toggleQrStatus($id)
+    {
+        $inside_user = InsideUser::findOrFail($id);
+        
+        $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
+        
+        $inside_user->update([
+            'qr_status' => $newStatus,
+            'updated_at' => now(),
+        ]);
+        
+        return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
+    }
+
+    public function bulkToggleQrStatus(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:inside_user,id'
+        ]);
+        
+        $newStatus = $request->new_status ?? 'inactive';
+        
+        InsideUser::whereIn('id', $request->user_ids)->update([
+            'qr_status' => $newStatus,
+            'updated_at' => now(),
+        ]);
+        
+        return redirect()->back()->with('success', "QR status updated for " . count($request->user_ids) . " users!");
+    }
+
+
+    // =========================================================================
+    // INSIDE USER MANAGEMENT (CRUD)
+    // =========================================================================
+
     public function showCrudSection()
     {
         $inside_users = InsideUser::all();
@@ -297,9 +314,10 @@ class AdminController extends Controller
     }
 
 
+    // =========================================================================
+    // AUTHENTICATION (LOGIN/LOGOUT)
+    // =========================================================================
 
-
-    // Login, Logout
     public function showAdminLogin()
     {
         return view('Admin.login');
@@ -331,7 +349,11 @@ class AdminController extends Controller
         return redirect()->route('admin.login');
     }
 
-    // Shift Management for Admin
+
+    // =========================================================================
+    // SHIFT MANAGEMENT
+    // =========================================================================
+
     public function showShiftManagement()
     {
         $securityGuards = securityguard::where('status', 1)->get();
@@ -366,7 +388,6 @@ class AdminController extends Controller
         ]);
 
         if ($request->recurring_type === 'single') {
-            // Single day shift
             Shift::create([
                 'security_guard_user_id' => $request->security_guard_user_id,
                 'shift_date' => $request->shift_date,
@@ -375,16 +396,14 @@ class AdminController extends Controller
                 'status' => 'scheduled',
             ]);
         } else {
-            // Recurring shifts
             $startDate = $request->shift_date ? Carbon::parse($request->shift_date) : Carbon::today();
             $endDate = Carbon::parse($request->recurring_end_date);
-            $recurringDays = $request->recurring_days; // Array of days (0=Sunday, 1=Monday, etc.)
+            $recurringDays = $request->recurring_days; 
             
             $currentDate = clone $startDate;
             $shiftsCreated = 0;
 
             while ($currentDate <= $endDate) {
-                // Check if current day of week matches any selected recurring day
                 if (in_array($currentDate->dayOfWeek, $recurringDays)) {
                     Shift::create([
                         'security_guard_user_id' => $request->security_guard_user_id,
@@ -423,7 +442,11 @@ class AdminController extends Controller
         return view('Admin.ShiftManagement.guard_shifts', compact('guard', 'shifts'));
     }
 
-    // Visit Requests Management
+
+    // =========================================================================
+    // VISIT REQUESTS MANAGEMENT
+    // =========================================================================
+
     public function showVisitRequests()
     {
         $visitRequests = VisitRequest::with('outsideUser')
@@ -442,14 +465,12 @@ class AdminController extends Controller
             'admin_remarks' => 'Approved by admin',
         ]);
 
-        // Activate the user's QR code and approve account
         $visitRequest->outsideUser->update([
             'qr_status' => 'active',
             'status' => OutsideUser::STATUS_APPROVED,
             'updated_at' => now(),
         ]);
 
-        // Create notification for the outside user
         Notification::create([
             'outside_user_id' => $visitRequest->outside_user_id,
             'type' => 'visit_approved',
@@ -473,7 +494,6 @@ class AdminController extends Controller
             'admin_remarks' => 'Request rejected by admin',
         ]);
 
-        // Create notification for the outside user
         Notification::create([
             'outside_user_id' => $visitRequest->outside_user_id,
             'type' => 'visit_rejected',
@@ -488,4 +508,4 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Visit request rejected.');
     }
 
-}
+}  

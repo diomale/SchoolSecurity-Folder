@@ -10,28 +10,15 @@
         <!-- Header -->
         <div>
             <h1>Admin Dashboard</h1>
-            <div>
-                <span>Welcome, {{ auth('admin')->user()->name }}</span>
-                <form method="POST" action="{{ route('admin.logout') }}">
-                    @csrf
-                    <button type="submit">Logout</button>
-                </form>
-            </div>
+            <a href="{{ route('admin.profile.show') }}">{{ auth('admin')->user()->name }}</a>
         </div>
+        <hr>
 
         <!-- Main Content -->
         <div>
             <h2>Management Sections</h2>
             
             <div>
-                <!-- QR Status Management Card -->
-                <div>
-                    <a href="{{ route('admin.qr.status.management') }}">
-                        <h3>QR Status Management</h3>
-                        
-                    </a>
-                </div>
-
                 <!-- Inside User CRUD Card -->
                 <div>
                     <a href="{{ route('admin.show.crudSection') }}">
