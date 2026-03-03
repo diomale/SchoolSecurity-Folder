@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\DeleteOldNotifications::class,
+        Commands\DeleteOldVisitRequests::class,
     ];
 
     /**

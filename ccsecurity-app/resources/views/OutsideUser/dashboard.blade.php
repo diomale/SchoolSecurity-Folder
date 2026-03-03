@@ -85,6 +85,11 @@
                         ● INACTIVE
                     @endif
                 </p>
+                <div>
+                    <h3>Request a Visit</h3>
+                    <p>Submit a visit request to activate your QR code</p>
+                    <a href="{{ route('outsideuser.visit.request') }}">Request Visit</a>
+                </div>
                 <a href="{{ route('outsideuser.profile.show') }}">Edit Profile</a>
             </div>
 
