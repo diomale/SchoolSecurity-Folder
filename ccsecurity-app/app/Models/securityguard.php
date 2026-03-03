@@ -12,6 +12,7 @@ class securityguard extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
+        'fullname',
         'first_name',
         'last_name',
         'email',
@@ -72,5 +73,13 @@ class securityguard extends Authenticatable
     public function isOnShift()
     {
         return $this->currentShiftLog()->exists();
+    }
+
+    /**
+     * Get all entry logs scanned by this guard (for notifications)
+     */
+    public function allEntryLogs()
+    {
+        return $this->hasMany(EntryLog::class, 'security_guard_user_id');
     }
 }

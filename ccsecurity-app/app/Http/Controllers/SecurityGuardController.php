@@ -17,7 +17,41 @@ class SecurityGuardController extends Controller
     //show
     public function dashboard()
     {
-        return view('SecurityGuardUser.dashboard');
+        $guard = Auth::guard('securityguard')->user();
+
+        // Get recent QR status change activities from ALL guards (shared notifications)
+        $recentActivities = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser'])
+            ->whereNotNull('security_guard_user_id')
+            ->orderBy('id', 'desc')
+            ->limit(20)
+            ->get();
+
+        // Get statistics for current guard
+        $totalScans = EntryLog::where('security_guard_user_id', $guard->id)->count();
+        $todayScans = EntryLog::where('security_guard_user_id', $guard->id)
+            ->whereDate('scan_at', today())
+            ->count();
+        $todayEntries = EntryLog::where('security_guard_user_id', $guard->id)
+            ->where('scan_type', 'entry')
+            ->whereDate('scan_at', today())
+            ->count();
+        $todayExits = EntryLog::where('security_guard_user_id', $guard->id)
+            ->where('scan_type', 'exit')
+            ->whereDate('scan_at', today())
+            ->count();
+
+        // Get total guards count
+        $totalGuards = securityguard::count();
+
+        return view('SecurityGuardUser.dashboard', compact(
+            'guard',
+            'recentActivities',
+            'totalScans',
+            'todayScans',
+            'todayEntries',
+            'todayExits',
+            'totalGuards'
+        ));
     }
 
     public function showLogin()
@@ -33,12 +67,11 @@ class SecurityGuardController extends Controller
     //QR Status Management for Security Guard
     public function showQrStatusManagement(Request $request)
     {
-        $query = InsideUser::query();
-        
-        // Search functionality
+        // Search for inside users
+        $insideQuery = InsideUser::query();
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $insideQuery->where(function($q) use ($search) {
                 $q->where('fullname', 'LIKE', "%{$search}%")
                   ->orWhere('first_name', 'LIKE', "%{$search}%")
                   ->orWhere('last_name', 'LIKE', "%{$search}%")
@@ -47,25 +80,74 @@ class SecurityGuardController extends Controller
                   ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
-        
-        $inside_users = $query->orderBy('id', 'desc')->paginate(15);
-        
-        return view('SecurityGuardUser.QrStatusManagement.qr_status_management', compact('inside_users'));
+        $inside_users = $insideQuery->orderBy('id', 'desc')->paginate(15);
+
+        // Search for outside users
+        $outsideQuery = OutsideUser::query();
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $outsideQuery->where(function($q) use ($search) {
+                $q->where('fullname', 'LIKE', "%{$search}%")
+                  ->orWhere('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('id', 'LIKE', "%{$search}%")
+                  ->orWhere('qr_value', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('phone_number', 'LIKE', "%{$search}%");
+            });
+        }
+        $outside_users = $outsideQuery->orderBy('id', 'desc')->paginate(15);
+
+        return view('SecurityGuardUser.QrStatusManagement.qr_status_management', compact('inside_users', 'outside_users'));
     }
 
     public function toggleQrStatus($id)
     {
-        $inside_user = InsideUser::findOrFail($id);
+        $guard = Auth::guard('securityguard')->user();
+
+        // Try to find inside user first
+        $inside_user = InsideUser::find($id);
         
-        // Toggle between 'active' and 'inactive' (case-insensitive)
-        $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
-        
-        $inside_user->update([
+        if ($inside_user) {
+            // Toggle inside user QR status
+            $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
+
+            $inside_user->update([
+                'qr_status' => $newStatus,
+                'updated_at' => now(),
+            ]);
+
+            // Create notification/activity log for other guards
+            EntryLog::create([
+                'inside_user_id' => $inside_user->id,
+                'outside_user_id' => null,
+                'security_guard_user_id' => $guard->id,
+                'scan_at' => now()->toDateTimeString(),
+                'scan_type' => 'qr_' . $newStatus,
+            ]);
+
+            return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
+        }
+
+        // Try to find outside user
+        $outside_user = OutsideUser::findOrFail($id);
+        $newStatus = in_array(strtolower($outside_user->qr_status), ['active']) ? 'inactive' : 'active';
+
+        $outside_user->update([
             'qr_status' => $newStatus,
             'updated_at' => now(),
         ]);
-        
-        return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
+
+        // Create notification/activity log for other guards
+        EntryLog::create([
+            'inside_user_id' => null,
+            'outside_user_id' => $outside_user->id,
+            'security_guard_user_id' => $guard->id,
+            'scan_at' => now()->toDateTimeString(),
+            'scan_type' => 'qr_' . $newStatus,
+        ]);
+
+        return redirect()->back()->with('success', "QR status for visitor {$outside_user->fullname} changed to {$newStatus}!");
     }
 
     //function
@@ -145,9 +227,16 @@ class SecurityGuardController extends Controller
 
             // Check if user's QR status is active
             if (!in_array(strtolower($user->qr_status), ['active'])) {
+                // Return user info even when QR is inactive (for display purposes)
                 return response()->json([
                     'success' => false,
-                    'message' => 'QR code is inactive. User is not authorized.'
+                    'message' => 'QR code is inactive. User is not authorized.',
+                    'user_type' => $userType,
+                    'inside_user' => [
+                        'id' => $user->id,
+                        'fullname' => $user->fullname,
+                        'qr_value' => $user->qr_value,
+                    ]
                 ]);
             }
 
@@ -269,7 +358,11 @@ class SecurityGuardController extends Controller
      */
     public function viewEntryLogs(Request $request)
     {
-        $query = EntryLog::with(['insideUser', 'securityGuardUser']);
+        $query = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser']);
+
+        // Filter out QR status toggle logs (only show entry/exit)
+        $query->whereNotIn('scan_type', ['qr_active', 'qr_inactive'])
+              ->whereNotNull('scan_type');
 
         // Filter by scan type (entry/exit)
         if ($request->filled('scan_type')) {
@@ -284,20 +377,28 @@ class SecurityGuardController extends Controller
         // Search by user name or email
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('insideUser', function($q) use ($search) {
-                $q->where('fullname', 'LIKE', "%{$search}%")
-                  ->orWhere('first_name', 'LIKE', "%{$search}%")
-                  ->orWhere('last_name', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                // Search in inside users
+                $q->whereHas('insideUser', function($q) use ($search) {
+                    $q->where('fullname', 'LIKE', "%{$search}%")
+                      ->orWhere('first_name', 'LIKE', "%{$search}%")
+                      ->orWhere('last_name', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
+                })
+                // Or search in outside users
+                ->orWhereHas('outsideUser', function($q) use ($search) {
+                    $q->where('fullname', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
+                });
             });
         }
 
-        // Get statistics
+        // Get statistics (only entry/exit, not QR toggles)
         $today = Carbon::today();
         $totalEntriesToday = EntryLog::where('scan_type', 'entry')
             ->whereDate('scan_at', $today)
             ->count();
-        
+
         $totalExitsToday = EntryLog::where('scan_type', 'exit')
             ->whereDate('scan_at', $today)
             ->count();
