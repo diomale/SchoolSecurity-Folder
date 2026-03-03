@@ -17,7 +17,41 @@ class SecurityGuardController extends Controller
     //show
     public function dashboard()
     {
-        return view('SecurityGuardUser.dashboard');
+        $guard = Auth::guard('securityguard')->user();
+
+        // Get recent QR status change activities from ALL guards (shared notifications)
+        $recentActivities = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser'])
+            ->whereNotNull('security_guard_user_id')
+            ->orderBy('id', 'desc')
+            ->limit(20)
+            ->get();
+
+        // Get statistics for current guard
+        $totalScans = EntryLog::where('security_guard_user_id', $guard->id)->count();
+        $todayScans = EntryLog::where('security_guard_user_id', $guard->id)
+            ->whereDate('scan_at', today())
+            ->count();
+        $todayEntries = EntryLog::where('security_guard_user_id', $guard->id)
+            ->where('scan_type', 'entry')
+            ->whereDate('scan_at', today())
+            ->count();
+        $todayExits = EntryLog::where('security_guard_user_id', $guard->id)
+            ->where('scan_type', 'exit')
+            ->whereDate('scan_at', today())
+            ->count();
+
+        // Get total guards count
+        $totalGuards = securityguard::count();
+
+        return view('SecurityGuardUser.dashboard', compact(
+            'guard',
+            'recentActivities',
+            'totalScans',
+            'todayScans',
+            'todayEntries',
+            'todayExits',
+            'totalGuards'
+        ));
     }
 
     public function showLogin()
@@ -56,15 +90,26 @@ class SecurityGuardController extends Controller
     public function toggleQrStatus($id)
     {
         $inside_user = InsideUser::findOrFail($id);
-        
+        $guard = Auth::guard('securityguard')->user();
+
         // Toggle between 'active' and 'inactive' (case-insensitive)
+        $oldStatus = $inside_user->qr_status;
         $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
-        
+
         $inside_user->update([
             'qr_status' => $newStatus,
             'updated_at' => now(),
         ]);
-        
+
+        // Create notification/activity log for other guards
+        EntryLog::create([
+            'inside_user_id' => $inside_user->id,
+            'outside_user_id' => null,
+            'security_guard_user_id' => $guard->id,
+            'scan_at' => now()->toDateTimeString(),
+            'scan_type' => 'qr_' . $newStatus, // qr_active or qr_inactive
+        ]);
+
         return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
     }
 
