@@ -9,7 +9,10 @@ export default defineConfig({
             [
                 'resources/css/app.css', 
                 'resources/js/app.js',
-                'resources/views'
+                'resources/views',
+                //Charlize Works,
+
+                //Nathan Malveda Works,
             ],
             refresh: true,
         }),
