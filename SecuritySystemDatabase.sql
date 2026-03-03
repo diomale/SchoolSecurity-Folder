@@ -261,33 +261,81 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
--- =====================================================
--- ALTER TABLE SCRIPTS (For existing databases)
--- Run this section if you already have the database
--- =====================================================
+DELIMITER $$
 
--- Add missing columns to outside_user table (if they don't exist)
-ALTER TABLE `outside_user` 
-ADD COLUMN IF NOT EXISTS `fullname` VARCHAR(200) NULL AFTER `last_name`,
-ADD COLUMN IF NOT EXISTS `qr_value` VARCHAR(200) NULL AFTER `updated_at`,
-ADD COLUMN IF NOT EXISTS `qr_status` VARCHAR(200) NULL DEFAULT 'inactive' AFTER `qr_value`,
-ADD COLUMN IF NOT EXISTS `purpose_of_visit` VARCHAR(255) NULL DEFAULT NULL AFTER `qr_status`;
+-- Add fullname column to outside_user
+CREATE PROCEDURE add_outside_user_columns()
+BEGIN
+    -- Add fullname column
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'outside_user' 
+        AND COLUMN_NAME = 'fullname'
+    ) THEN
+        ALTER TABLE `outside_user` ADD COLUMN `fullname` VARCHAR(200) NULL AFTER `last_name`;
+    END IF;
+
+    -- Add qr_value column
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'outside_user' 
+        AND COLUMN_NAME = 'qr_value'
+    ) THEN
+        ALTER TABLE `outside_user` ADD COLUMN `qr_value` VARCHAR(200) NULL AFTER `updated_at`;
+    END IF;
+
+    -- Add qr_status column
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'outside_user' 
+        AND COLUMN_NAME = 'qr_status'
+    ) THEN
+        ALTER TABLE `outside_user` ADD COLUMN `qr_status` VARCHAR(200) NULL DEFAULT 'inactive' AFTER `qr_value`;
+    END IF;
+
+    -- Add purpose_of_visit column
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'outside_user' 
+        AND COLUMN_NAME = 'purpose_of_visit'
+    ) THEN
+        ALTER TABLE `outside_user` ADD COLUMN `purpose_of_visit` VARCHAR(255) NULL DEFAULT NULL AFTER `qr_status`;
+    END IF;
+
+    -- Add outside_user_id column to Entry_logs
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'Entry_logs' 
+        AND COLUMN_NAME = 'outside_user_id'
+    ) THEN
+        ALTER TABLE `Entry_logs` ADD COLUMN `outside_user_id` INT(11) NULL AFTER `inside_user_id`;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- Execute the procedure
+CALL add_outside_user_columns();
+
+-- Drop the procedure after execution
+DROP PROCEDURE IF EXISTS add_outside_user_columns;
 
 -- Update existing outside_user records with fullname
 SET SQL_SAFE_UPDATES = 0;
-UPDATE `outside_user` 
-SET `fullname` = CONCAT(`first_name`, ' ', `last_name`) 
+UPDATE `outside_user`
+SET `fullname` = CONCAT(`first_name`, ' ', `last_name`)
 WHERE `fullname` IS NULL OR `fullname` = '';
 SET SQL_SAFE_UPDATES = 1;
 
--- Add outside_user_id to Entry_logs (if it doesn't exist)
-ALTER TABLE `Entry_logs` 
-ADD COLUMN IF NOT EXISTS `outside_user_id` INT(11) NULL AFTER `inside_user_id`;
-
 -- Modify inside_user_id to be nullable (if not already)
-ALTER TABLE `Entry_logs` 
+ALTER TABLE `Entry_logs`
 MODIFY COLUMN `inside_user_id` INT(11) NULL;
 
 -- Modify scan_type to be VARCHAR (if not already)
-ALTER TABLE `Entry_logs` 
+ALTER TABLE `Entry_logs`
 MODIFY COLUMN `scan_type` VARCHAR(50) NULL;
