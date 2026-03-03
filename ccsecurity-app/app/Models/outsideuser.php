@@ -16,7 +16,6 @@ class OutsideUser extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
-        'fullname',
         'first_name',
         'last_name',
         'email',
