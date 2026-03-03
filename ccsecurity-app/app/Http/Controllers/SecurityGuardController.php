@@ -187,19 +187,32 @@ class SecurityGuardController extends Controller
                     ]
                 ]);
             } else {
-                // For outside users, just log the visit (entry)
+                // For outside users, check entry/exit logic (alternate between entry and exit)
+                $lastEntryLog = EntryLog::where('outside_user_id', $outsideUser->id)
+                    ->latest('id')
+                    ->first();
+
+                $scanType = 'entry';
+                $message = 'Visitor entry logged successfully';
+
+                if ($lastEntryLog && $lastEntryLog->scan_type === 'entry') {
+                    $scanType = 'exit';
+                    $message = 'Visitor exit logged successfully';
+                }
+
+                // Create entry log for outside user
                 $entryLog = EntryLog::create([
                     'inside_user_id' => null,
                     'outside_user_id' => $outsideUser->id,
                     'security_guard_user_id' => $guardId,
                     'scan_at' => Carbon::now()->toDateTimeString(),
-                    'scan_type' => 'entry',
+                    'scan_type' => $scanType,
                 ]);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Visitor entry logged successfully',
-                    'scan_type' => 'entry',
+                    'message' => $message,
+                    'scan_type' => $scanType,
                     'scan_at' => $entryLog->scan_at,
                     'user_type' => $userType,
                     'inside_user' => [ // Frontend expects 'inside_user' key even for visitors
@@ -234,6 +247,7 @@ class SecurityGuardController extends Controller
         // Map scans to a consistent format for the frontend
         $formattedScans = $scans->map(function($scan) {
             $user = $scan->insideUser ?: $scan->outsideUser;
+            $userType = $scan->insideUser ? 'inside' : 'outside';
             return [
                 'inside_user' => [
                     'fullname' => $user ? $user->fullname : 'Unknown User',
@@ -241,6 +255,7 @@ class SecurityGuardController extends Controller
                 ],
                 'scan_type' => $scan->scan_type,
                 'scan_at' => $scan->scan_at,
+                'user_type' => $userType,
             ];
         });
 

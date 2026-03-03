@@ -236,7 +236,8 @@
             if (data.success) {
                 resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
                 resultDiv.classList.add('bg-blue-100', 'border', 'border-blue-400');
-                scanMessage.textContent = `${data.message} - ${data.inside_user.fullname}`;
+                const userTypeLabel = data.user_type === 'outside' ? 'Visitor' : 'Staff/Student';
+                scanMessage.textContent = `${data.message} - ${data.inside_user.fullname} (${userTypeLabel})`;
 
                 // Add to scan history with server timestamp
                 addToHistory(data);
@@ -288,19 +289,20 @@
     // Add scan to history display
     function addToHistory(data) {
         const historyDiv = document.getElementById('scan-history');
-        
+
         const { timeString, dateString } = formatServerDateTime(data.scan_at);
 
         const isEntry = data.scan_type === 'entry';
         const typeColor = isEntry ? 'text-green-600' : 'text-orange-600';
         const typeLabel = isEntry ? 'ENTRY' : 'EXIT';
         const bgColor = isEntry ? 'bg-green-50' : 'bg-orange-50';
+        const userTypeLabel = data.user_type === 'outside' ? 'Visitor' : 'Staff/Student';
 
         const historyItem = `
             <div class="${bgColor} border rounded-lg p-3 animate-fade-in">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="font-semibold text-gray-800">${data.inside_user.fullname}</p>
+                        <p class="font-semibold text-gray-800">${data.inside_user.fullname} <span class="text-xs text-gray-500">(${userTypeLabel})</span></p>
                         <p class="text-sm text-gray-600">QR: ${data.inside_user.qr_value}</p>
                         <p class="text-sm text-gray-500">${dateString} ${timeString}</p>
                     </div>
@@ -335,7 +337,8 @@
                 addToHistory({
                     inside_user: scan.inside_user,
                     scan_type: scan.scan_type,
-                    scan_at: scan.scan_at
+                    scan_at: scan.scan_at,
+                    user_type: scan.user_type
                 });
             });
         }
