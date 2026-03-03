@@ -49,6 +49,6 @@ class EntryLog extends Model
      */
     public function securityGuardUser()
     {
-        return $this->belongsTo(securityguard::class, 'security_guard_user_id');
+        return $this->belongsTo(securityguard::class, 'security_guard_user_id', 'id');
     }
 }

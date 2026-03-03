@@ -21,7 +21,6 @@ CREATE SCHEMA IF NOT EXISTS `securitysystemdatabase` DEFAULT CHARACTER SET utf8 
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `securitysystemdatabase` DEFAULT CHARACTER SET utf8 ;
 USE `securitysystemdatabase` ;
-USE `securitysystemdatabase` ;
 
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`admins`
@@ -78,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`security_guard_user` (
   `profile_picture` BLOB NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -106,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 67
+AUTO_INCREMENT = 81
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -194,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shifts` (
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 57
+AUTO_INCREMENT = 63
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -252,6 +251,7 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8;
 
+USE `securitysystemdatabase` ;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
