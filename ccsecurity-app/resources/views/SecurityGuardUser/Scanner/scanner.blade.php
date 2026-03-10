@@ -289,37 +289,39 @@
 
     // Add scan to history display
     function addToHistory(data) {
-        const historyDiv = document.getElementById('scan-history');
+        if (!data || !data.inside_user) return;
 
+        const historyDiv = document.getElementById('scan-history');
         const { timeString, dateString } = formatServerDateTime(data.scan_at);
 
         // Handle entry/exit scan types only
         let typeLabel, typeColor, bgColor;
+        const scanType = data.scan_type ? data.scan_type.toLowerCase() : 'unknown';
         
-        if (data.scan_type === 'entry') {
+        if (scanType === 'entry') {
             typeLabel = 'ENTRY';
             typeColor = 'text-green-600';
             bgColor = 'bg-green-50';
-        } else if (data.scan_type === 'exit') {
+        } else if (scanType === 'exit') {
             typeLabel = 'EXIT';
             typeColor = 'text-orange-600';
             bgColor = 'bg-orange-50';
         } else {
-            typeLabel = data.scan_type.toUpperCase();
+            typeLabel = scanType.toUpperCase();
             typeColor = 'text-gray-600';
             bgColor = 'bg-gray-50';
         }
         
-        const userTypeLabel = data.user_type === 'outside' ? 'Visitor' : 'Staff/Student';
+        const fullname = data.inside_user.fullname || 'Unknown User';
 
         const historyItem = `
-            <div class="${bgColor} border rounded-lg p-3 animate-fade-in">
+            <div class="${bgColor} border rounded-lg p-3 animate-fade-in mb-3">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="font-semibold text-gray-800">${data.inside_user.fullname}</p>
+                        <p class="font-semibold text-gray-800">${fullname}</p>
                         <p class="text-sm text-gray-500">${dateString} ${timeString}</p>
                     </div>
-                    <span class="${typeColor} font-bold px-3 py-1 rounded-full bg-white border">${typeLabel}</span>
+                    <span class="${typeColor} font-bold px-3 py-1 rounded-full bg-white border text-xs">${typeLabel}</span>
                 </div>
             </div>
         `;

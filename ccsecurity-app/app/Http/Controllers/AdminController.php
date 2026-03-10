@@ -90,6 +90,7 @@ class AdminController extends Controller
         OutsideUser::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'fullname' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
@@ -127,6 +128,7 @@ class AdminController extends Controller
         $data = [
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'fullname' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
             'purpose_of_visit' => $request->purpose_of_visit,
@@ -305,23 +307,28 @@ class AdminController extends Controller
 
     public function showQrStatusManagement(Request $request)
     {
-        $query = InsideUser::query();
+        $search = $request->search;
         
+        $studentQuery = InsideUser::where('role', 'student');
+        $staffQuery = InsideUser::where('role', 'staff');
+
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $filter = function($q) use ($search) {
                 $q->where('fullname', 'LIKE', "%{$search}%")
                   ->orWhere('first_name', 'LIKE', "%{$search}%")
                   ->orWhere('last_name', 'LIKE', "%{$search}%")
                   ->orWhere('id', 'LIKE', "%{$search}%")
                   ->orWhere('qr_value', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%");
-            });
+            };
+            $studentQuery->where($filter);
+            $staffQuery->where($filter);
         }
         
-        $inside_users = $query->orderBy('id', 'desc')->paginate(15);
+        $students = $studentQuery->orderBy('id', 'desc')->paginate(15, ['*'], 'students_page');
+        $staff = $staffQuery->orderBy('id', 'desc')->paginate(15, ['*'], 'staff_page');
         
-        return view('Admin.QrStatusManagement.qr_status_management', compact('inside_users'));
+        return view('Admin.QrStatusManagement.qr_status_management', compact('students', 'staff'));
     }
 
     public function bulkDeleteInsideUsers(Request $request)

@@ -61,13 +61,14 @@
             </form>
         </div>
 
-        <!-- Users Table -->
-        <div>
+        <!-- Students Table -->
+        <div style="margin-top: 30px;">
+            <h2>Students</h2>
             <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="background-color: #f8f9fa;">
                         <th>
-                            <input type="checkbox" id="select-all">
+                            <input type="checkbox" class="select-all" data-target="student-checkbox">
                         </th>
                         <th>ID</th>
                         <th>Full Name</th>
@@ -78,13 +79,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($inside_users as $user)
+                    @forelse($students as $user)
                     <tr>
                         <td>
-                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox">
+                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox student-checkbox">
                         </td>
                         <td>{{ $user->id }}</td>
-                        <td>{{ $user->fullname }}</td>
+                        <td>{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</td>
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->qr_value }}</td>
                         <td>
@@ -114,16 +115,84 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" style="text-align: center;">No users found.</td>
+                        <td colspan="7" style="text-align: center;">No students found.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
 
-            <!-- Pagination -->
-            @if($inside_users->hasPages())
+            <!-- Pagination for Students -->
+            @if($students->hasPages())
             <div style="margin-top: 20px;">
-                {{ $inside_users->appends(request()->query())->links() }}
+                {{ $students->appends(request()->query())->links() }}
+            </div>
+            @endif
+        </div>
+
+        <!-- Staff Table -->
+        <div style="margin-top: 50px;">
+            <h2>Staff</h2>
+            <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th>
+                            <input type="checkbox" class="select-all" data-target="staff-checkbox">
+                        </th>
+                        <th>ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>QR Value</th>
+                        <th>QR Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($staff as $user)
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox staff-checkbox">
+                        </td>
+                        <td>{{ $user->id }}</td>
+                        <td>{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</td>
+                        <td>{{ $user->email }}</td>
+                        <td>{{ $user->qr_value }}</td>
+                        <td>
+                            @if(in_array(strtolower($user->qr_status), ['active']))
+                                <span style="color: green;">✓ Active</span>
+                            @else
+                                <span style="color: gray;">✗ Inactive</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <form action="{{ route('admin.qr.status.toggle', $user->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    @if(in_array(strtolower($user->qr_status), ['active']))
+                                        <button type="submit" onclick="return confirm('Deactivate QR for {{ $user->fullname }}?')">
+                                            Deactivate
+                                        </button>
+                                    @else
+                                        <button type="submit" onclick="return confirm('Activate QR for {{ $user->fullname }}?')">
+                                            Activate
+                                        </button>
+                                    @endif
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No staff members found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+            <!-- Pagination for Staff -->
+            @if($staff->hasPages())
+            <div style="margin-top: 20px;">
+                {{ $staff->appends(request()->query())->links() }}
             </div>
             @endif
         </div>
@@ -131,25 +200,30 @@
         <!-- Stats Summary -->
         <div style="margin-top: 30px; display: flex; gap: 40px;">
             <div>
-                <strong>Total Users:</strong> {{ $inside_users->total() }}
+                <strong>Total Students:</strong> {{ $students->total() }}
             </div>
             <div>
-                <strong>Active QR:</strong> {{ $inside_users->total() > 0 ? $inside_users->filter(fn($u) => in_array(strtolower($u->qr_status), ['active']))->count() : 0 }} (on current page)
+                <strong>Total Staff:</strong> {{ $staff->total() }}
             </div>
         </div>
     </div>
 
     <script>
         // Select all checkbox functionality
-        document.getElementById('select-all').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.user-checkbox');
-            checkboxes.forEach(cb => cb.checked = this.checked);
-            toggleBulkButtons();
+        document.querySelectorAll('.select-all').forEach(selectAll => {
+            selectAll.addEventListener('change', function() {
+                const targetClass = this.getAttribute('data-target');
+                const checkboxes = document.querySelectorAll('.' + targetClass);
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleBulkButtons();
+            });
         });
 
         // Individual checkbox functionality
-        document.querySelectorAll('.user-checkbox').forEach(cb => {
-            cb.addEventListener('change', toggleBulkButtons);
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('user-checkbox')) {
+                toggleBulkButtons();
+            }
         });
 
         function toggleBulkButtons() {

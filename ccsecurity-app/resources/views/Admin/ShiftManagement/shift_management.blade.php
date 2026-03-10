@@ -51,68 +51,69 @@
         <div>
             <h3>📋 Shifts List</h3>
             
-            <form id="bulk-delete-form" action="{{ route('admin.shift.bulk-delete') }}" method="POST">
+            <div style="margin-bottom: 10px;">
+                <button type="button" onclick="submitBulkAction('bulk-delete-form', true)" id="bulk-delete-btn" disabled style="background-color: #fff0f0; color: #dc3545; border: 1px solid #dc3545; padding: 5px 10px; cursor: pointer;">
+                    Bulk Delete Selected Shifts
+                </button>
+            </div>
+
+            <!-- Hidden Bulk Delete Form -->
+            <form id="bulk-delete-form" action="{{ route('admin.shift.bulk-delete') }}" method="POST" style="display:none;">
                 @csrf
                 @method('DELETE')
-                
-                <div style="margin-bottom: 10px;">
-                    <button type="button" onclick="confirmBulkDelete()" id="bulk-delete-btn" disabled style="background-color: #fff0f0; color: #dc3545; border: 1px solid #dc3545; padding: 5px 10px; cursor: pointer;">
-                        Bulk Delete Selected Shifts
-                    </button>
-                </div>
-
-                @if($shifts->count() > 0)
-                <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
-                    <thead style="background-color: #f8f9fa;">
-                        <tr>
-                            <th><input type="checkbox" id="select-all"></th>
-                            <th>ID</th>
-                            <th>Security Guard</th>
-                            <th>Date</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Duration</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($shifts as $shift)
-                        <tr>
-                            <td><input type="checkbox" name="shift_ids[]" value="{{ $shift->id }}" class="shift-checkbox"></td>
-                            <td>{{ $shift->id }}</td>
-                            <td>{{ $shift->securityGuardUser->first_name ?? 'N/A' }} {{ $shift->securityGuardUser->last_name ?? '' }}</td>
-                            <td>{{ $shift->shift_date->format('M d, Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hrs</td>
-                            <td>{{ ucfirst($shift->status) }}</td>
-                            <td>
-                                <div style="display: flex; gap: 5px;">
-                                    <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
-                                    <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-
-                <div style="margin-top: 20px;">
-                    {{ $shifts->appends(request()->query())->links() }}
-                </div>
-                @else
-                <p style="text-align: center; padding: 20px; border: 1px solid #ddd;">No shifts found.</p>
-                @endif
             </form>
+
+            @if($shifts->count() > 0)
+            <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+                <thead style="background-color: #f8f9fa;">
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>ID</th>
+                        <th>Security Guard</th>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($shifts as $shift)
+                    <tr>
+                        <td><input type="checkbox" value="{{ $shift->id }}" class="shift-checkbox"></td>
+                        <td>{{ $shift->id }}</td>
+                        <td>{{ $shift->securityGuardUser->first_name ?? 'N/A' }} {{ $shift->securityGuardUser->last_name ?? '' }}</td>
+                        <td>{{ $shift->shift_date->format('M d, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hrs</td>
+                        <td>{{ ucfirst($shift->status) }}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
+                                <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <div style="margin-top: 20px;">
+                {{ $shifts->appends(request()->query())->links() }}
+            </div>
+            @else
+            <p style="text-align: center; padding: 20px; border: 1px solid #ddd;">No shifts found.</p>
+            @endif
         </div>
     </div>
 
-    <!-- Assign Shift Modal -->
+    <!-- Assign Shift Modal (unchanged modal HTML ...) -->
     <div id="assignShiftModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
         <div style="background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 600px; border-radius: 8px; max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
@@ -299,11 +300,25 @@
             document.getElementById('bulk-delete-btn').disabled = checkedCount === 0;
         }
 
-        function confirmBulkDelete() {
-            const checkedCount = document.querySelectorAll('.shift-checkbox:checked').length;
-            if (confirm(`Are you sure you want to delete ${checkedCount} selected shifts?`)) {
-                document.getElementById('bulk-delete-form').submit();
+        function submitBulkAction(formId, isDelete = false) {
+            const checkedIds = Array.from(document.querySelectorAll('.shift-checkbox:checked')).map(cb => cb.value);
+            const form = document.getElementById(formId);
+            
+            if (isDelete) {
+                if (!confirm(`Are you sure you want to delete ${checkedIds.length} selected shifts?`)) return;
             }
+
+            form.querySelectorAll('input[name="shift_ids[]"]').forEach(el => el.remove());
+
+            checkedIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'shift_ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            form.submit();
         }
 
         // Initialize min dates

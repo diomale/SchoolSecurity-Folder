@@ -100,6 +100,11 @@
                             <strong>QR Status Management</strong> - Activate or deactivate user QR codes
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('security.walkin.list') }}">
+                            <strong>Visitor Management</strong> - Create and manage walk-in visitor accounts
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -186,7 +191,7 @@
                             @if($activity->insideUser)
                                 {{ $activity->insideUser->fullname }}
                             @elseif($activity->outsideUser)
-                                {{ $activity->outsideUser->fullname }}
+                                {{ $activity->outsideUser->fullname ?? ($activity->outsideUser->first_name . ' ' . $activity->outsideUser->last_name) }}
                             @else
                                 N/A
                             @endif

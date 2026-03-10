@@ -164,6 +164,13 @@ Route::prefix('securityguard')->group(function(){
         // QR Status Management routes
         Route::get('/qr-status-management', [SecurityGuardController::class, 'showQrStatusManagement'])->name('security.qr.status.management');
         Route::patch('/qr-status-toggle/{id}', [SecurityGuardController::class, 'toggleQrStatus'])->name('security.qr.status.toggle');
+
+        // Walk-in User Management routes
+        Route::get('/walkin-users', [SecurityGuardController::class, 'showWalkinUsers'])->name('security.walkin.list');
+        Route::get('/walkin-user/add', [SecurityGuardController::class, 'showAddWalkinForm'])->name('security.walkin.add');
+        Route::post('/walkin-user/store', [SecurityGuardController::class, 'storeWalkinUser'])->name('security.walkin.store');
+        Route::delete('/walkin-users/bulk-delete', [SecurityGuardController::class, 'bulkDeleteWalkinUsers'])->name('security.walkin.bulk-delete');
+        Route::get('/user-qr/{id}/{type?}', [SecurityGuardController::class, 'viewUserQr'])->name('security.user.qr');
     });
 });
 

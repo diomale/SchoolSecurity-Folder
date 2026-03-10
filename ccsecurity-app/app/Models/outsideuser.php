@@ -18,6 +18,7 @@ class OutsideUser extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'fullname',
         'email',
         'phone_number',
         'password',
@@ -39,6 +40,21 @@ class OutsideUser extends Authenticatable
         'created_at' => 'datetime:Y-m-d h:i A',
         'updated_at' => 'datetime:Y-m-d h:i A',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (empty($user->fullname)) {
+                $user->fullname = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+            }
+        });
+
+        static::updating(function ($user) {
+            if ($user->isDirty(['first_name', 'last_name'])) {
+                $user->fullname = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+            }
+        });
+    }
 
     // Status constants
     const STATUS_PENDING  = 'pending';
