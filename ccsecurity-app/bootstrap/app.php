@@ -18,12 +18,20 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        // Delete old notifications every month (on the 1st day of each month at midnight)
-        $schedule->command('notifications:cleanup-old --days=30')
-                 ->monthlyOn(1, '00:00');
+        // Delete old entry logs (notifications for guards) - uses table-specific settings
+        $schedule->command('notifications:cleanup-old')
+                 ->dailyAt('00:00');
+
+        // Delete old visit requests and notifications - uses table-specific settings
+        $schedule->command('visitrequests:cleanup-old')
+                 ->dailyAt('00:00');
         
-        // Delete old visit requests every month (on the 1st day of each month at midnight)
-        $schedule->command('visitrequests:cleanup-old --days=30')
-                 ->monthlyOn(1, '00:00');
+        // Delete old shift logs - uses table-specific settings
+        $schedule->command('shiftlogs:cleanup-old')
+                 ->dailyAt('00:00');
+
+        // Delete old shift assignments
+        $schedule->command('shifts:cleanup-old')
+                 ->dailyAt('00:00');
     })
     ->create();

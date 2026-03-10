@@ -107,7 +107,7 @@ class SecurityGuardController extends Controller
 
         // Try to find inside user first
         $inside_user = InsideUser::find($id);
-        
+
         if ($inside_user) {
             // Toggle inside user QR status
             $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
@@ -117,7 +117,7 @@ class SecurityGuardController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Create notification/activity log for other guards
+            // Create notification/activity log for other guards (QR status toggle)
             EntryLog::create([
                 'inside_user_id' => $inside_user->id,
                 'outside_user_id' => null,
@@ -138,7 +138,7 @@ class SecurityGuardController extends Controller
             'updated_at' => now(),
         ]);
 
-        // Create notification/activity log for other guards
+        // Create notification/activity log for other guards (QR status toggle)
         EntryLog::create([
             'inside_user_id' => null,
             'outside_user_id' => $outside_user->id,
@@ -242,7 +242,9 @@ class SecurityGuardController extends Controller
 
             // For inside users, check entry/exit logic
             if ($userType === 'inside') {
+                // Only consider actual entry/exit logs, NOT QR status toggle logs
                 $lastEntryLog = EntryLog::where('inside_user_id', $insideUser->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
                     ->latest('id')
                     ->first();
 
@@ -277,7 +279,9 @@ class SecurityGuardController extends Controller
                 ]);
             } else {
                 // For outside users, check entry/exit logic (alternate between entry and exit)
+                // Only consider actual entry/exit logs, NOT QR status toggle logs
                 $lastEntryLog = EntryLog::where('outside_user_id', $outsideUser->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
                     ->latest('id')
                     ->first();
 
@@ -327,7 +331,9 @@ class SecurityGuardController extends Controller
     {
         $guardId = Auth::guard('securityguard')->id();
 
+        // Only show entry/exit logs in scanner history (exclude QR status toggles)
         $scans = EntryLog::where('security_guard_user_id', $guardId)
+            ->whereIn('scan_type', ['entry', 'exit'])
             ->with(['insideUser', 'outsideUser'])
             ->orderBy('id', 'desc')
             ->limit(10)
@@ -526,7 +532,7 @@ class SecurityGuardController extends Controller
     {
         $request->validate([
             'handover_note' => 'required|string|max:1000',
-            'shift_log_id' => 'required|exists:shift_logs,id'
+            'shift_log_id' => 'required|exists:mysql_second.shift_logs,id'
         ]);
 
         $shiftLog = ShiftLog::findOrFail($request->shift_log_id);

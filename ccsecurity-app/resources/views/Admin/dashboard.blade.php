@@ -23,7 +23,7 @@
                 <div>
                     <a href="{{ route('admin.show.crudSection') }}">
                         <h3>Inside User Management</h3>
-                        
+
                     </a>
                 </div>
 
@@ -31,7 +31,7 @@
                 <div>
                     <a href="{{ route('security.user.table.section') }}">
                         <h3>Security Guard Management</h3>
-                       
+
                     </a>
                 </div>
 
@@ -39,7 +39,15 @@
                 <div>
                     <a href="{{ route('show.admin.outsider.list') }}">
                         <h3>Outsider Management</h3>
-                        
+
+                    </a>
+                </div>
+
+                <!-- Cleanup Settings Card -->
+                <div>
+                    <a href="{{ route('admin.cleanup.settings') }}">
+                        <h3> Auto-Delete Cleanup Settings</h3>
+                        <p>Manage automatic deletion of old records</p>
                     </a>
                 </div>
             </div>

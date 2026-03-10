@@ -293,10 +293,23 @@
 
         const { timeString, dateString } = formatServerDateTime(data.scan_at);
 
-        const isEntry = data.scan_type === 'entry';
-        const typeColor = isEntry ? 'text-green-600' : 'text-orange-600';
-        const typeLabel = isEntry ? 'ENTRY' : 'EXIT';
-        const bgColor = isEntry ? 'bg-green-50' : 'bg-orange-50';
+        // Handle entry/exit scan types only
+        let typeLabel, typeColor, bgColor;
+        
+        if (data.scan_type === 'entry') {
+            typeLabel = 'ENTRY';
+            typeColor = 'text-green-600';
+            bgColor = 'bg-green-50';
+        } else if (data.scan_type === 'exit') {
+            typeLabel = 'EXIT';
+            typeColor = 'text-orange-600';
+            bgColor = 'bg-orange-50';
+        } else {
+            typeLabel = data.scan_type.toUpperCase();
+            typeColor = 'text-gray-600';
+            bgColor = 'bg-gray-50';
+        }
+        
         const userTypeLabel = data.user_type === 'outside' ? 'Visitor' : 'Staff/Student';
 
         const historyItem = `

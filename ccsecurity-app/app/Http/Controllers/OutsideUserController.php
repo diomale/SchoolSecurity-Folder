@@ -205,7 +205,21 @@ class OutsideUserController extends Controller
             'last_name' => 'required|string|max:150',
             'phone_number' => 'required|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
+            'current_password' => 'nullable|string',
         ]);
+
+        // Validate current password if new password is provided
+        if ($request->filled('password')) {
+            if (empty($request->current_password)) {
+                return back()->withErrors(['current_password' => 'Current password is required to set a new password.'])
+                    ->withInput();
+            }
+
+            if (!Hash::check($request->current_password, $outsideUser->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.'])
+                    ->withInput();
+            }
+        }
 
         $outsideUser->first_name = $validated['first_name'];
         $outsideUser->last_name = $validated['last_name'];

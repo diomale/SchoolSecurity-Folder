@@ -53,6 +53,7 @@ Route::prefix('admin')->group(function () {
 
         //crud for security
         Route::get('/security/user/table',[AdminController::class, 'showSecurityUserCrud'])->name('security.user.table.section');
+        Route::delete('/security/bulk-delete', [AdminController::class, 'bulkDeleteSecurityGuards'])->name('admin.security.bulk-delete');
         Route::get('/security/user/add-section', [AdminController::class, 'showAddSecurityGuardUser'])->name('security.user.add.section');
         Route::post('/security/store-user', [AdminController::class, 'storeSecurityGuard'])->name('security.add.accept');
         Route::get('/security/guard-user-details/{id}', [AdminController::class, 'showSecurityUserDetail'])->name('security.guard.user.details');
@@ -62,6 +63,7 @@ Route::prefix('admin')->group(function () {
 
         // Shift Management for Admin
         Route::get('/shift-management', [AdminController::class, 'showShiftManagement'])->name('admin.shift.management');
+        Route::delete('/shifts/bulk-delete', [AdminController::class, 'bulkDeleteShifts'])->name('admin.shift.bulk-delete');
         Route::post('/assign-shift', [AdminController::class, 'assignShift'])->name('admin.assign.shift');
         Route::delete('/shift/{id}/delete', [AdminController::class, 'deleteShift'])->name('admin.shift.delete');
         Route::get('/security/{id}/shifts', [AdminController::class, 'showGuardShifts'])->name('admin.guard.shifts');
@@ -78,6 +80,12 @@ Route::prefix('admin')->group(function () {
 
         //list
         Route::get('/outsider/waiting-list', [AdminController::class, 'ShowOutsiderList'])->name('show.admin.outsider.list');
+        Route::get('/outsider/add', [AdminController::class, 'showAddOutsiderForm'])->name('admin.outsider.add');
+        Route::post('/outsider/store', [AdminController::class, 'storeOutsider'])->name('admin.outsider.store');
+        Route::get('/outsider/{id}/edit', [AdminController::class, 'editOutsider'])->name('admin.outsider.edit');
+        Route::put('/outsider/{id}/update', [AdminController::class, 'updateOutsider'])->name('admin.outsider.update');
+        Route::delete('/outsider/bulk-delete', [AdminController::class, 'bulkDeleteOutsiders'])->name('admin.outsider.bulk-delete');
+        Route::delete('/outsider/{id}/delete', [AdminController::class, 'deleteOutsider'])->name('admin.outsider.delete');
         Route::patch('/outsider/approved/{id}', [AdminController::class, 'ApprovedOutsider'])->name('admin.approved.user');
         Route::patch('/outsider/rejected/{id}', [AdminController::class, 'RejectOutsider'])->name('admin.rejected.user');
 
@@ -88,8 +96,15 @@ Route::prefix('admin')->group(function () {
 
         //QR Status Management
         Route::get('/qr-status-management', [AdminController::class, 'showQrStatusManagement'])->name('admin.qr.status.management');
+        Route::delete('/inside-user/bulk-delete', [AdminController::class, 'bulkDeleteInsideUsers'])->name('admin.inside-user.bulk-delete');
         Route::patch('/qr-status-toggle/{id}', [AdminController::class, 'toggleQrStatus'])->name('admin.qr.status.toggle');
         Route::post('/qr-status-bulk-toggle', [AdminController::class, 'bulkToggleQrStatus'])->name('admin.qr.status.bulk.toggle');
+
+        // Auto-Delete Cleanup Management
+        Route::get('/cleanup-settings', [AdminController::class, 'showCleanupSettings'])->name('admin.cleanup.settings');
+        Route::post('/cleanup-settings/update-table', [AdminController::class, 'updateTableSettings'])->name('admin.cleanup.update-table');
+        Route::post('/cleanup-settings/run-now', [AdminController::class, 'runCleanupNow'])->name('admin.cleanup.run-now');
+        Route::post('/cleanup-settings/toggle-global', [AdminController::class, 'toggleGlobalAutoDelete'])->name('admin.cleanup.toggle-global');
     });
 
     

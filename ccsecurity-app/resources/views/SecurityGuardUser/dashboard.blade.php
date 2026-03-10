@@ -244,11 +244,6 @@
             </table>
             @else
             <p>No recent activities found.</p>
-            @if(isset($recentActivities))
-                <p><small>Debug: $recentActivities is set, count = {{ $recentActivities->count() }}</small></p>
-            @else
-                <p><small>Debug: $recentActivities is NOT set</small></p>
-            @endif
             @endif
         </div>
     </div>

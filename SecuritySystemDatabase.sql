@@ -21,6 +21,7 @@ CREATE SCHEMA IF NOT EXISTS `securitysystemdatabase` DEFAULT CHARACTER SET utf8 
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `securitysystemdatabase` DEFAULT CHARACTER SET utf8 ;
 USE `securitysystemdatabase` ;
+USE `securitysystemdatabase` ;
 
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`admins`
@@ -37,6 +38,42 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`admins` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 11
 DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`cleanup_settings`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`cleanup_settings` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `auto_delete_enabled` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=enabled, 0=disabled',
+  `retention_days` INT(11) NOT NULL DEFAULT 30 COMMENT 'Number of days to keep records',
+  `last_cleanup_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Last time cleanup ran',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Stores auto-delete cleanup settings for admin control';
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`cleanup_table_settings`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`cleanup_table_settings` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `table_name` VARCHAR(50) NOT NULL COMMENT 'entry_logs, visit_requests, notifications, shift_logs',
+  `auto_delete_enabled` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=enabled, 0=disabled',
+  `retention_days` INT(11) NOT NULL DEFAULT 30 COMMENT 'Number of days to keep records',
+  `last_cleanup_date` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `unique_table_name` (`table_name` ASC) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 14
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Individual cleanup settings for each table';
 
 
 -- -----------------------------------------------------
@@ -105,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 81
+AUTO_INCREMENT = 174
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -142,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`outside_user` (
   `purpose_of_visit` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 9
+AUTO_INCREMENT = 10
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -169,7 +206,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`notifications` (
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
+AUTO_INCREMENT = 12
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -193,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shifts` (
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 63
+AUTO_INCREMENT = 67
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -222,7 +259,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`shift_logs` (
     REFERENCES `securitysystemdatabase`.`shifts` (`id`)
     ON DELETE SET NULL)
 ENGINE = InnoDB
-AUTO_INCREMENT = 4
+AUTO_INCREMENT = 6
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -248,10 +285,9 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`visit_requests` (
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 4
+AUTO_INCREMENT = 14
 DEFAULT CHARACTER SET = utf8;
 
-USE `securitysystemdatabase` ;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

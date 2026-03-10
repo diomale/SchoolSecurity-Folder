@@ -11,6 +11,10 @@ use App\Models\OutsideUser;
 use App\Models\Shift;
 use App\Models\VisitRequest;
 use App\Models\Notification;
+use App\Models\CleanupSetting;
+use App\Models\CleanupTableSetting;
+use App\Models\EntryLog;
+use App\Models\ShiftLog;
 use Carbon\Carbon;
 
 
@@ -34,12 +38,118 @@ class AdminController extends Controller
     // OUTSIDE USER APPROVAL WORKFLOW
     // =========================================================================
 
-    public function ShowOutsiderList()
+    public function ShowOutsiderList(Request $request)
     {
-        $outside_users = OutsideUser::all();
+        $query = OutsideUser::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('phone_number', 'LIKE', "%{$search}%")
+                  ->orWhere('qr_value', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $outside_users = $query->orderBy('created_at', 'desc')->paginate(20);
         return view('Admin.AdminWaitingList.outside_user_list', compact('outside_users'));
     }
 
+    public function bulkDeleteOutsiders(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:mysql_second.outside_user,id'
+        ]);
+
+        OutsideUser::whereIn('id', $request->user_ids)->delete();
+
+        return redirect()->back()->with('success', count($request->user_ids) . ' users deleted successfully!');
+    }
+
+    public function showAddOutsiderForm()
+    {
+        return view('Admin.AdminWaitingList.outside_user_add');
+    }
+
+    public function storeOutsider(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:150',
+            'last_name' => 'required|string|max:150',
+            'email' => 'required|email|max:150|unique:mysql_second.outside_user,email',
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'required|string|min:8',
+            'purpose_of_visit' => 'required|string|max:255',
+        ]);
+
+        $qrValue = 'OUT-ADMIN-' . strtoupper(uniqid() . rand(1000, 9999));
+
+        OutsideUser::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'password' => Hash::make($request->password),
+            'purpose_of_visit' => $request->purpose_of_visit,
+            'qr_value' => $qrValue,
+            'qr_status' => 'active',
+            'status' => OutsideUser::STATUS_APPROVED,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('show.admin.outsider.list')->with('success', 'Walk-in account created successfully!');
+    }
+
+    public function editOutsider($id)
+    {
+        $outside_user = OutsideUser::findOrFail($id);
+        return view('Admin.AdminWaitingList.outside_user_edit', compact('outside_user'));
+    }
+
+    public function updateOutsider(Request $request, $id)
+    {
+        $outside_user = OutsideUser::findOrFail($id);
+
+        $request->validate([
+            'first_name' => 'required|string|max:150',
+            'last_name' => 'required|string|max:150',
+            'email' => 'required|email|max:150|unique:mysql_second.outside_user,email,' . $id,
+            'phone_number' => 'nullable|string|max:20',
+            'purpose_of_visit' => 'required|string|max:255',
+            'qr_status' => 'required|string',
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        $data = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'purpose_of_visit' => $request->purpose_of_visit,
+            'qr_status' => $request->qr_status,
+            'updated_at' => now(),
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $outside_user->update($data);
+
+        return redirect()->route('show.admin.outsider.list')->with('success', 'User updated successfully!');
+    }
+
+    public function deleteOutsider($id)
+    {
+        $outside_user = OutsideUser::findOrFail($id);
+        $outside_user->delete();
+
+        return redirect()->route('show.admin.outsider.list')->with('success', 'User deleted successfully!');
+    }
 
     public function ApprovedOutsider($id)
     {
@@ -82,10 +192,34 @@ class AdminController extends Controller
     // SECURITY GUARD MANAGEMENT (CRUD)
     // =========================================================================
 
-    public function showSecurityUserCrud()
+    public function showSecurityUserCrud(Request $request)
     {
-        $security_guard_users = securityguard::all();
+        $query = securityguard::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('fullname', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $security_guard_users = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('Admin.SecurityCrudSection.security_table_section', compact('security_guard_users'));
+    }
+
+    public function bulkDeleteSecurityGuards(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:mysql_second.security_guard_user,id'
+        ]);
+
+        securityguard::whereIn('id', $request->user_ids)->delete();
+
+        return redirect()->back()->with('success', count($request->user_ids) . ' security guards deleted successfully!');
     }
 
     public function showAddSecurityGuardUser()
@@ -190,6 +324,18 @@ class AdminController extends Controller
         return view('Admin.QrStatusManagement.qr_status_management', compact('inside_users'));
     }
 
+    public function bulkDeleteInsideUsers(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:mysql_second.inside_user,id'
+        ]);
+
+        InsideUser::whereIn('id', $request->user_ids)->delete();
+
+        return redirect()->back()->with('success', count($request->user_ids) . ' users deleted successfully!');
+    }
+
     public function toggleQrStatus($id)
     {
         $inside_user = InsideUser::findOrFail($id);
@@ -208,7 +354,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:inside_user,id'
+            'user_ids.*' => 'exists:mysql_second.inside_user,id'
         ]);
         
         $newStatus = $request->new_status ?? 'inactive';
@@ -354,16 +500,40 @@ class AdminController extends Controller
     // SHIFT MANAGEMENT
     // =========================================================================
 
-    public function showShiftManagement()
+    public function showShiftManagement(Request $request)
     {
         $securityGuards = securityguard::where('status', 1)->get();
-        $shifts = Shift::with('securityGuardUser')
-            ->where('shift_date', '>=', today())
-            ->orderBy('shift_date', 'asc')
+        $query = Shift::with('securityGuardUser');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('securityGuardUser', function($q) use ($search) {
+                $q->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('fullname', 'LIKE', "%{$search}%");
+            })->orWhere('shift_date', 'LIKE', "%{$search}%")
+              ->orWhere('status', 'LIKE', "%{$search}%");
+        } else {
+            $query->where('shift_date', '>=', today());
+        }
+
+        $shifts = $query->orderBy('shift_date', 'asc')
             ->orderBy('start_time', 'asc')
             ->paginate(20);
 
         return view('Admin.ShiftManagement.shift_management', compact('securityGuards', 'shifts'));
+    }
+
+    public function bulkDeleteShifts(Request $request)
+    {
+        $request->validate([
+            'shift_ids' => 'required|array',
+            'shift_ids.*' => 'exists:mysql_second.shifts,id'
+        ]);
+
+        Shift::whereIn('id', $request->shift_ids)->delete();
+
+        return redirect()->back()->with('success', count($request->shift_ids) . ' shifts deleted successfully!');
     }
 
     public function assignShift(Request $request)
@@ -508,4 +678,171 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Visit request rejected.');
     }
 
+    // =========================================================================
+    // AUTO-DELETE CLEANUP MANAGEMENT
+    // =========================================================================
+
+    /**
+     * Show cleanup settings page
+     */
+    public function showCleanupSettings()
+    {
+        $tableSettings = CleanupTableSetting::getAllSettings();
+        
+        // Get statistics for each table
+        $stats = [
+            'entry_logs' => [
+                'total' => EntryLog::count(),
+                'older_than_30_days' => EntryLog::where('scan_at', '<', Carbon::now()->subDays(30)->toDateTimeString())->count(),
+            ],
+            'visit_requests' => [
+                'total' => VisitRequest::count(),
+                'older_than_30_days' => VisitRequest::where('created_at', '<', Carbon::now()->subDays(30)->toDateTimeString())->count(),
+            ],
+            'notifications' => [
+                'total' => Notification::count(),
+                'older_than_30_days' => Notification::where('created_at', '<', Carbon::now()->subDays(30)->toDateTimeString())->count(),
+            ],
+            'shift_logs' => [
+                'total' => ShiftLog::count(),
+                'older_than_30_days' => ShiftLog::where('created_at', '<', Carbon::now()->subDays(30)->toDateTimeString())->count(),
+            ],
+            'shifts' => [
+                'total' => Shift::count(),
+                'older_than_30_days' => Shift::where('shift_date', '<', Carbon::now()->subDays(30)->toDateString())->count(),
+            ],
+        ];
+
+        $globalSettings = CleanupSetting::getInstance();
+        
+        return view('Admin.CleanupSettings.cleanup_settings', compact('tableSettings', 'stats', 'globalSettings'));
+    }
+
+    /**
+     * Update settings for a specific table (with password confirmation)
+     */
+    public function updateTableSettings(Request $request)
+    {
+        // Validate password first
+        $admin = Auth::guard('admin')->user();
+        if (!Hash::check($request->password, $admin->password)) {
+            return redirect()->back()->with('error', 'Incorrect password. Settings not updated.');
+        }
+
+        $validated = $request->validate([
+            'table_name' => 'required|string|in:entry_logs,visit_requests,notifications,shift_logs,shifts',
+            'auto_delete_enabled' => 'required|boolean',
+            'retention_days' => 'required|integer|min:0|max:365',
+        ]);
+
+        CleanupTableSetting::updateSettings(
+            $validated['table_name'],
+            $validated['auto_delete_enabled'],
+            $validated['retention_days']
+        );
+
+        $tableName = CleanupTableSetting::TABLES[$validated['table_name']];
+        $status = $validated['auto_delete_enabled'] ? 'enabled' : 'disabled';
+        
+        return redirect()->back()->with('success', "{$tableName} cleanup settings updated! Auto-delete {$status}, Retention: {$validated['retention_days']} days.");
+    }
+
+    /**
+     * Run cleanup manually for a specific table (with password confirmation)
+     */
+    public function runCleanupNow(Request $request)
+    {
+        // Validate password first
+        $admin = Auth::guard('admin')->user();
+        if (!Hash::check($request->password, $admin->password)) {
+            return redirect()->back()->with('error', 'Incorrect password. Cleanup cancelled.');
+        }
+
+        $validated = $request->validate([
+            'table_name' => 'required|string|in:entry_logs,visit_requests,notifications,shift_logs,shifts',
+            'retention_days' => 'required|integer|min:0|max:365',
+        ]);
+
+        $tableName = $validated['table_name'];
+        $days = $validated['retention_days'];
+        $deletedCount = 0;
+
+        if ($tableName === 'entry_logs') {
+            if (!CleanupTableSetting::isAutoDeleteEnabled('entry_logs')) {
+                return redirect()->back()->with('error', 'Auto-delete is disabled for entry_logs. Enable it first.');
+            }
+
+            $cutoffDate = Carbon::now()->subDays($days);
+            $deletedCount = EntryLog::whereRaw('STR_TO_DATE(scan_at, "%Y-%m-%d %H:%i:%s") <= ?', [$cutoffDate->toDateTimeString()])->count();
+            EntryLog::whereRaw('STR_TO_DATE(scan_at, "%Y-%m-%d %H:%i:%s") <= ?', [$cutoffDate->toDateTimeString()])->delete();
+
+            CleanupTableSetting::getForTable('entry_logs')->updateLastCleanupDate();
+            
+        } elseif ($tableName === 'visit_requests') {
+            if (!CleanupTableSetting::isAutoDeleteEnabled('visit_requests')) {
+                return redirect()->back()->with('error', 'Auto-delete is disabled for visit_requests. Enable it first.');
+            }
+            
+            $cutoffDate = Carbon::now()->subDays($days);
+            $deletedCount = VisitRequest::where('created_at', '<=', $cutoffDate->toDateTimeString())->count();
+            VisitRequest::where('created_at', '<=', $cutoffDate->toDateTimeString())->delete();
+            
+            CleanupTableSetting::getForTable('visit_requests')->updateLastCleanupDate();
+            
+        } elseif ($tableName === 'notifications') {
+            if (!CleanupTableSetting::isAutoDeleteEnabled('notifications')) {
+                return redirect()->back()->with('error', 'Auto-delete is disabled for notifications. Enable it first.');
+            }
+            
+            $cutoffDate = Carbon::now()->subDays($days);
+            $deletedCount = Notification::where('created_at', '<=', $cutoffDate->toDateTimeString())->count();
+            Notification::where('created_at', '<=', $cutoffDate->toDateTimeString())->delete();
+            
+            CleanupTableSetting::getForTable('notifications')->updateLastCleanupDate();
+            
+        } elseif ($tableName === 'shift_logs') {
+            if (!CleanupTableSetting::isAutoDeleteEnabled('shift_logs')) {
+                return redirect()->back()->with('error', 'Auto-delete is disabled for shift_logs. Enable it first.');
+            }
+            
+            $cutoffDate = Carbon::now()->subDays($days);
+            $deletedCount = ShiftLog::where('created_at', '<=', $cutoffDate->toDateTimeString())->count();
+            ShiftLog::where('created_at', '<=', $cutoffDate->toDateTimeString())->delete();
+            
+            CleanupTableSetting::getForTable('shift_logs')->updateLastCleanupDate();
+            
+        } elseif ($tableName === 'shifts') {
+            if (!CleanupTableSetting::isAutoDeleteEnabled('shifts')) {
+                return redirect()->back()->with('error', 'Auto-delete is disabled for shifts. Enable it first.');
+            }
+            
+            $cutoffDate = Carbon::now()->subDays($days);
+            $deletedCount = Shift::where('shift_date', '<=', $cutoffDate->toDateString())->count();
+            Shift::where('shift_date', '<=', $cutoffDate->toDateString())->delete();
+            
+            CleanupTableSetting::getForTable('shifts')->updateLastCleanupDate();
+        }
+
+        $tableLabel = CleanupTableSetting::TABLES[$tableName];
+        $message = "Cleanup completed! {$deletedCount} records deleted from {$tableLabel} (Retention: {$days} days).";
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Toggle global auto-delete (with password confirmation)
+     */
+    public function toggleGlobalAutoDelete(Request $request)
+    {
+        // Validate password first
+        $admin = Auth::guard('admin')->user();
+        if (!Hash::check($request->password, $admin->password)) {
+            return redirect()->back()->with('error', 'Incorrect password. Action cancelled.');
+        }
+
+        $newStatus = CleanupSetting::toggleAutoDelete();
+        $statusText = $newStatus ? 'enabled' : 'disabled';
+        
+        return redirect()->back()->with('success', "Global auto-delete has been {$statusText}.");
+    }
 }  

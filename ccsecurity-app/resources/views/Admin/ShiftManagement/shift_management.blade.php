@@ -26,22 +26,46 @@
         </div>
         @endif
 
-        <!-- Assign Shift Section -->
-        <div>
-            <h3>📅 Assign New Shift</h3>
-            <button type="button" onclick="openAssignShiftModal()">
+        <!-- Search and Action Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <form method="GET" action="{{ route('admin.shift.management') }}" style="display: flex; gap: 10px;">
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search by guard name, date, or status..." 
+                    value="{{ request('search') }}"
+                    style="width: 300px; padding: 8px;"
+                >
+                <button type="submit">Search</button>
+                @if(request('search'))
+                <a href="{{ route('admin.shift.management') }}" style="align-self: center;">Clear</a>
+                @endif
+            </form>
+
+            <button type="button" onclick="openAssignShiftModal()" style="background: #007bff; color: white; padding: 10px 15px; border: none; cursor: pointer; border-radius: 4px;">
                 + Assign Shift
             </button>
         </div>
 
-        <!-- Upcoming Shifts Table -->
+        <!-- Shifts List Section -->
         <div>
-            <h3>📋 Upcoming Shifts</h3>
-            @if($shifts->count() > 0)
-            <div>
+            <h3>📋 Shifts List</h3>
+            
+            <form id="bulk-delete-form" action="{{ route('admin.shift.bulk-delete') }}" method="POST">
+                @csrf
+                @method('DELETE')
+                
+                <div style="margin-bottom: 10px;">
+                    <button type="button" onclick="confirmBulkDelete()" id="bulk-delete-btn" disabled style="background-color: #fff0f0; color: #dc3545; border: 1px solid #dc3545; padding: 5px 10px; cursor: pointer;">
+                        Bulk Delete Selected Shifts
+                    </button>
+                </div>
+
+                @if($shifts->count() > 0)
                 <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
-                    <thead>
+                    <thead style="background-color: #f8f9fa;">
                         <tr>
+                            <th><input type="checkbox" id="select-all"></th>
                             <th>ID</th>
                             <th>Security Guard</th>
                             <th>Date</th>
@@ -55,6 +79,7 @@
                     <tbody>
                         @foreach($shifts as $shift)
                         <tr>
+                            <td><input type="checkbox" name="shift_ids[]" value="{{ $shift->id }}" class="shift-checkbox"></td>
                             <td>{{ $shift->id }}</td>
                             <td>{{ $shift->securityGuardUser->first_name ?? 'N/A' }} {{ $shift->securityGuardUser->last_name ?? '' }}</td>
                             <td>{{ $shift->shift_date->format('M d, Y') }}</td>
@@ -63,27 +88,27 @@
                             <td>{{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hrs</td>
                             <td>{{ ucfirst($shift->status) }}</td>
                             <td>
-                                <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
-                                <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit">Delete</button>
-                                </form>
+                                <div style="display: flex; gap: 5px;">
+                                    <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
+                                    <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
-            </div>
 
-            @if($shifts->hasPages())
-            <div>
-                {{ $shifts->links() }}
-            </div>
-            @endif
-            @else
-            <p>No upcoming shifts scheduled.</p>
-            @endif
+                <div style="margin-top: 20px;">
+                    {{ $shifts->appends(request()->query())->links() }}
+                </div>
+                @else
+                <p style="text-align: center; padding: 20px; border: 1px solid #ddd;">No shifts found.</p>
+                @endif
+            </form>
         </div>
     </div>
 
@@ -152,7 +177,7 @@
                             <input
                                 type="date"
                                 id="recurring_start_date"
-                                name="shift_date"
+                                name="shift_date_recurring"
                                 min="{{ today()->format('Y-m-d') }}"
                                 value="{{ old('shift_date') }}"
                                 style="width: 100%; padding: 8px;"
@@ -173,27 +198,11 @@
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 10px; font-weight: bold;">Repeat On *</label>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            @foreach(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $index => $day)
                             <label style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="recurring_days[]" value="0"> Sun
+                                <input type="checkbox" name="recurring_days[]" value="{{ $index }}"> {{ $day }}
                             </label>
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="recurring_days[]" value="1"> Mon
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="recurring_days[]" value="2"> Tue
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="recurring_days[]" value="3"> Wed
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="recurring_days[]" value="4"> Thu
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="recurring_days[]" value="5"> Fri
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="recurring_days[]" value="6"> Sat
-                            </label>
+                            @endforeach
                         </div>
                     </div>
                     <div style="margin-bottom: 15px;">
@@ -225,9 +234,9 @@
                         >
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <button type="button" onclick="closeAssignShiftModal()" style="margin-right: 10px;">Cancel</button>
-                    <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer;">Assign Shift</button>
+                <div style="text-align: right; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <button type="button" onclick="closeAssignShiftModal()" style="margin-right: 10px; padding: 8px 15px;">Cancel</button>
+                    <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px;">Assign Shift</button>
                 </div>
             </form>
         </div>
@@ -242,28 +251,17 @@
             document.getElementById('assignShiftModal').style.display = 'none';
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('assignShiftModal');
-            if (event.target == modal) {
-                closeAssignShiftModal();
-            }
-        }
-
         function toggleRecurringOptions() {
             const recurringType = document.getElementById('recurring_type').value;
             const singleDayOption = document.getElementById('single_day_option');
             const recurringOptions = document.getElementById('recurring_options');
-            const shiftDateInput = document.getElementById('shift_date');
-
+            
             if (recurringType === 'single') {
                 singleDayOption.style.display = 'block';
                 recurringOptions.style.display = 'none';
-                shiftDateInput.required = true;
             } else {
                 singleDayOption.style.display = 'none';
                 recurringOptions.style.display = 'block';
-                shiftDateInput.required = false;
             }
         }
 
@@ -285,22 +283,37 @@
             });
         }
 
-        // Set default min dates
+        // Bulk Delete Functions
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.shift-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            toggleBulkDeleteButton();
+        });
+
+        document.querySelectorAll('.shift-checkbox').forEach(cb => {
+            cb.addEventListener('change', toggleBulkDeleteButton);
+        });
+
+        function toggleBulkDeleteButton() {
+            const checkedCount = document.querySelectorAll('.shift-checkbox:checked').length;
+            document.getElementById('bulk-delete-btn').disabled = checkedCount === 0;
+        }
+
+        function confirmBulkDelete() {
+            const checkedCount = document.querySelectorAll('.shift-checkbox:checked').length;
+            if (confirm(`Are you sure you want to delete ${checkedCount} selected shifts?`)) {
+                document.getElementById('bulk-delete-form').submit();
+            }
+        }
+
+        // Initialize min dates
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(input => {
                 input.min = today;
             });
-
-            // Handle recurring options visibility on page load (for validation errors)
-            const recurringType = document.getElementById('recurring_type').value;
-            const singleDayOption = document.getElementById('single_day_option');
-            const recurringOptions = document.getElementById('recurring_options');
             
-            if (recurringType === 'recurring') {
-                singleDayOption.style.display = 'none';
-                recurringOptions.style.display = 'block';
-            }
+            toggleRecurringOptions();
         });
     </script>
 </body>
