@@ -17,7 +17,7 @@
         <!-- Main Content -->
         <div>
             <h2>Management Sections</h2>
-            
+
             <div>
                 <!-- Inside User CRUD Card -->
                 <div>
@@ -43,11 +43,27 @@
                     </a>
                 </div>
 
+                <!-- Visit Requests Card -->
+                <div>
+                    <a href="{{ route('admin.visit.requests') }}">
+                        <h3>Visit Requests</h3>
+                        
+                    </a>
+                </div>
+
+                <!-- Parent-Child Connection Requests Card -->
+                <div>
+                    <a href="{{ route('admin.connection.requests') }}">
+                        <h3> Parent-Child Connections</h3>
+                        
+                    </a>
+                </div>
+
                 <!-- Cleanup Settings Card -->
                 <div>
                     <a href="{{ route('admin.cleanup.settings') }}">
                         <h3> Auto-Delete Cleanup Settings</h3>
-                        <p>Manage automatic deletion of old records</p>
+                        
                     </a>
                 </div>
             </div>

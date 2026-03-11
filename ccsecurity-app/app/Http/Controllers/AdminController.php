@@ -15,6 +15,7 @@ use App\Models\CleanupSetting;
 use App\Models\CleanupTableSetting;
 use App\Models\EntryLog;
 use App\Models\ShiftLog;
+use App\Models\ParentChildConnection;
 use Carbon\Carbon;
 
 
@@ -379,10 +380,35 @@ class AdminController extends Controller
     // INSIDE USER MANAGEMENT (CRUD)
     // =========================================================================
 
-    public function showCrudSection()
+    public function showCrudSection(Request $request)
     {
-        $inside_users = InsideUser::all();
+        $query = InsideUser::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('fullname', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('role', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $inside_users = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('Admin.AdminCrudSection.admin_crud', compact('inside_users'));
+    }
+
+    public function bulkDeleteUsers(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:mysql_second.inside_user,id'
+        ]);
+
+        InsideUser::whereIn('id', $request->user_ids)->delete();
+
+        return redirect()->back()->with('success', count($request->user_ids) . ' users deleted successfully!');
     }
 
     public function showAddUserForm()
@@ -686,6 +712,74 @@ class AdminController extends Controller
     }
 
     // =========================================================================
+    // PARENT-CHILD CONNECTION MANAGEMENT
+    // =========================================================================
+
+    /**
+     * Show all parent-child connection requests
+     */
+    public function showConnectionRequests()
+    {
+        $connectionRequests = ParentChildConnection::with(['outsideUser', 'insideUser'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        $pendingCount = ParentChildConnection::where('status', ParentChildConnection::STATUS_PENDING)->count();
+        $approvedCount = ParentChildConnection::where('status', ParentChildConnection::STATUS_APPROVED)->count();
+        $rejectedCount = ParentChildConnection::where('status', ParentChildConnection::STATUS_REJECTED)->count();
+
+        return view('Admin.ConnectionRequests.connection_requests', compact('connectionRequests', 'pendingCount', 'approvedCount', 'rejectedCount'));
+    }
+
+    /**
+     * Approve a parent-child connection request
+     */
+    public function approveConnectionRequest($id)
+    {
+        $connection = ParentChildConnection::findOrFail($id);
+
+        $connection->approve('Approved by admin');
+
+        Notification::create([
+            'outside_user_id' => $connection->outside_user_id,
+            'type' => 'connection_approved',
+            'title' => 'Child Connection Approved',
+            'message' => "Your connection request with {$connection->insideUser->fullname} has been approved. You can now track their entry and exit at school.",
+            'related_type' => 'parent_child_connection',
+            'related_id' => $connection->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Connection request approved!');
+    }
+
+    /**
+     * Reject a parent-child connection request
+     */
+    public function rejectConnectionRequest($id, Request $request)
+    {
+        $connection = ParentChildConnection::findOrFail($id);
+
+        $remarks = $request->input('admin_remarks', 'Request rejected by admin');
+
+        $connection->reject($remarks);
+
+        Notification::create([
+            'outside_user_id' => $connection->outside_user_id,
+            'type' => 'connection_rejected',
+            'title' => 'Child Connection Rejected',
+            'message' => "Your connection request with {$connection->insideUser->fullname} has been rejected. Remarks: {$remarks}",
+            'related_type' => 'parent_child_connection',
+            'related_id' => $connection->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Connection request rejected.');
+    }
+
+    // =========================================================================
     // AUTO-DELETE CLEANUP MANAGEMENT
     // =========================================================================
 
@@ -695,7 +789,7 @@ class AdminController extends Controller
     public function showCleanupSettings()
     {
         $tableSettings = CleanupTableSetting::getAllSettings();
-        
+
         // Get statistics for each table
         $stats = [
             'entry_logs' => [

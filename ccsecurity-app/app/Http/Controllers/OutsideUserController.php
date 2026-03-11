@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\OutsideUser;
 use App\Models\VisitRequest;
 use App\Models\Notification;
+use App\Models\ParentChildConnection;
 use Carbon\Carbon;
 
 class OutsideUserController extends Controller
@@ -48,7 +49,34 @@ class OutsideUserController extends Controller
             ->limit(5)
             ->get();
 
-        return view('OutsideUser.dashboard', compact('visitRequests', 'pendingCount', 'unreadNotificationsCount', 'notifications'));
+        // Get connection requests count
+        $pendingConnectionCount = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+            ->where('status', ParentChildConnection::STATUS_PENDING)
+            ->count();
+
+        // Get approved connections
+        $approvedConnections = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+            ->where('status', ParentChildConnection::STATUS_APPROVED)
+            ->with('insideUser')
+            ->limit(3)
+            ->get();
+
+        // Get connected children IDs
+        $connectedChildrenIds = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+            ->where('status', ParentChildConnection::STATUS_APPROVED)
+            ->pluck('inside_user_id');
+
+        // Get recent entry/exit logs for connected children
+        $childrenEntryLogs = [];
+        if ($connectedChildrenIds->count() > 0) {
+            $childrenEntryLogs = \App\Models\EntryLog::whereIn('inside_user_id', $connectedChildrenIds)
+                ->with(['insideUser', 'securityGuardUser'])
+                ->orderBy('scan_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+
+        return view('OutsideUser.dashboard', compact('visitRequests', 'pendingCount', 'unreadNotificationsCount', 'notifications', 'pendingConnectionCount', 'approvedConnections', 'childrenEntryLogs'));
     }
 
     public function logout()

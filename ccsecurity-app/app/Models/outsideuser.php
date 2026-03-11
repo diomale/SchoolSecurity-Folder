@@ -77,4 +77,40 @@ class OutsideUser extends Authenticatable
         return $this->hasMany(VisitRequest::class, 'outside_user_id')
                     ->where('status', 'pending');
     }
+
+    /**
+     * Get parent-child connections where this user is the parent/visitor
+     */
+    public function parentChildConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'outside_user_id');
+    }
+
+    /**
+     * Get pending connection requests
+     */
+    public function pendingConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'outside_user_id')
+                    ->where('status', ParentChildConnection::STATUS_PENDING);
+    }
+
+    /**
+     * Get approved connections only
+     */
+    public function approvedConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'outside_user_id')
+                    ->where('status', ParentChildConnection::STATUS_APPROVED);
+    }
+
+    /**
+     * Get connected inside users (children) through approved connections
+     */
+    public function connectedChildren()
+    {
+        return $this->belongsToMany(InsideUser::class, 'parent_child_connections', 'outside_user_id', 'inside_user_id')
+                    ->wherePivot('status', ParentChildConnection::STATUS_APPROVED)
+                    ->withPivot('relationship', 'approved_at');
+    }
 }

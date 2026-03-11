@@ -71,6 +71,7 @@ Route::prefix('admin')->group(function () {
         
         //Create, Read, Update, Delete; for insider
         Route::get('/crud-section', [AdminController::class,'showCrudSection'])->name('admin.show.crudSection');
+        Route::delete('/user/bulk-delete', [AdminController::class, 'bulkDeleteUsers'])->name('admin.user.bulk-delete');
         Route::get('/add-form', [AdminController::class, 'showAddUserForm'])->name('admin.add.user');
         Route::post('/user-store',[AdminController::class,'storeUser'])->name('admin.add.user.accept');
         Route::get('/user/{id}/details', [AdminController::class, 'showUserDetail'])->name('admin.user.details');
@@ -93,6 +94,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/visit-requests', [AdminController::class, 'showVisitRequests'])->name('admin.visit.requests');
         Route::patch('/visit-request-approve/{id}', [AdminController::class, 'approveVisitRequest'])->name('admin.visit.approve');
         Route::patch('/visit-request-reject/{id}', [AdminController::class, 'rejectVisitRequest'])->name('admin.visit.reject');
+
+        // Parent-Child Connection Management
+        Route::get('/connection-requests', [AdminController::class, 'showConnectionRequests'])->name('admin.connection.requests');
+        Route::patch('/connection-approve/{id}', [AdminController::class, 'approveConnectionRequest'])->name('admin.connection.approve');
+        Route::patch('/connection-reject/{id}', [AdminController::class, 'rejectConnectionRequest'])->name('admin.connection.reject');
 
         //QR Status Management
         Route::get('/qr-status-management', [AdminController::class, 'showQrStatusManagement'])->name('admin.qr.status.management');
@@ -176,6 +182,8 @@ Route::prefix('securityguard')->group(function(){
 
 //-- OUTSIDE USER --/
 
+use App\Http\Controllers\ParentConnectionController;
+
 Route::prefix('outsideuser')->group(function(){
 
 
@@ -204,6 +212,13 @@ Route::prefix('outsideuser')->group(function(){
         Route::get('/notifications', [OutsideUserController::class, 'notifications'])->name('outsideuser.notifications');
         Route::post('/notifications/{id}/read', [OutsideUserController::class, 'markNotificationAsRead'])->name('outsideuser.notifications.read');
         Route::post('/notifications/read-all', [OutsideUserController::class, 'markAllNotificationsAsRead'])->name('outsideuser.notifications.read-all');
+
+        // Parent-Child Connection routes
+        Route::get('/connections/request', [ParentConnectionController::class, 'showRequestForm'])->name('outsideuser.connections.request');
+        Route::get('/connections/search', [ParentConnectionController::class, 'searchInsideUser'])->name('outsideuser.connections.search');
+        Route::post('/connections/submit', [ParentConnectionController::class, 'submitConnectionRequest'])->name('outsideuser.connections.submit');
+        Route::get('/connections/history', [ParentConnectionController::class, 'connectionHistory'])->name('outsideuser.connections.history');
+        Route::post('/connections/cancel/{id}', [ParentConnectionController::class, 'cancelConnection'])->name('outsideuser.connections.cancel');
     });
 
 });

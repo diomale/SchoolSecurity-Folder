@@ -54,6 +54,12 @@
             <button class="tab-button active" onclick="switchTab('profile')">User Profile</button>
             <button class="tab-button" onclick="switchTab('quick-actions')">Quick Actions</button>
             <button class="tab-button" onclick="switchTab('visit-history')">Visit History</button>
+            <button class="tab-button" onclick="switchTab('child-connections')">
+                Child Connections
+                @if($pendingConnectionCount > 0)
+                    <span class="notification-badge">{{ $pendingConnectionCount }}</span>
+                @endif
+            </button>
         </div>
 
         <hr>
@@ -70,9 +76,9 @@
                 <p>
                     <strong>Account Status:</strong>
                     @if(auth('outsideuser')->user()->status == 1)
-                        ✓ Approved
+                         Approved
                     @elseif(auth('outsideuser')->user()->status == 2)
-                        ✗ Rejected
+                         Rejected
                     @else
                          Pending Approval
                     @endif
@@ -180,9 +186,9 @@
                         <td>{{ $request->person_to_meet }}</td>
                         <td>
                             @if($request->status === 'approved')
-                                ✓ Approved
+                                 Approved
                             @elseif($request->status === 'rejected')
-                                ✗ Rejected
+                                 Rejected
                             @else
                                  Pending
                             @endif
@@ -205,6 +211,101 @@
             @endif
         </div>
 
+        <!-- Child Connections Tab -->
+        <div id="child-connections" class="tab-content">
+            <h2> Child Connections</h2>
+            <p>Connect with your children to track their entry and exit at school</p>
+            
+            <div style="margin-bottom: 20px;">
+                <a href="{{ route('outsideuser.connections.request') }}" style="background: #4caf50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">+ Request New Connection</a>
+                <a href="{{ route('outsideuser.connections.history') }}" style="background: #2196f3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-left: 10px;">View History</a>
+            </div>
+
+            @if($approvedConnections->count() > 0)
+            <h3>✓ Connected Children</h3>
+            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>QR Value</th>
+                        <th>Relationship</th>
+                        <th>Connected Since</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($approvedConnections as $connection)
+                    <tr>
+                        <td>{{ $connection->insideUser->fullname ?? 'N/A' }}</td>
+                        <td>{{ $connection->insideUser->email ?? 'N/A' }}</td>
+                        <td>{{ $connection->insideUser->qr_value ?? 'N/A' }}</td>
+                        <td>{{ $connection->relationship }}</td>
+                        <td>{{ $connection->approved_at->format('M d, Y') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @else
+            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+                <p style="color: #666;">You haven't connected with any children yet.</p>
+                <a href="{{ route('outsideuser.connections.request') }}">Request your first connection</a>
+            </div>
+            @endif
+
+            @if($pendingConnectionCount > 0)
+            <h3>⏳ Pending Requests</h3>
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+                <p>You have <strong>{{ $pendingConnectionCount }}</strong> pending connection request(s) awaiting admin approval.</p>
+                <a href="{{ route('outsideuser.connections.history') }}">View connection history</a>
+            </div>
+            @endif
+
+            <!-- Children Entry/Exit Logs -->
+            @if(isset($childrenEntryLogs) && $childrenEntryLogs->count() > 0)
+            <hr style="margin: 30px 0;">
+            <h3> Recent Entry/Exit Activity</h3>
+            <p style="color: #666; margin-bottom: 15px;">Track when your children enter or exit the school</p>
+            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Scan Type</th>
+                        <th>Scanned By</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($childrenEntryLogs as $log)
+                    <tr>
+                        <td>
+                            <strong>{{ $log->insideUser->fullname ?? 'Unknown' }}</strong>
+                        </td>
+                        <td>
+                            @if($log->scan_type === 'entry')
+                                <span style="color: #4caf50; font-weight: bold;">➤ ENTRY</span>
+                            @elseif($log->scan_type === 'exit')
+                                <span style="color: #f44336; font-weight: bold;">➤ EXIT</span>
+                            @else
+                                {{ $log->scan_type ?? 'N/A' }}
+                            @endif
+                        </td>
+                        <td>
+                            {{ $log->securityGuardUser->fullname ?? 'Unknown Guard' }}
+                        </td>
+                        <td>
+                            @if($log->scan_at)
+                                {{ $log->scan_at->format('M d, Y h:i A') }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @endif
+        </div>
+
         <!-- Notifications Section -->
         @if($notifications->count() > 0)
         <hr>
@@ -214,9 +315,9 @@
             <div>
                 <strong>
                     @if($notification->type === 'visit_approved')
-                        ✓
+                        
                     @elseif($notification->type === 'visit_rejected')
-                        ✗
+                        
                     @endif
                     {{ $notification->title }}
                     @if(!$notification->is_read)
