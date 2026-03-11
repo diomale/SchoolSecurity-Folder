@@ -59,6 +59,8 @@
                         <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                     </label>
                 </div>
+                <!-- Hidden container for image scanning (doesn't interfere with camera) -->
+                <div id="image-reader" class="hidden"></div>
                 <div id="image-preview" class="hidden mb-4">
                     <img id="preview-img" class="max-w-full h-auto rounded-lg border" style="max-height: 300px;">
                     <button onclick="clearImage()" class="mt-2 text-sm text-red-600 hover:text-red-800">Clear Image</button>
@@ -120,11 +122,8 @@
             cameraTab.classList.add('text-gray-600');
             imageView.classList.remove('hidden');
             cameraView.classList.add('hidden');
-            
-            // Pause camera to save resources
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.pause();
-            }
+
+            // Keep camera running in background - don't pause
         }
     }
 
@@ -169,23 +168,16 @@
         document.getElementById('scan-result').classList.add('hidden');
         document.getElementById('scan-error').classList.add('hidden');
 
-        // Scan the image
-        const html5QrCode = new Html5Qrcode("reader");
-        
+        // Scan the image using a separate hidden container (doesn't interfere with camera)
+        const html5QrCode = new Html5Qrcode("image-reader");
+
         html5QrCode.scanFile(file, true)
             .then(decodedText => {
                 processScanResult(decodedText);
+                // Clear the image reader after successful scan
+                html5QrCode.clear().catch(err => console.error('Failed to clear image reader', err));
             })
-            .catch(err => {
-                console.error("Error scanning image", err);
-                const errorDiv = document.getElementById('scan-error');
-                errorDiv.classList.remove('hidden');
-                document.getElementById('error-message').textContent = 'No QR code found in the image. Please try with a clearer image.';
-                
-                setTimeout(() => {
-                    errorDiv.classList.add('hidden');
-                }, 5000);
-            });
+ 
     }
 
     function clearImage() {
@@ -214,12 +206,13 @@
         const errorDiv = document.getElementById('scan-error');
         const qrValueSpan = document.getElementById('qr-value');
         const scanMessage = document.getElementById('scan-message');
-        
+
         resultDiv.classList.remove('hidden');
         resultDiv.classList.add('bg-green-100', 'border', 'border-green-400');
         errorDiv.classList.add('hidden');
-        qrValueSpan.textContent = decodedText;
-        scanMessage.textContent = 'Processing...';
+        // Don't show QR value for security - show "Scanning..." instead
+        qrValueSpan.textContent = 'Scanning...';
+        scanMessage.textContent = '';
 
         // Send to server
         fetch("{{ route('security.scan.qr') }}", {
@@ -237,7 +230,9 @@
                 resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
                 resultDiv.classList.add('bg-blue-100', 'border', 'border-blue-400');
                 const userTypeLabel = data.user_type === 'outside' ? 'Visitor' : 'Staff/Student';
-                scanMessage.textContent = `${data.message} - ${data.inside_user.fullname} (${userTypeLabel})`;
+                // Show only user's name (hide QR value for security)
+                qrValueSpan.textContent = data.inside_user.fullname;
+                scanMessage.textContent = `${data.message} (${userTypeLabel})`;
 
                 // Add to scan history with server timestamp
                 addToHistory(data);
@@ -249,6 +244,12 @@
             } else {
                 resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
                 resultDiv.classList.add('bg-yellow-100', 'border', 'border-yellow-400');
+                // Show user's name even on error (if available)
+                if (data.inside_user && data.inside_user.fullname) {
+                    qrValueSpan.textContent = data.inside_user.fullname;
+                } else {
+                    qrValueSpan.textContent = 'Unknown User';
+                }
                 scanMessage.textContent = data.message || 'User not found';
             }
         })
@@ -257,7 +258,7 @@
             resultDiv.classList.add('hidden');
             errorDiv.classList.remove('hidden');
             document.getElementById('error-message').textContent = 'Error processing scan. Please try again.';
-            
+
             setTimeout(() => {
                 errorDiv.classList.add('hidden');
             }, 5000);
@@ -302,8 +303,7 @@
             <div class="${bgColor} border rounded-lg p-3 animate-fade-in">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="font-semibold text-gray-800">${data.inside_user.fullname} <span class="text-xs text-gray-500">(${userTypeLabel})</span></p>
-                        <p class="text-sm text-gray-600">QR: ${data.inside_user.qr_value}</p>
+                        <p class="font-semibold text-gray-800">${data.inside_user.fullname}</p>
                         <p class="text-sm text-gray-500">${dateString} ${timeString}</p>
                     </div>
                     <span class="${typeColor} font-bold px-3 py-1 rounded-full bg-white border">${typeLabel}</span>

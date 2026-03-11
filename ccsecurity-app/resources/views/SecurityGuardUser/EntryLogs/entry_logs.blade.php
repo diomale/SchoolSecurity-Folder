@@ -88,20 +88,42 @@
                     @foreach($logs as $log)
                     <tr>
                         <td><strong>#{{ $log->id }}</strong></td>
-                        <td>{{ $log->insideUser->fullname ?? 'N/A' }}</td>
-                        <td>{{ $log->insideUser->email ?? 'N/A' }}</td>
+                        <td>
+                            @if($log->insideUser)
+                                {{ $log->insideUser->fullname }}
+                            @elseif($log->outsideUser)
+                                {{ $log->outsideUser->fullname }} (Visitor)
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td>
+                            @if($log->insideUser)
+                                {{ $log->insideUser->email }}
+                            @elseif($log->outsideUser)
+                                {{ $log->outsideUser->email }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
                         <td>
                             @if($log->scan_type === 'entry')
                                 <span>✓ Entry</span>
-                            @else
+                            @elseif($log->scan_type === 'exit')
                                 <span>✗ Exit</span>
+                            @else
+                                <span>{{ $log->scan_type }}</span>
                             @endif
                         </td>
                         <td>
                             {{ $log->scan_at ? \Carbon\Carbon::parse($log->scan_at)->format('M d, Y h:i A') : 'N/A' }}
                         </td>
                         <td>
-                            {{ $log->securityGuardUser->first_name ?? 'N/A' }} {{ $log->securityGuardUser->last_name ?? '' }}
+                            @if($log->securityGuardUser)
+                                {{ $log->securityGuardUser->fullname ?? ($log->securityGuardUser->first_name . ' ' . $log->securityGuardUser->last_name) }}
+                            @else
+                                N/A
+                            @endif
                         </td>
                     </tr>
                     @endforeach
