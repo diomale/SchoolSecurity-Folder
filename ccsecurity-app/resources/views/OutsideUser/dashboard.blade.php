@@ -261,7 +261,7 @@
             @endif
 
             <!-- Children Entry/Exit Logs -->
-            @if(isset($childrenEntryLogs) && $childrenEntryLogs->count() > 0)
+            @if(isset($childrenEntryLogs) && count($childrenEntryLogs) > 0)
             <hr style="margin: 30px 0;">
             <h3> Recent Entry/Exit Activity</h3>
             <p style="color: #666; margin-bottom: 15px;">Track when your children enter or exit the school</p>
