@@ -26,7 +26,7 @@ class RunAllCleanup extends Command
      *
      * @var string
      */
-    protected $description = 'Run cleanup for all tables (entry logs, visit requests, notifications, shift logs, shifts)';
+    protected $description = 'Run cleanup for all tables (entry logs, visit requests, notifications, shift logs, shifts). Does NOT clear sessions or cache.';
 
     /**
      * Execute the console command.
@@ -81,7 +81,7 @@ class RunAllCleanup extends Command
         }, $daysOverride);
 
         $this->newLine();
-        $this->info('✅ All cleanup tasks completed!');
+        $this->info('✅ All cleanup tasks completed! Sessions and cache were NOT affected.');
 
         return 0;
     }
