@@ -256,13 +256,25 @@
             const recurringType = document.getElementById('recurring_type').value;
             const singleDayOption = document.getElementById('single_day_option');
             const recurringOptions = document.getElementById('recurring_options');
-            
+
             if (recurringType === 'single') {
                 singleDayOption.style.display = 'block';
                 recurringOptions.style.display = 'none';
+                // Disable recurring fields so they don't get submitted
+                document.getElementById('recurring_end_date').disabled = true;
+                document.getElementById('recurring_start_date').disabled = true;
+                document.querySelectorAll('input[name="recurring_days[]"]').forEach(cb => {
+                    cb.disabled = true;
+                });
             } else {
                 singleDayOption.style.display = 'none';
                 recurringOptions.style.display = 'block';
+                // Enable recurring fields
+                document.getElementById('recurring_end_date').disabled = false;
+                document.getElementById('recurring_start_date').disabled = false;
+                document.querySelectorAll('input[name="recurring_days[]"]').forEach(cb => {
+                    cb.disabled = false;
+                });
             }
         }
 

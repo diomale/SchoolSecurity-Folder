@@ -13,6 +13,11 @@ class Recaptcha implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        // Skip reCAPTCHA validation in local development
+        if (app()->environment('local')) {
+            return;
+        }
+
         // 1. Send the token ($value) to Google
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret'   => config('services.recaptcha.secret_key'),

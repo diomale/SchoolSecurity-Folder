@@ -587,7 +587,7 @@ class AdminController extends Controller
             'recurring_type' => 'required|in:single,recurring',
             'recurring_days' => 'required_if:recurring_type,recurring|array',
             'recurring_days.*' => 'required_if:recurring_type,recurring|integer|between:0,6',
-            'recurring_end_date' => 'required_if:recurring_type,recurring|date|after_or_equal:shift_date',
+            'recurring_end_date' => 'nullable|required_if:recurring_type,recurring|date|after_or_equal:shift_date',
         ]);
 
         if ($request->recurring_type === 'single') {
