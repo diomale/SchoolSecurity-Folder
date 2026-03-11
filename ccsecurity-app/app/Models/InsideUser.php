@@ -42,9 +42,45 @@ class InsideUser extends Authenticatable
         static::created(function ($user) {
             // Logic: Prefix + (Base Number + Auto-increment ID)
             $user->qr_value = 'User-' . (1000 + $user->id);
-            
+
             // Save without triggering events again to avoid infinite loops
             $user->saveQuietly();
         });
+    }
+
+    /**
+     * Get parent-child connections where this user is the child/student
+     */
+    public function parentChildConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'inside_user_id');
+    }
+
+    /**
+     * Get pending connection requests
+     */
+    public function pendingConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'inside_user_id')
+                    ->where('status', ParentChildConnection::STATUS_PENDING);
+    }
+
+    /**
+     * Get approved connections only
+     */
+    public function approvedConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'inside_user_id')
+                    ->where('status', ParentChildConnection::STATUS_APPROVED);
+    }
+
+    /**
+     * Get connected outside users (parents) through approved connections
+     */
+    public function connectedParents()
+    {
+        return $this->belongsToMany(OutsideUser::class, 'parent_child_connections', 'inside_user_id', 'outside_user_id')
+                    ->wherePivot('status', ParentChildConnection::STATUS_APPROVED)
+                    ->withPivot('relationship', 'approved_at');
     }
 }

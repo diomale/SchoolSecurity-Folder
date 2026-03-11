@@ -3,26 +3,26 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\EntryLog;
+use App\Models\Shift;
 use App\Models\CleanupTableSetting;
 use App\Models\CleanupSetting;
 use Carbon\Carbon;
 
-class DeleteOldNotifications extends Command
+class DeleteOldShifts extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'notifications:cleanup-old {--days= : Number of days to keep records}';
+    protected $signature = 'shifts:cleanup-old {--days= : Number of days to keep shift assignments}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Permanently delete old entry log records (no logging)';
+    protected $description = 'Permanently delete old shift assignment records';
 
     /**
      * Execute the console command.
@@ -35,30 +35,31 @@ class DeleteOldNotifications extends Command
             return 0;
         }
 
-        // Check if auto-delete is enabled for entry_logs
-        if (!CleanupTableSetting::isAutoDeleteEnabled('entry_logs')) {
-            $this->info('Auto-delete is disabled for entry_logs. Skipping cleanup.');
+        // Check if auto-delete is enabled for shifts
+        if (!CleanupTableSetting::isAutoDeleteEnabled('shifts')) {
+            $this->info('Auto-delete is disabled for shifts. Skipping cleanup.');
             return 0;
         }
 
         $days = $this->option('days');
-
+        
         // Use retention days from settings if not specified
         if ($days === null) {
-            $days = CleanupTableSetting::getRetentionDays('entry_logs');
+            $days = CleanupTableSetting::getRetentionDays('shifts');
         }
-
+        
         $cutoffDate = Carbon::now()->subDays($days);
+
         // Get count before deleting
-        $deletedCount = EntryLog::whereRaw('STR_TO_DATE(scan_at, "%Y-%m-%d %H:%i:%s") <= ?', [$cutoffDate->toDateTimeString()])->count();
-        // Permanently delete old entry logs
-        EntryLog::whereRaw('STR_TO_DATE(scan_at, "%Y-%m-%d %H:%i:%s") <= ?', [$cutoffDate->toDateTimeString()])->delete();
+        $deletedCount = Shift::where('shift_date', '<=', $cutoffDate->toDateString())->count();
+        // Permanently delete old shifts
+        Shift::where('shift_date', '<=', $cutoffDate->toDateString())->delete();
 
         // Update last cleanup date
-        $settings = CleanupTableSetting::getForTable('entry_logs');
+        $settings = CleanupTableSetting::getForTable('shifts');
         $settings->updateLastCleanupDate();
 
-        $this->info("Cleanup completed! {$deletedCount} entry log records deleted.");
+        $this->info("Cleanup completed! {$deletedCount} shift assignment records deleted.");
 
         return 0;
     }

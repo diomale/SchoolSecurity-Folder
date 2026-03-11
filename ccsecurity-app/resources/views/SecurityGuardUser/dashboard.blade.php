@@ -25,9 +25,6 @@
                     @csrf
                     <button type="submit">Logout</button>
                 </form>
-                <a href="{{ route('security.scanner.show') }}">
-                    <h2>QR Scanner</h2>
-                </a>
             </div>
         </div>
 
@@ -85,35 +82,30 @@
                 <ul>
                     <li>
                         <a href="{{ route('security.scanner.show') }}">
-                            <strong> QR Scanner</strong> - Scan QR codes to log entry and exit of users
+                            <strong>QR Scanner</strong> - Scan QR codes to log entry and exit of users
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('security.entry.logs') }}">
-                            <strong> Entry/Exit Logs</strong> - View all people entering and exiting the premises
+                            <strong>Entry/Exit Logs</strong> - View all people entering and exiting the premises
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('security.shift.management') }}">
-                            <strong> Shift Management</strong> - Clock in/out and view your shift schedule
+                            <strong>Shift Management</strong> - Clock in/out and view your shift schedule
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('security.qr.status.management') }}">
-                            <strong> QR Status Management</strong> - Activate or deactivate user QR codes
+                            <strong>QR Status Management</strong> - Activate or deactivate user QR codes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('security.walkin.list') }}">
+                            <strong>Visitor Management</strong> - Create and manage walk-in visitor accounts
                         </a>
                     </li>
                 </ul>
-                <a href="{{ route('security.entry.logs') }}">
-                    <h2>Entry/Exit Logs</h2>
-                </a>
-            </div>
-
-            <!-- QR Status Management Card -->
-            <div>
-                <a href="{{ route('security.qr.status.management') }}">
-                    <h2>Inside User QR Status Management</h2>
-                </a>
             </div>
         </div>
 
@@ -151,11 +143,6 @@
                         </td>
                     </tr>
                 </table>
-            <!-- Shift Management Card -->
-            <div>
-                <a href="{{ route('security.shift.management') }}">
-                    <h2>Shift Management</h2>
-                </a>
             </div>
 
             <hr>
@@ -176,9 +163,6 @@
                         <td>{{ $todayExits }}</td>
                     </tr>
                 </table>
-                <h2>Account Info</h2>
-                <p>Email: {{ auth('securityguard')->user()->email }}</p>
-                <p>Status: {{ auth('securityguard')->user()->status }}</p>
             </div>
         </div>
 
@@ -187,7 +171,7 @@
             <h2>Notifications - QR Status Management Activities</h2>
             <p><em>View recent QR code activations/deactivations and scan activities by all security guards.</em></p>
 
-            @if($recentActivities->count() > 0)
+            @if(isset($recentActivities) && $recentActivities->count() > 0)
             <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
@@ -207,7 +191,7 @@
                             @if($activity->insideUser)
                                 {{ $activity->insideUser->fullname }}
                             @elseif($activity->outsideUser)
-                                {{ $activity->outsideUser->fullname }}
+                                {{ $activity->outsideUser->fullname ?? ($activity->outsideUser->first_name . ' ' . $activity->outsideUser->last_name) }}
                             @else
                                 N/A
                             @endif
