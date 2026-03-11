@@ -1,21 +1,22 @@
 <div>
-    <h1>Inside User Management</h1>
+    <h1>Walk-in Visitor Accounts</h1>
 
-    <div>
-        <a href="{{ route('admin.add.user') }}">Add User+</a>
+    <div style="margin-bottom: 20px;">
+        <a href="{{ route('security.dashboard') }}">← Back to Dashboard</a> |
+        <a href="{{ route('security.walkin.add') }}">Create New Walk-in Account</a>
     </div>
 
     <!-- Search Form -->
-    <form action="{{ route('admin.show.crudSection') }}" method="GET" style="margin-top: 20px; margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Search by name, email, or role..." value="{{ request('search') }}" style="width: 300px;">
+    <form action="{{ route('security.walkin.list') }}" method="GET" style="margin-bottom: 20px;">
+        <input type="text" name="search" placeholder="Search by name, email, phone, or QR..." value="{{ request('search') }}" style="width: 300px;">
         <button type="submit">Search</button>
         @if(request('search'))
-            <a href="{{ route('admin.show.crudSection') }}">Clear</a>
+            <a href="{{ route('security.walkin.list') }}">Clear</a>
         @endif
     </form>
 
-    @if (session('success'))
-        <div style="color: green;">{{ session('success') }}</div>
+    @if(session('success'))
+        <div style="color: green; margin-bottom: 10px;">{{ session('success') }}</div>
     @endif
 
     <div style="margin-bottom: 10px;">
@@ -23,7 +24,7 @@
     </div>
 
     <!-- Hidden Bulk Delete Form -->
-    <form id="bulk-delete-form" action="{{ route('admin.user.bulk-delete') }}" method="POST" style="display:none;">
+    <form id="bulk-delete-form" action="{{ route('security.walkin.bulk-delete') }}" method="POST" style="display:none;">
         @csrf
         @method('DELETE')
     </form>
@@ -32,44 +33,49 @@
         <thead style="background-color: #f8f9fa;">
             <tr>
                 <th><input type="checkbox" id="select-all"></th>
+                <th>ID</th>
                 <th>Full Name</th>
                 <th>Email</th>
-                <th>Role</th>
+                <th>Phone</th>
+                <th>QR Value</th>
                 <th>QR Status</th>
                 <th>Created At</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @forelse ($inside_users as $inside_user)
+            @forelse ($outside_users as $outside_user)
             <tr>
-                <td><input type="checkbox" value="{{ $inside_user->id }}" class="user-checkbox"></td>
-                <td>{{ $inside_user->fullname ?? ($inside_user->first_name . ' ' . $inside_user->last_name) }}</td>
-                <td>{{ $inside_user->email }}</td>
-                <td>{{ ucfirst($inside_user->role) }}</td>
+                <td><input type="checkbox" value="{{ $outside_user->id }}" class="user-checkbox"></td>
+                <td>{{ $outside_user->id }}</td>
+                <td>{{ $outside_user->fullname ?? ($outside_user->first_name . ' ' . $outside_user->last_name) }}</td>
+                <td>{{ $outside_user->email }}</td>
+                <td>{{ $outside_user->phone_number ?? 'N/A' }}</td>
+                <td>{{ $outside_user->qr_value ?? 'N/A' }}</td>
                 <td>
-                    @if($inside_user->qr_status === 'active')
+                    @if($outside_user->qr_status === 'active')
                         <span style="color: green;">Active ✓</span>
                     @else
                         <span style="color: gray;">Inactive ✗</span>
                     @endif
                 </td>
-                <td>{{ $inside_user->created_at }}</td>
+                <td>{{ $outside_user->created_at?->format('M d, Y h:i A') ?? 'N/A' }}</td>
+
                 <td>
                     <div style="display: flex; gap: 5px;">
-                        <a href="{{ route('admin.user.details', $inside_user->id) }}">View</a>
-                        <a href="{{ route('admin.user.edit.form', $inside_user->id) }}">Edit</a>
-                        <form action="{{ route('admin.user.delete', $inside_user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                        <a href="{{ route('security.user.qr', $outside_user->id) }}" style="background-color: #e7f3ff; padding: 5px 10px; text-decoration: none; border-radius: 4px; border: 1px solid #007bff; color: #007bff;">View QR</a>
+                        
+                        <form action="{{ route('security.qr.status.toggle', $outside_user->id) }}" method="POST" style="display:inline;">
                             @csrf
-                            @method('DELETE')
-                            <button type="submit">Delete</button>
+                            @method('PATCH')
+                            <button type="submit" style="cursor: pointer;">Toggle Status</button>
                         </form>
                     </div>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="7" style="text-align: center;">No users found.</td>
+                <td colspan="9" style="text-align: center;">No walk-in accounts found.</td>
             </tr>
             @endforelse
         </tbody>
@@ -77,11 +83,8 @@
 
     <!-- Pagination -->
     <div style="margin-top: 20px;">
-        {{ $inside_users->appends(request()->query())->links() }}
+        {{ $outside_users->appends(request()->query())->links() }}
     </div>
-
-    <br>
-    <a href="{{ route('admin.dashboard') }}">Back to Dashboard</a>
 
     <script>
         // Select All checkboxes
@@ -92,10 +95,8 @@
         });
 
         // Toggle button state on individual checkbox change
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('user-checkbox')) {
-                toggleBulkDeleteButton();
-            }
+        document.querySelectorAll('.user-checkbox').forEach(cb => {
+            cb.addEventListener('change', toggleBulkDeleteButton);
         });
 
         function toggleBulkDeleteButton() {
@@ -108,7 +109,7 @@
             const form = document.getElementById(formId);
             
             if (isDelete) {
-                if (!confirm(`Are you sure you want to delete ${checkedIds.length} selected users?`)) return;
+                if (!confirm(`Are you sure you want to delete ${checkedIds.length} selected visitors?`)) return;
             }
 
             // Clear existing hidden inputs for user_ids

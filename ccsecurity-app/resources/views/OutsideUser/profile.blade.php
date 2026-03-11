@@ -76,20 +76,30 @@
 
                 <div>
                     <label>New Password (leave blank to keep current)</label>
-                    <input 
-                        type="password" 
-                        name="password" 
+                    <input
+                        type="password"
+                        name="password"
                         placeholder="Enter new password"
                     >
                 </div>
 
                 <div>
                     <label>Confirm New Password</label>
-                    <input 
-                        type="password" 
-                        name="password_confirmation" 
+                    <input
+                        type="password"
+                        name="password_confirmation"
                         placeholder="Confirm new password"
                     >
+                </div>
+
+                <div>
+                    <label>Current Password (required to change password)</label>
+                    <input
+                        type="password"
+                        name="current_password"
+                        placeholder="Enter your current password"
+                    >
+                    <small>Enter your current password to set a new one</small>
                 </div>
 
                 <div>

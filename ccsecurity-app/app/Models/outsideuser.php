@@ -18,6 +18,7 @@ class OutsideUser extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'fullname',
         'email',
         'phone_number',
         'password',
@@ -40,10 +41,25 @@ class OutsideUser extends Authenticatable
         'updated_at' => 'datetime:Y-m-d h:i A',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (empty($user->fullname)) {
+                $user->fullname = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+            }
+        });
+
+        static::updating(function ($user) {
+            if ($user->isDirty(['first_name', 'last_name'])) {
+                $user->fullname = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+            }
+        });
+    }
+
     // Status constants
-    const STATUS_PENDING  = 0;
-    const STATUS_APPROVED = 1;
-    const STATUS_REJECTED = 2;
+    const STATUS_PENDING  = 'pending';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
 
     /**
      * Get the visit requests for this outside user
@@ -60,5 +76,41 @@ class OutsideUser extends Authenticatable
     {
         return $this->hasMany(VisitRequest::class, 'outside_user_id')
                     ->where('status', 'pending');
+    }
+
+    /**
+     * Get parent-child connections where this user is the parent/visitor
+     */
+    public function parentChildConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'outside_user_id');
+    }
+
+    /**
+     * Get pending connection requests
+     */
+    public function pendingConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'outside_user_id')
+                    ->where('status', ParentChildConnection::STATUS_PENDING);
+    }
+
+    /**
+     * Get approved connections only
+     */
+    public function approvedConnections()
+    {
+        return $this->hasMany(ParentChildConnection::class, 'outside_user_id')
+                    ->where('status', ParentChildConnection::STATUS_APPROVED);
+    }
+
+    /**
+     * Get connected inside users (children) through approved connections
+     */
+    public function connectedChildren()
+    {
+        return $this->belongsToMany(InsideUser::class, 'parent_child_connections', 'outside_user_id', 'inside_user_id')
+                    ->wherePivot('status', ParentChildConnection::STATUS_APPROVED)
+                    ->withPivot('relationship', 'approved_at');
     }
 }

@@ -67,25 +67,31 @@ class SecurityGuardController extends Controller
     //QR Status Management for Security Guard
     public function showQrStatusManagement(Request $request)
     {
-        // Search for inside users
-        $insideQuery = InsideUser::query();
+        $search = $request->search;
+
+        // Separate staff and student queries
+        $studentQuery = InsideUser::where('role', 'student');
+        $staffQuery = InsideUser::where('role', 'staff');
+
         if ($request->filled('search')) {
-            $search = $request->search;
-            $insideQuery->where(function($q) use ($search) {
+            $filter = function($q) use ($search) {
                 $q->where('fullname', 'LIKE', "%{$search}%")
                   ->orWhere('first_name', 'LIKE', "%{$search}%")
                   ->orWhere('last_name', 'LIKE', "%{$search}%")
                   ->orWhere('id', 'LIKE', "%{$search}%")
                   ->orWhere('qr_value', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%");
-            });
+            };
+            $studentQuery->where($filter);
+            $staffQuery->where($filter);
         }
-        $inside_users = $insideQuery->orderBy('id', 'desc')->paginate(15);
+        
+        $students = $studentQuery->orderBy('id', 'desc')->paginate(10, ['*'], 'students_page');
+        $staff = $staffQuery->orderBy('id', 'desc')->paginate(10, ['*'], 'staff_page');
 
-        // Search for outside users
+        // Search for outside users (visitors)
         $outsideQuery = OutsideUser::query();
         if ($request->filled('search')) {
-            $search = $request->search;
             $outsideQuery->where(function($q) use ($search) {
                 $q->where('fullname', 'LIKE', "%{$search}%")
                   ->orWhere('first_name', 'LIKE', "%{$search}%")
@@ -96,9 +102,88 @@ class SecurityGuardController extends Controller
                   ->orWhere('phone_number', 'LIKE', "%{$search}%");
             });
         }
-        $outside_users = $outsideQuery->orderBy('id', 'desc')->paginate(15);
+        $outside_users = $outsideQuery->orderBy('id', 'desc')->paginate(10, ['*'], 'visitors_page');
 
-        return view('SecurityGuardUser.QrStatusManagement.qr_status_management', compact('inside_users', 'outside_users'));
+        return view('SecurityGuardUser.QrStatusManagement.qr_status_management', compact('students', 'staff', 'outside_users'));
+    }
+
+    // Walk-in User Management for Security Guards
+    public function showWalkinUsers(Request $request)
+    {
+        $query = OutsideUser::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('phone_number', 'LIKE', "%{$search}%")
+                  ->orWhere('qr_value', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $outside_users = $query->orderBy('created_at', 'desc')->paginate(20);
+        return view('SecurityGuardUser.WalkinUsers.walkin_user_list', compact('outside_users'));
+    }
+
+    public function showAddWalkinForm()
+    {
+        return view('SecurityGuardUser.WalkinUsers.walkin_user_add');
+    }
+
+    public function storeWalkinUser(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:150',
+            'last_name' => 'required|string|max:150',
+            'email' => 'required|email|max:150|unique:mysql_second.outside_user,email',
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'required|string|min:8',
+            'purpose_of_visit' => 'required|string|max:255',
+        ]);
+
+        $qrValue = 'OUT-GUARD-' . strtoupper(uniqid() . rand(1000, 9999));
+
+        OutsideUser::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'fullname' => $request->first_name . ' ' . $request->last_name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'purpose_of_visit' => $request->purpose_of_visit,
+            'qr_value' => $qrValue,
+            'qr_status' => 'active',
+            'status' => OutsideUser::STATUS_APPROVED,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('security.walkin.list')->with('success', 'Walk-in account created successfully!');
+    }
+
+    public function bulkDeleteWalkinUsers(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:mysql_second.outside_user,id'
+        ]);
+
+        OutsideUser::whereIn('id', $request->user_ids)->delete();
+
+        return redirect()->back()->with('success', count($request->user_ids) . ' visitors deleted successfully!');
+    }
+
+    public function viewUserQr($id, $type = 'outside')
+    {
+        if ($type === 'inside') {
+            $user = InsideUser::findOrFail($id);
+        } else {
+            $user = OutsideUser::findOrFail($id);
+        }
+
+        return view('SecurityGuardUser.WalkinUsers.view_qr', compact('user', 'type'));
     }
 
     public function toggleQrStatus($id)
@@ -107,7 +192,7 @@ class SecurityGuardController extends Controller
 
         // Try to find inside user first
         $inside_user = InsideUser::find($id);
-        
+
         if ($inside_user) {
             // Toggle inside user QR status
             $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
@@ -117,7 +202,7 @@ class SecurityGuardController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Create notification/activity log for other guards
+            // Create notification/activity log for other guards (QR status toggle)
             EntryLog::create([
                 'inside_user_id' => $inside_user->id,
                 'outside_user_id' => null,
@@ -138,7 +223,7 @@ class SecurityGuardController extends Controller
             'updated_at' => now(),
         ]);
 
-        // Create notification/activity log for other guards
+        // Create notification/activity log for other guards (QR status toggle)
         EntryLog::create([
             'inside_user_id' => null,
             'outside_user_id' => $outside_user->id,
@@ -225,6 +310,12 @@ class SecurityGuardController extends Controller
                 ]);
             }
 
+            // Get user name helper
+            $getUserName = function($u) {
+                if (!$u) return 'Unknown User';
+                return $u->fullname ?: trim(($u->first_name ?? '') . ' ' . ($u->last_name ?? '')) ?: 'User ' . $u->id;
+            };
+
             // Check if user's QR status is active
             if (!in_array(strtolower($user->qr_status), ['active'])) {
                 // Return user info even when QR is inactive (for display purposes)
@@ -234,7 +325,7 @@ class SecurityGuardController extends Controller
                     'user_type' => $userType,
                     'inside_user' => [
                         'id' => $user->id,
-                        'fullname' => $user->fullname,
+                        'fullname' => $getUserName($user),
                         'qr_value' => $user->qr_value,
                     ]
                 ]);
@@ -242,7 +333,9 @@ class SecurityGuardController extends Controller
 
             // For inside users, check entry/exit logic
             if ($userType === 'inside') {
+                // Only consider actual entry/exit logs, NOT QR status toggle logs
                 $lastEntryLog = EntryLog::where('inside_user_id', $insideUser->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
                     ->latest('id')
                     ->first();
 
@@ -269,15 +362,17 @@ class SecurityGuardController extends Controller
                     'scan_type' => $scanType,
                     'scan_at' => $entryLog->scan_at,
                     'user_type' => $userType,
-                    'inside_user' => [ // Matching the key expected by frontend
+                    'inside_user' => [ 
                         'id' => $insideUser->id,
-                        'fullname' => $insideUser->fullname,
+                        'fullname' => $getUserName($insideUser),
                         'qr_value' => $insideUser->qr_value,
                     ]
                 ]);
             } else {
                 // For outside users, check entry/exit logic (alternate between entry and exit)
+                // Only consider actual entry/exit logs, NOT QR status toggle logs
                 $lastEntryLog = EntryLog::where('outside_user_id', $outsideUser->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
                     ->latest('id')
                     ->first();
 
@@ -304,9 +399,9 @@ class SecurityGuardController extends Controller
                     'scan_type' => $scanType,
                     'scan_at' => $entryLog->scan_at,
                     'user_type' => $userType,
-                    'inside_user' => [ // Frontend expects 'inside_user' key even for visitors
+                    'inside_user' => [ 
                         'id' => $outsideUser->id,
-                        'fullname' => $outsideUser->fullname,
+                        'fullname' => $getUserName($outsideUser),
                         'qr_value' => $outsideUser->qr_value,
                     ]
                 ]);
@@ -327,7 +422,9 @@ class SecurityGuardController extends Controller
     {
         $guardId = Auth::guard('securityguard')->id();
 
+        // Only show entry/exit logs in scanner history (exclude QR status toggles)
         $scans = EntryLog::where('security_guard_user_id', $guardId)
+            ->whereIn('scan_type', ['entry', 'exit'])
             ->with(['insideUser', 'outsideUser'])
             ->orderBy('id', 'desc')
             ->limit(10)
@@ -337,9 +434,15 @@ class SecurityGuardController extends Controller
         $formattedScans = $scans->map(function($scan) {
             $user = $scan->insideUser ?: $scan->outsideUser;
             $userType = $scan->insideUser ? 'inside' : 'outside';
+            
+            $fullname = 'Unknown User';
+            if ($user) {
+                $fullname = $user->fullname ?: trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: 'User ' . $user->id;
+            }
+
             return [
                 'inside_user' => [
-                    'fullname' => $user ? $user->fullname : 'Unknown User',
+                    'fullname' => $fullname,
                     'qr_value' => $user ? $user->qr_value : 'N/A',
                 ],
                 'scan_type' => $scan->scan_type,
@@ -526,7 +629,7 @@ class SecurityGuardController extends Controller
     {
         $request->validate([
             'handover_note' => 'required|string|max:1000',
-            'shift_log_id' => 'required|exists:shift_logs,id'
+            'shift_log_id' => 'required|exists:mysql_second.shift_logs,id'
         ]);
 
         $shiftLog = ShiftLog::findOrFail($request->shift_log_id);
