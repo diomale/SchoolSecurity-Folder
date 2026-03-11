@@ -118,13 +118,15 @@ Route::prefix('admin')->group(function () {
 
 //-- INSIDE USER --//
 
+use App\Http\Controllers\InsideUserConnectionController;
+
 Route::prefix('insideuser')->group(function(){
 
 
     Route::middleware('guest:insideuser')->group(function(){
         Route::get('/login',[InsideUserController::class, 'showUserLogin'])->name('user.login.show');
         Route::post('/login',[InsideUserController::class, 'login'])->name('insideuser.login.submit');
-        
+
     });
 
     Route::middleware('auth:insideuser')->group(function(){
@@ -132,6 +134,12 @@ Route::prefix('insideuser')->group(function(){
         Route::post('/logout',[InsideUserController::class, 'logout'])->name('insideuser.logout');
 
         Route::get('/profile', [InsideUserController::class, 'userProfile'])->name('insideuser.profile.show');
+
+        // Connection request routes for inside user
+        Route::get('/connection-requests', [InsideUserConnectionController::class, 'connectionRequests'])->name('insideuser.connection.requests');
+        Route::patch('/connection-accept/{id}', [InsideUserConnectionController::class, 'acceptConnection'])->name('insideuser.connection.accept');
+        Route::patch('/connection-reject/{id}', [InsideUserConnectionController::class, 'rejectConnection'])->name('insideuser.connection.reject');
+        Route::get('/connected-parents', [InsideUserConnectionController::class, 'connectedParents'])->name('insideuser.connected.parents');
 
 
     });

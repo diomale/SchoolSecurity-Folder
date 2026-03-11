@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parent-Child Connection Requests - Admin</title>
+    <title>Connection Requests - Inside User</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,7 +39,7 @@
             color: white;
         }
         .stat-pending { background: #ff9800; }
-        .stat-approved { background: #4caf50; }
+        .stat-accepted { background: #4caf50; }
         .stat-rejected { background: #f44336; }
         .stat-card h3 { margin: 0; font-size: 28px; }
         .stat-card p { margin: 5px 0 0; opacity: 0.9; }
@@ -71,13 +71,17 @@
             background: #fff3cd;
             color: #856404;
         }
-        .status-approved {
+        .status-accepted {
             background: #d4edda;
             color: #155724;
         }
         .status-rejected {
             background: #f8d7da;
             color: #721c24;
+        }
+        .status-approved {
+            background: #cce5ff;
+            color: #004085;
         }
         .btn {
             padding: 8px 16px;
@@ -88,11 +92,11 @@
             text-decoration: none;
             display: inline-block;
         }
-        .btn-approve {
+        .btn-accept {
             background: #4caf50;
             color: white;
         }
-        .btn-approve:hover { background: #45a049; }
+        .btn-accept:hover { background: #45a049; }
         .btn-reject {
             background: #f44336;
             color: white;
@@ -103,6 +107,11 @@
             color: white;
         }
         .btn-back:hover { background: #5a6268; }
+        .btn-view {
+            background: #2196f3;
+            color: white;
+        }
+        .btn-view:hover { background: #1976d2; }
         .alert {
             padding: 12px 20px;
             border-radius: 4px;
@@ -112,11 +121,6 @@
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
         }
         .modal {
             display: none;
@@ -179,13 +183,27 @@
             color: white;
             border-color: #007bff;
         }
+        .nav-links {
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin-right: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1> Parent-Child Connection Requests</h1>
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-back">← Back to Dashboard</a>
+            <h1> Parent Connection Requests</h1>
+            <div class="nav-links">
+                <a href="{{ route('insideuser.dashboard') }}">← Back to Dashboard</a>
+                <a href="{{ route('insideuser.connected.parents') }}">My Connected Parents</a>
+            </div>
         </div>
 
         @if(session('success'))
@@ -194,25 +212,19 @@
         </div>
         @endif
 
-        @if(session('error'))
-        <div class="alert alert-error">
-            ✗ {{ session('error') }}
-        </div>
-        @endif
-
         <!-- Statistics Cards -->
         <div class="stats">
             <div class="stat-card stat-pending">
                 <h3>{{ $pendingCount }}</h3>
-                <p>Pending</p>
+                <p>Pending Your Approval</p>
             </div>
-            <div class="stat-card stat-approved">
-                <h3>{{ $approvedCount }}</h3>
-                <p>Approved</p>
+            <div class="stat-card stat-accepted">
+                <h3>{{ $acceptedCount }}</h3>
+                <p>Accepted by You</p>
             </div>
             <div class="stat-card stat-rejected">
                 <h3>{{ $rejectedCount }}</h3>
-                <p>Rejected</p>
+                <p>Rejected by You</p>
             </div>
         </div>
 
@@ -220,105 +232,91 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Parent/Visitor</th>
-                    <th>Student/Child</th>
+                    <th>Parent Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
                     <th>Relationship</th>
-                    <th>Student Approval</th>
-                    <th>Status</th>
+                    <th>Your Decision</th>
+                    <th>Admin Status</th>
                     <th>Requested On</th>
-                    <th>Admin Remarks</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($connectionRequests as $connection)
+                @forelse($connectionRequests as $request)
                 <tr>
-                    <td>#{{ $connection->id }}</td>
                     <td>
-                        <strong>{{ $connection->outsideUser->fullname ?? 'N/A' }}</strong><br>
-                        <small>{{ $connection->outsideUser->email ?? 'N/A' }}</small>
+                        <strong>{{ $request->outsideUser->fullname ?? 'N/A' }}</strong>
                     </td>
+                    <td>{{ $request->outsideUser->email ?? 'N/A' }}</td>
+                    <td>{{ $request->outsideUser->phone_number ?? 'N/A' }}</td>
+                    <td>{{ $request->relationship }}</td>
                     <td>
-                        <strong>{{ $connection->insideUser->fullname ?? 'N/A' }}</strong><br>
-                        <small>{{ $connection->insideUser->email ?? 'N/A' }}</small>
-                    </td>
-                    <td>{{ $connection->relationship }}</td>
-                    <td>
-                        <span class="status-badge status-{{ $connection->inside_user_approval }}">
-                            @if($connection->inside_user_approval === 'accepted')
-                                ✓ Accepted
-                            @elseif($connection->inside_user_approval === 'rejected')
-                                ✗ Rejected
+                        <span class="status-badge status-{{ $request->inside_user_approval }}">
+                            @if($request->inside_user_approval === 'accepted')
+                                 Accepted
+                            @elseif($request->inside_user_approval === 'rejected')
+                                 Rejected
                             @else
-                                ⏳ Pending
+                                 Pending
                             @endif
                         </span>
                     </td>
                     <td>
-                        <span class="status-badge status-{{ $connection->status }}">
-                            @if($connection->status === 'approved')
-                                ✓ Approved
-                            @elseif($connection->status === 'rejected')
-                                ✗ Rejected
+                        <span class="status-badge status-{{ $request->status }}">
+                            @if($request->status === 'approved')
+                                 Approved
+                            @elseif($request->status === 'rejected')
+                                 Rejected
                             @else
-                                ⏳ Pending
+                                 Pending
                             @endif
                         </span>
                     </td>
-                    <td>{{ $connection->created_at->format('M d, Y h:i A') }}</td>
+                    <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
                     <td>
-                        @if($connection->admin_remarks)
-                            <small>{{ Str::limit($connection->admin_remarks, 30) }}</small>
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>
-                        @if($connection->status === 'pending')
-                            @if($connection->inside_user_approval === 'accepted')
-                                <form action="{{ route('admin.connection.approve', $connection->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn btn-approve" onclick="return confirm('Approve this connection request?')">✓ Approve</button>
-                                </form>
-                            @elseif($connection->inside_user_approval === 'rejected')
-                                <span style="color: #f44336; font-size: 12px;">Student rejected</span>
-                            @else
-                                <span style="color: #ff9800; font-size: 12px;">Waiting for student approval</span>
-                            @endif
-
-                            @if($connection->inside_user_approval !== 'rejected')
-                                <button class="btn btn-reject" onclick="openRejectModal({{ $connection->id }})">✗ Reject</button>
-
-                                <!-- Reject Modal -->
-                                <div id="rejectModal{{ $connection->id }}" class="modal">
-                                    <div class="modal-content">
-                                        <h3>Reject Connection Request</h3>
-                                        <p>Are you sure you want to reject this connection request?</p>
-                                        <form action="{{ route('admin.connection.reject', $connection->id) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <div class="form-group">
-                                                <label for="remarks_{{ $connection->id }}">Rejection Reason (Optional):</label>
-                                                <textarea name="admin_remarks" id="remarks_{{ $connection->id }}" placeholder="Enter reason for rejection..."></textarea>
-                                            </div>
-                                            <div class="modal-actions">
-                                                <button type="button" class="btn btn-back" onclick="closeRejectModal({{ $connection->id }})">Cancel</button>
-                                                <button type="submit" class="btn btn-reject">Reject Request</button>
-                                            </div>
-                                        </form>
-                                    </div>
+                        @if($request->inside_user_approval === 'pending' && $request->status === 'pending')
+                            <form action="{{ route('insideuser.connection.accept', $request->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-accept" onclick="return confirm('Accept this connection request?')">✓ Accept</button>
+                            </form>
+                            
+                            <button class="btn btn-reject" onclick="openRejectModal({{ $request->id }})">✗ Reject</button>
+                            
+                            <!-- Reject Modal -->
+                            <div id="rejectModal{{ $request->id }}" class="modal">
+                                <div class="modal-content">
+                                    <h3>Reject Connection Request</h3>
+                                    <p>Are you sure you want to reject this connection request?</p>
+                                    <form action="{{ route('insideuser.connection.reject', $request->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="form-group">
+                                            <label for="remarks_{{ $request->id }}">Reason (Optional):</label>
+                                            <textarea name="remarks" id="remarks_{{ $request->id }}" placeholder="Enter reason for rejection..."></textarea>
+                                        </div>
+                                        <div class="modal-actions">
+                                            <button type="button" class="btn btn-back" onclick="closeRejectModal({{ $request->id }})">Cancel</button>
+                                            <button type="submit" class="btn btn-reject">Reject Request</button>
+                                        </div>
+                                    </form>
                                 </div>
-                            @endif
+                            </div>
+                        @elseif($request->inside_user_approval === 'accepted' && $request->status === 'pending')
+                            <span style="color: #ff9800;">Waiting for admin approval</span>
+                        @elseif($request->status === 'approved')
+                            <span style="color: #4caf50;">✓ Connected</span>
+                        @elseif($request->inside_user_approval === 'rejected')
+                            <span style="color: #999;">Rejected</span>
                         @else
-                            <span style="color: #999;">{{ ucfirst($connection->status) }}</span>
+                            <span style="color: #999;">{{ ucfirst($request->status) }}</span>
                         @endif
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                    <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
                         No connection requests found.
                     </td>
                 </tr>

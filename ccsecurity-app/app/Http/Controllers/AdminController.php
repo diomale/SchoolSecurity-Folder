@@ -738,6 +738,11 @@ class AdminController extends Controller
     {
         $connection = ParentChildConnection::findOrFail($id);
 
+        // Check if inside user has accepted
+        if (!$connection->isInsideUserAccepted()) {
+            return redirect()->back()->with('error', 'Cannot approve: Student has not accepted this connection request yet.');
+        }
+
         $connection->approve('Approved by admin');
 
         Notification::create([

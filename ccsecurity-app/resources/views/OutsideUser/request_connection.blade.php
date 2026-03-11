@@ -22,7 +22,7 @@
             border-bottom: 1px solid #eee;
         }
         .search-result-item:hover {
-            background-color: #f5f5f5;
+            background-color: #f5f5f5f5;
         }
         .search-result-item.selected {
             background-color: #e3f2fd;
@@ -45,6 +45,17 @@
         .status-rejected {
             color: #f44336;
             font-weight: bold;
+        }
+        .status-accepted {
+            color: #2196f3;
+            font-weight: bold;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -108,12 +119,24 @@
         @if($pendingRequests->count() > 0)
         <div class="connection-card">
             <h2>⏳ Pending Requests</h2>
+            
+            <div class="info-box">
+                <strong>ℹ️ How it works:</strong>
+                <ol style="margin: 10px 0 0 20px; padding: 0;">
+                    <li>After you submit a request, the student must accept it</li>
+                    <li>Once the student accepts, the admin will review and approve</li>
+                    <li>After admin approval, you can see the student's entry/exit records</li>
+                </ol>
+            </div>
+            
             <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
                         <th>Student Name</th>
                         <th>Email</th>
                         <th>Relationship</th>
+                        <th>Student Approval</th>
+                        <th>Admin Status</th>
                         <th>Requested On</th>
                         <th>Action</th>
                     </tr>
@@ -124,13 +147,37 @@
                         <td>{{ $request->insideUser->fullname }}</td>
                         <td>{{ $request->insideUser->email }}</td>
                         <td>{{ $request->relationship }}</td>
+                        <td>
+                            @if($request->inside_user_approval === 'accepted')
+                                <span class="status-approved">✓ Accepted</span>
+                            @elseif($request->inside_user_approval === 'rejected')
+                                <span class="status-rejected">✗ Rejected</span>
+                            @else
+                                <span class="status-pending">⏳ Awaiting Student</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($request->status === 'approved')
+                                <span class="status-approved">✓ Approved</span>
+                            @elseif($request->status === 'rejected')
+                                <span class="status-rejected">✗ Rejected</span>
+                            @elseif($request->inside_user_approval === 'accepted')
+                                <span class="status-pending">⏳ Awaiting Admin</span>
+                            @else
+                                <span class="status-pending">⏳ Pending</span>
+                            @endif
+                        </td>
                         <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
                         <td>
-                            <form action="{{ route('outsideuser.connections.cancel', $request->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
-                            </form>
+                            @if($request->inside_user_approval === 'pending')
+                                <form action="{{ route('outsideuser.connections.cancel', $request->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                                </form>
+                            @else
+                                <span style="color: #999; font-size: 12px;">-</span>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

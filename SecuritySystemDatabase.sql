@@ -323,6 +323,41 @@ AUTO_INCREMENT = 16
 DEFAULT CHARACTER SET = utf8;
 
 
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`parent_child_connections`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`parent_child_connections` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `outside_user_id` INT(11) NOT NULL COMMENT 'Parent/Visitor ID',
+  `inside_user_id` INT(11) NOT NULL COMMENT 'Child/Student ID',
+  `relationship` VARCHAR(100) NOT NULL COMMENT 'e.g., Father, Mother, Guardian',
+  `status` VARCHAR(50) NOT NULL DEFAULT 'pending' COMMENT 'pending, approved, rejected',
+  `inside_user_approval` VARCHAR(50) NOT NULL DEFAULT 'pending' COMMENT 'pending, accepted, rejected by inside user',
+  `admin_remarks` TEXT NULL DEFAULT NULL,
+  `approved_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  INDEX `fk_parent_child_outside_user_idx` (`outside_user_id` ASC),
+  INDEX `fk_parent_child_inside_user_idx` (`inside_user_id` ASC),
+  INDEX `fk_parent_child_status_idx` (`status` ASC),
+  UNIQUE INDEX `unique_parent_child_pair` (`outside_user_id` ASC, `inside_user_id` ASC),
+  CONSTRAINT `fk_parent_child_outside_user`
+    FOREIGN KEY (`outside_user_id`)
+    REFERENCES `securitysystemdatabase`.`outside_user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_parent_child_inside_user`
+    FOREIGN KEY (`inside_user_id`)
+    REFERENCES `securitysystemdatabase`.`inside_user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Stores parent-child connection requests for tracking student entry/exit notifications';
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

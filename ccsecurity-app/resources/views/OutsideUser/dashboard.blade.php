@@ -208,7 +208,7 @@
                         <td>{{ $connection->insideUser->email ?? 'N/A' }}</td>
                         <td>{{ $connection->insideUser->qr_value ?? 'N/A' }}</td>
                         <td>{{ $connection->relationship }}</td>
-                        <td>{{ $connection->approved_at->format('M d, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($connection->approved_at)->format('M d, Y') }}</td>
                     </tr>
                     @endforeach
                 </tbody>
