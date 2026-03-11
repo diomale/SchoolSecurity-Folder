@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\OutsideUser;
 use App\Models\VisitRequest;
 use App\Models\Notification;
+use App\Models\ParentChildConnection;
 use Carbon\Carbon;
 
 class OutsideUserController extends Controller
@@ -41,13 +42,41 @@ class OutsideUserController extends Controller
             ->where('is_read', false)
             ->count();
 
-        // Get recent notifications
+        // Get recent unread notifications only (hide read notifications)
         $notifications = Notification::where('outside_user_id', $outsideUser->id)
+            ->where('is_read', false)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
-        return view('OutsideUser.dashboard', compact('visitRequests', 'pendingCount', 'unreadNotificationsCount', 'notifications'));
+        // Get connection requests count
+        $pendingConnectionCount = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+            ->where('status', ParentChildConnection::STATUS_PENDING)
+            ->count();
+
+        // Get approved connections
+        $approvedConnections = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+            ->where('status', ParentChildConnection::STATUS_APPROVED)
+            ->with('insideUser')
+            ->limit(3)
+            ->get();
+
+        // Get connected children IDs
+        $connectedChildrenIds = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+            ->where('status', ParentChildConnection::STATUS_APPROVED)
+            ->pluck('inside_user_id');
+
+        // Get recent entry/exit logs for connected children
+        $childrenEntryLogs = [];
+        if ($connectedChildrenIds->count() > 0) {
+            $childrenEntryLogs = \App\Models\EntryLog::whereIn('inside_user_id', $connectedChildrenIds)
+                ->with(['insideUser', 'securityGuardUser'])
+                ->orderBy('scan_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+
+        return view('OutsideUser.dashboard', compact('visitRequests', 'pendingCount', 'unreadNotificationsCount', 'notifications', 'pendingConnectionCount', 'approvedConnections', 'childrenEntryLogs'));
     }
 
     public function logout()
@@ -204,7 +233,21 @@ class OutsideUserController extends Controller
             'last_name' => 'required|string|max:150',
             'phone_number' => 'required|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
+            'current_password' => 'nullable|string',
         ]);
+
+        // Validate current password if new password is provided
+        if ($request->filled('password')) {
+            if (empty($request->current_password)) {
+                return back()->withErrors(['current_password' => 'Current password is required to set a new password.'])
+                    ->withInput();
+            }
+
+            if (!Hash::check($request->current_password, $outsideUser->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.'])
+                    ->withInput();
+            }
+        }
 
         $outsideUser->first_name = $validated['first_name'];
         $outsideUser->last_name = $validated['last_name'];
