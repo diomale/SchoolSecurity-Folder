@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
+        // Run all cleanup tasks daily at midnight
+        $schedule->command('cleanup:run-all')
+                 ->dailyAt('00:00');
+
+        // Alternative: Run individual commands with specific schedules
         // Delete old entry logs (notifications for guards) - uses table-specific settings
         $schedule->command('notifications:cleanup-old')
                  ->dailyAt('00:00');
@@ -25,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Delete old visit requests and notifications - uses table-specific settings
         $schedule->command('visitrequests:cleanup-old')
                  ->dailyAt('00:00');
-        
+
         // Delete old shift logs - uses table-specific settings
         $schedule->command('shiftlogs:cleanup-old')
                  ->dailyAt('00:00');

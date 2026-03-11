@@ -18,8 +18,12 @@
         <div style="color: green;">{{ session('success') }}</div>
     @endif
 
+    @if (session('error'))
+        <div style="color: red;">{{ session('error') }}</div>
+    @endif
+
     <div style="margin-bottom: 10px;">
-        <button type="button" onclick="submitBulkAction('bulk-delete-form', true)" id="bulk-delete-btn" disabled style="background-color: #fff0f0; color: #dc3545; border: 1px solid #dc3545; cursor: pointer;">Bulk Delete Selected</button>
+        <button type="button" onclick="openPasswordModal('bulk-delete-form')" id="bulk-delete-btn" disabled style="background-color: #fff0f0; color: #dc3545; border: 1px solid #dc3545; cursor: pointer;">Bulk Delete Selected</button>
     </div>
 
     <!-- Hidden Bulk Delete Form -->
@@ -27,6 +31,26 @@
         @csrf
         @method('DELETE')
     </form>
+
+    <!-- Password Confirmation Modal -->
+    <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background:white; padding:20px; border-radius:8px; max-width:400px; margin:100px auto;">
+            <h3 style="margin-top:0;">🔐 Confirm Your Identity</h3>
+            <p>Please enter your password to confirm deletion.</p>
+            <form id="passwordConfirmForm" method="POST">
+                @csrf
+                @method('DELETE')
+                <div style="margin-bottom:15px;">
+                    <label for="admin_password" style="display:block; margin-bottom:5px;">Password:</label>
+                    <input type="password" id="admin_password" name="admin_password" required style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" onclick="closePasswordModal()" style="padding:8px 16px; background:#6c757d; color:white; border:none; border-radius:4px; cursor:pointer;">Cancel</button>
+                    <button type="submit" style="padding:8px 16px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">Confirm Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
         <thead style="background-color: #f8f9fa;">
@@ -59,10 +83,10 @@
                     <div style="display: flex; gap: 5px;">
                         <a href="{{ route('admin.user.details', $inside_user->id) }}">View</a>
                         <a href="{{ route('admin.user.edit.form', $inside_user->id) }}">Edit</a>
-                        <form action="{{ route('admin.user.delete', $inside_user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                        <button type="button" onclick="openPasswordModal('delete-form-{{ $inside_user->id }}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
+                        <form id="delete-form-{{ $inside_user->id }}" action="{{ route('admin.user.delete', $inside_user->id) }}" method="POST" style="display:none;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit">Delete</button>
                         </form>
                     </div>
                 </td>
@@ -84,6 +108,45 @@
     <a href="{{ route('admin.dashboard') }}">Back to Dashboard</a>
 
     <script>
+        // Password Modal Functions
+        function openPasswordModal(formId) {
+            const sourceForm = document.getElementById(formId);
+            const targetForm = document.getElementById('passwordConfirmForm');
+            
+            // Set form action
+            targetForm.action = sourceForm.action;
+            
+            // Clear existing hidden inputs except CSRF
+            targetForm.querySelectorAll('input[type="hidden"]').forEach(input => {
+                if (input.name !== '_token' && input.name !== '_method') input.remove();
+            });
+            
+            // Copy user_ids from bulk delete form
+            if (formId === 'bulk-delete-form') {
+                document.querySelectorAll('.user-checkbox:checked').forEach(cb => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'user_ids[]';
+                    hiddenInput.value = cb.value;
+                    targetForm.appendChild(hiddenInput);
+                });
+            }
+            
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('passwordModal');
+            if (event.target === modal) {
+                closePasswordModal();
+            }
+        }
+
         // Select All checkboxes
         document.getElementById('select-all').addEventListener('change', function() {
             const checkboxes = document.querySelectorAll('.user-checkbox');
@@ -101,29 +164,6 @@
         function toggleBulkDeleteButton() {
             const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
             document.getElementById('bulk-delete-btn').disabled = checkedCount === 0;
-        }
-
-        function submitBulkAction(formId, isDelete = false) {
-            const checkedIds = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
-            const form = document.getElementById(formId);
-            
-            if (isDelete) {
-                if (!confirm(`Are you sure you want to delete ${checkedIds.length} selected users?`)) return;
-            }
-
-            // Clear existing hidden inputs for user_ids
-            form.querySelectorAll('input[name="user_ids[]"]').forEach(el => el.remove());
-
-            // Add selected IDs as hidden inputs to the form
-            checkedIds.forEach(id => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'user_ids[]';
-                input.value = id;
-                form.appendChild(input);
-            });
-
-            form.submit();
         }
     </script>
 </div>

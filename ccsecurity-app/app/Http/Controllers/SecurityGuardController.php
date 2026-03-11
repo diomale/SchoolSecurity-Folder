@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\OutsideUser;
 use App\Models\EntryLog;
 use App\Models\InsideUser;
@@ -167,7 +168,8 @@ class SecurityGuardController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.outside_user,id'
+            'user_ids.*' => 'exists:mysql_second.outside_user,id',
+            'admin_password' => ['required', new \App\Rules\CurrentAdminPassword('securityguard')]
         ]);
 
         OutsideUser::whereIn('id', $request->user_ids)->delete();
@@ -506,11 +508,37 @@ class SecurityGuardController extends Controller
             ->whereDate('scan_at', $today)
             ->count();
 
-        $currentlyInside = $totalEntriesToday - $totalExitsToday;
+        $currentlyInsideCount = $totalEntriesToday - $totalExitsToday;
+
+        // Get people currently inside (those whose last scan was entry)
+        // Using a more efficient subquery approach
+        $currentlyInsidePeople = EntryLog::select('inside_user_id', DB::raw('MAX(id) as latest_id'))
+            ->whereNotNull('inside_user_id')
+            ->whereIn('scan_type', ['entry', 'exit'])
+            ->groupBy('inside_user_id')
+            ->get();
+        
+        // Get the actual latest log entries
+        $latestLogIds = $currentlyInsidePeople->pluck('latest_id');
+        $latestLogs = EntryLog::whereIn('id', $latestLogIds)
+            ->where('scan_type', 'entry')
+            ->with('insideUser')
+            ->get()
+            ->map(function($log) {
+                return [
+                    'fullname' => $log->insideUser->fullname ?? 'Unknown',
+                    'email' => $log->insideUser->email ?? 'N/A',
+                    'qr_value' => $log->insideUser->qr_value ?? 'N/A',
+                    'role' => $log->insideUser->role ?? 'N/A',
+                    'scan_at' => $log->scan_at,
+                ];
+            });
+        
+        $currentlyInsidePeople = $latestLogs;
 
         $logs = $query->orderBy('scan_at', 'desc')->paginate(20);
 
-        return view('SecurityGuardUser.EntryLogs.entry_logs', compact('logs', 'totalEntriesToday', 'totalExitsToday', 'currentlyInside'));
+        return view('SecurityGuardUser.EntryLogs.entry_logs', compact('logs', 'totalEntriesToday', 'totalExitsToday', 'currentlyInsideCount', 'currentlyInsidePeople'));
     }
 
     /**

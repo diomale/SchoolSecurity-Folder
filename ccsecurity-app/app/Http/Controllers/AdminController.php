@@ -16,6 +16,7 @@ use App\Models\CleanupTableSetting;
 use App\Models\EntryLog;
 use App\Models\ShiftLog;
 use App\Models\ParentChildConnection;
+use App\Rules\CurrentAdminPassword;
 use Carbon\Carbon;
 
 
@@ -62,7 +63,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.outside_user,id'
+            'user_ids.*' => 'exists:mysql_second.outside_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         OutsideUser::whereIn('id', $request->user_ids)->delete();
@@ -148,6 +150,13 @@ class AdminController extends Controller
 
     public function deleteOutsider($id)
     {
+        $request = request();
+        
+        // Verify admin password
+        $request->validate([
+            'admin_password' => ['required', new CurrentAdminPassword]
+        ]);
+        
         $outside_user = OutsideUser::findOrFail($id);
         $outside_user->delete();
 
@@ -217,7 +226,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.security_guard_user,id'
+            'user_ids.*' => 'exists:mysql_second.security_guard_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         securityguard::whereIn('id', $request->user_ids)->delete();
@@ -295,6 +305,13 @@ class AdminController extends Controller
 
     public function deleteSecurityUser($id)
     {
+        $request = request();
+        
+        // Verify admin password
+        $request->validate([
+            'admin_password' => ['required', new CurrentAdminPassword]
+        ]);
+        
         $security_guard_user = securityguard::findOrFail($id);
         $security_guard_user->delete();
 
@@ -336,7 +353,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.inside_user,id'
+            'user_ids.*' => 'exists:mysql_second.inside_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         InsideUser::whereIn('id', $request->user_ids)->delete();
@@ -403,7 +421,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.inside_user,id'
+            'user_ids.*' => 'exists:mysql_second.inside_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         InsideUser::whereIn('id', $request->user_ids)->delete();
@@ -486,6 +505,13 @@ class AdminController extends Controller
 
     public function deleteUser($id)
     {
+        $request = request();
+        
+        // Verify admin password
+        $request->validate([
+            'admin_password' => ['required', new CurrentAdminPassword]
+        ]);
+        
         $inside_user = InsideUser::findOrFail($id);
         $inside_user->delete();
 
