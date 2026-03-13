@@ -88,16 +88,6 @@
             text-decoration: none;
             display: inline-block;
         }
-        .btn-approve {
-            background: #4caf50;
-            color: white;
-        }
-        .btn-approve:hover { background: #45a049; }
-        .btn-reject {
-            background: #f44336;
-            color: white;
-        }
-        .btn-reject:hover { background: #da322a; }
         .btn-back {
             background: #6c757d;
             color: white;
@@ -117,49 +107,6 @@
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            max-width: 500px;
-            margin: 100px auto;
-        }
-        .modal-content h3 {
-            margin-top: 0;
-            color: #f44336;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
-            min-height: 80px;
-        }
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
         }
         .pagination {
             display: flex;
@@ -233,8 +180,6 @@
                     <th>Student Approval</th>
                     <th>Status</th>
                     <th>Requested On</th>
-                    <th>Admin Remarks</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -273,45 +218,10 @@
                         </span>
                     </td>
                     <td>{{ $connection->created_at->format('M d, Y h:i A') }}</td>
-                    <td>
-                        @if($connection->admin_remarks)
-                            <small>{{ Str::limit($connection->admin_remarks, 30) }}</small>
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>
-                        @if($connection->status === 'pending')
-                            @if($connection->inside_user_approval === 'accepted')
-                                <span style="color: #4caf50; font-size: 12px;">✓ Auto-approved</span>
-                            @elseif($connection->inside_user_approval === 'rejected')
-                                <span style="color: #f44336; font-size: 12px;">Student rejected</span>
-                            @else
-                                <span style="color: #ff9800; font-size: 12px;">Waiting for student</span>
-                            @endif
-
-                            @if($connection->inside_user_approval !== 'rejected')
-                                <button class="btn btn-reject" onclick="openRejectModal({{ $connection->id }})" style="opacity: 0.5; cursor: not-allowed;" disabled>✗ Reject</button>
-
-                                <!-- Reject Modal -->
-                                <div id="rejectModal{{ $connection->id }}" class="modal">
-                                    <div class="modal-content">
-                                        <h3>Reject Connection Request</h3>
-                                        <p>Admin rejection is disabled. Only students can accept/reject their own connection requests.</p>
-                                        <div class="modal-actions">
-                                            <button type="button" class="btn btn-back" onclick="closeRejectModal({{ $connection->id }})">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        @else
-                            <span style="color: #999;">{{ ucfirst($connection->status) }}</span>
-                        @endif
-                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
                         No connection requests found.
                     </td>
                 </tr>
@@ -328,20 +238,6 @@
     </div>
 
     <script>
-        function openRejectModal(id) {
-            document.getElementById('rejectModal' + id).style.display = 'block';
-        }
-
-        function closeRejectModal(id) {
-            document.getElementById('rejectModal' + id).style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
     </script>
 </body>
 </html>
