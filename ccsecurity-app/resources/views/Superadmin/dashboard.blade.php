@@ -1,3 +1,5 @@
+@vite(['resources/css/SuperadminStyleFolder/superadmin_style_dashboard.css','resources/js/app.js'])
+
 <div>
     <h1>Super Admin Dashboard</h1>
 
