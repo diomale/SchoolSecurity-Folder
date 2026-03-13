@@ -123,9 +123,9 @@
             <div class="info-box">
                 <strong>ℹ️ How it works:</strong>
                 <ol style="margin: 10px 0 0 20px; padding: 0;">
-                    <li>After you submit a request, the student must accept it</li>
-                    <li>Once the student accepts, the admin will review and approve</li>
-                    <li>After admin approval, you can see the student's entry/exit records</li>
+                    <li>After you submit a request, the student will review it</li>
+                    <li>Once the student accepts, you're immediately connected!</li>
+                    <li>You can then view their entry/exit records in your dashboard</li>
                 </ol>
             </div>
             
@@ -136,7 +136,7 @@
                         <th>Email</th>
                         <th>Relationship</th>
                         <th>Student Approval</th>
-                        <th>Admin Status</th>
+                        <th>Status</th>
                         <th>Requested On</th>
                         <th>Action</th>
                     </tr>
@@ -158,11 +158,11 @@
                         </td>
                         <td>
                             @if($request->status === 'approved')
-                                <span class="status-approved">✓ Approved</span>
+                                <span class="status-approved">✓ Connected</span>
                             @elseif($request->status === 'rejected')
                                 <span class="status-rejected">✗ Rejected</span>
                             @elseif($request->inside_user_approval === 'accepted')
-                                <span class="status-pending">⏳ Awaiting Admin</span>
+                                <span class="status-approved">✓ Auto-approved</span>
                             @else
                                 <span class="status-pending">⏳ Pending</span>
                             @endif

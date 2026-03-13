@@ -237,7 +237,6 @@
                     <th>Phone</th>
                     <th>Relationship</th>
                     <th>Your Decision</th>
-                    <th>Admin Status</th>
                     <th>Requested On</th>
                     <th>Actions</th>
                 </tr>
@@ -262,20 +261,9 @@
                             @endif
                         </span>
                     </td>
-                    <td>
-                        <span class="status-badge status-{{ $request->status }}">
-                            @if($request->status === 'approved')
-                                 Approved
-                            @elseif($request->status === 'rejected')
-                                 Rejected
-                            @else
-                                 Pending
-                            @endif
-                        </span>
-                    </td>
                     <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
                     <td>
-                        @if($request->inside_user_approval === 'pending' && $request->status === 'pending')
+                        @if($request->inside_user_approval === 'pending')
                             <form action="{{ route('insideuser.connection.accept', $request->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('PATCH')
@@ -303,20 +291,16 @@
                                     </form>
                                 </div>
                             </div>
-                        @elseif($request->inside_user_approval === 'accepted' && $request->status === 'pending')
-                            <span style="color: #ff9800;">Waiting for admin approval</span>
-                        @elseif($request->status === 'approved')
-                            <span style="color: #4caf50;">✓ Connected</span>
+                        @elseif($request->inside_user_approval === 'accepted')
+                            <span style="color: #4caf50;">✓ Accepted</span>
                         @elseif($request->inside_user_approval === 'rejected')
                             <span style="color: #999;">Rejected</span>
-                        @else
-                            <span style="color: #999;">{{ ucfirst($request->status) }}</span>
                         @endif
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
                         No connection requests found.
                     </td>
                 </tr>

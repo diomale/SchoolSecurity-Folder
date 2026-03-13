@@ -184,7 +184,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1> Parent-Child Connection Requests</h1>
+            <h1>🔗 Parent-Child Connection Requests</h1>
             <a href="{{ route('admin.dashboard') }}" class="btn btn-back">← Back to Dashboard</a>
         </div>
 
@@ -200,15 +200,21 @@
         </div>
         @endif
 
+        <!-- Info Box -->
+        <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+            <strong>ℹ️ Information:</strong>
+            <p style="margin: 10px 0 0 0;">Parent-child connections now only require <strong>student approval</strong>. Admin approval is no longer needed. When a student accepts a connection request, it's automatically approved.</p>
+        </div>
+
         <!-- Statistics Cards -->
         <div class="stats">
             <div class="stat-card stat-pending">
                 <h3>{{ $pendingCount }}</h3>
-                <p>Pending</p>
+                <p>Pending Student Approval</p>
             </div>
             <div class="stat-card stat-approved">
                 <h3>{{ $approvedCount }}</h3>
-                <p>Approved</p>
+                <p>Approved (Auto)</p>
             </div>
             <div class="stat-card stat-rejected">
                 <h3>{{ $rejectedCount }}</h3>
@@ -277,37 +283,24 @@
                     <td>
                         @if($connection->status === 'pending')
                             @if($connection->inside_user_approval === 'accepted')
-                                <form action="{{ route('admin.connection.approve', $connection->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn btn-approve" onclick="return confirm('Approve this connection request?')">✓ Approve</button>
-                                </form>
+                                <span style="color: #4caf50; font-size: 12px;">✓ Auto-approved</span>
                             @elseif($connection->inside_user_approval === 'rejected')
                                 <span style="color: #f44336; font-size: 12px;">Student rejected</span>
                             @else
-                                <span style="color: #ff9800; font-size: 12px;">Waiting for student approval</span>
+                                <span style="color: #ff9800; font-size: 12px;">Waiting for student</span>
                             @endif
 
                             @if($connection->inside_user_approval !== 'rejected')
-                                <button class="btn btn-reject" onclick="openRejectModal({{ $connection->id }})">✗ Reject</button>
+                                <button class="btn btn-reject" onclick="openRejectModal({{ $connection->id }})" style="opacity: 0.5; cursor: not-allowed;" disabled>✗ Reject</button>
 
                                 <!-- Reject Modal -->
                                 <div id="rejectModal{{ $connection->id }}" class="modal">
                                     <div class="modal-content">
                                         <h3>Reject Connection Request</h3>
-                                        <p>Are you sure you want to reject this connection request?</p>
-                                        <form action="{{ route('admin.connection.reject', $connection->id) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <div class="form-group">
-                                                <label for="remarks_{{ $connection->id }}">Rejection Reason (Optional):</label>
-                                                <textarea name="admin_remarks" id="remarks_{{ $connection->id }}" placeholder="Enter reason for rejection..."></textarea>
-                                            </div>
-                                            <div class="modal-actions">
-                                                <button type="button" class="btn btn-back" onclick="closeRejectModal({{ $connection->id }})">Cancel</button>
-                                                <button type="submit" class="btn btn-reject">Reject Request</button>
-                                            </div>
-                                        </form>
+                                        <p>Admin rejection is disabled. Only students can accept/reject their own connection requests.</p>
+                                        <div class="modal-actions">
+                                            <button type="button" class="btn btn-back" onclick="closeRejectModal({{ $connection->id }})">Close</button>
+                                        </div>
                                     </div>
                                 </div>
                             @endif

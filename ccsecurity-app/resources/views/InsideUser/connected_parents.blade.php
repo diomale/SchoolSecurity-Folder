@@ -53,6 +53,16 @@
             text-decoration: none;
         }
         .btn-back:hover { background: #5a6268; }
+        .btn-cancel {
+            padding: 6px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-cancel:hover { background: #c82333; }
         .nav-links {
             margin-bottom: 20px;
         }
@@ -98,6 +108,7 @@
                     <th>Phone</th>
                     <th>Relationship</th>
                     <th>Connected Since</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -108,6 +119,13 @@
                     <td>{{ $parent->phone_number ?? 'N/A' }}</td>
                     <td>{{ $parent->pivot->relationship }}</td>
                     <td>{{ \Carbon\Carbon::parse($parent->pivot->approved_at)->format('M d, Y') }}</td>
+                    <td>
+                        <form action="{{ route('insideuser.connection.cancel', $parent->pivot->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-cancel" onclick="return confirm('Are you sure you want to cancel this connection?')">Cancel Connection</button>
+                        </form>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>

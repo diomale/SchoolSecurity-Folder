@@ -95,10 +95,8 @@ Route::prefix('admin')->group(function () {
         Route::patch('/visit-request-approve/{id}', [AdminController::class, 'approveVisitRequest'])->name('admin.visit.approve');
         Route::patch('/visit-request-reject/{id}', [AdminController::class, 'rejectVisitRequest'])->name('admin.visit.reject');
 
-        // Parent-Child Connection Management
+        // Parent-Child Connection Management (View Only - No Admin Approval Needed)
         Route::get('/connection-requests', [AdminController::class, 'showConnectionRequests'])->name('admin.connection.requests');
-        Route::patch('/connection-approve/{id}', [AdminController::class, 'approveConnectionRequest'])->name('admin.connection.approve');
-        Route::patch('/connection-reject/{id}', [AdminController::class, 'rejectConnectionRequest'])->name('admin.connection.reject');
 
         //QR Status Management
         Route::get('/qr-status-management', [AdminController::class, 'showQrStatusManagement'])->name('admin.qr.status.management');
@@ -140,6 +138,7 @@ Route::prefix('insideuser')->group(function(){
         Route::patch('/connection-accept/{id}', [InsideUserConnectionController::class, 'acceptConnection'])->name('insideuser.connection.accept');
         Route::patch('/connection-reject/{id}', [InsideUserConnectionController::class, 'rejectConnection'])->name('insideuser.connection.reject');
         Route::get('/connected-parents', [InsideUserConnectionController::class, 'connectedParents'])->name('insideuser.connected.parents');
+        Route::delete('/connection/{id}/cancel', [InsideUserConnectionController::class, 'cancelConnection'])->name('insideuser.connection.cancel');
 
 
     });
@@ -226,7 +225,8 @@ Route::prefix('outsideuser')->group(function(){
         Route::get('/connections/search', [ParentConnectionController::class, 'searchInsideUser'])->name('outsideuser.connections.search');
         Route::post('/connections/submit', [ParentConnectionController::class, 'submitConnectionRequest'])->name('outsideuser.connections.submit');
         Route::get('/connections/history', [ParentConnectionController::class, 'connectionHistory'])->name('outsideuser.connections.history');
-        Route::post('/connections/cancel/{id}', [ParentConnectionController::class, 'cancelConnection'])->name('outsideuser.connections.cancel');
+        Route::delete('/connections/cancel/{id}', [ParentConnectionController::class, 'cancelConnection'])->name('outsideuser.connections.cancel');
+        Route::delete('/connections/cancel-approved/{id}', [ParentConnectionController::class, 'cancelApprovedConnection'])->name('outsideuser.connections.cancel.approved');
     });
 
 });
