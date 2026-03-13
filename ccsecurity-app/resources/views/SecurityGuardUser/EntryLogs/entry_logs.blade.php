@@ -276,7 +276,9 @@
                     @foreach($logs as $log)
                     <tr>
                         <td>
-                            @if($log->insideUser)
+                            @if($log->quickPass)
+                                {{ $log->quickPass->visitor_name }} <span style="color: #007bff; font-size: 12px;">🎫 (Quick Pass)</span>
+                            @elseif($log->insideUser)
                                 {{ $log->insideUser->fullname }}
                             @elseif($log->outsideUser)
                                 {{ $log->outsideUser->fullname }} <span style="color: #999; font-size: 12px;">(Visitor)</span>

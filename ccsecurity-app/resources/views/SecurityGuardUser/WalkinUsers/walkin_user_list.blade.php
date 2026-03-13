@@ -73,19 +73,31 @@
                 <td>{{ $outside_user->email }}</td>
                 <td>{{ $outside_user->phone_number ?? 'N/A' }}</td>
                 <td>
-                    @if($outside_user->qr_status === 'active')
+                    @php
+                        $isExpired = $outside_user->qr_expires_at && \Carbon\Carbon::now()->gt($outside_user->qr_expires_at);
+                    @endphp
+                    @if($isExpired)
+                        <span style="color: red;">Expired ✗</span>
+                    @elseif($outside_user->qr_status === 'active')
                         <span style="color: green;">Active ✓</span>
                     @else
                         <span style="color: gray;">Inactive ✗</span>
                     @endif
                 </td>
-                <td>{{ $outside_user->created_at?->format('M d, Y h:i A') ?? 'N/A' }}</td>
+                <td>
+                    <div>{{ $outside_user->created_at?->format('M d, Y h:i A') ?? 'N/A' }}</div>
+                    @if($outside_user->qr_expires_at)
+                        <div style="font-size: 0.85em; color: #666;">
+                            Expires: {{ $outside_user->qr_expires_at->format('M d, h:i A') }}
+                        </div>
+                    @endif
+                </td>
 
                 <td>
                     <div style="display: flex; gap: 5px;">
                         <a href="{{ route('security.user.qr', $outside_user->id) }}" style="background-color: #e7f3ff; padding: 5px 10px; text-decoration: none; border-radius: 4px; border: 1px solid #007bff; color: #007bff;">View QR</a>
 
-                        <form action="{{ route('security.qr.status.toggle', $outside_user->id) }}" method="POST" style="display:inline;">
+                        <form action="{{ route('security.qr.status.toggle', ['id' => $outside_user->id, 'type' => 'outside']) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('PATCH')
                             <button type="submit" style="cursor: pointer;">Toggle Status</button>

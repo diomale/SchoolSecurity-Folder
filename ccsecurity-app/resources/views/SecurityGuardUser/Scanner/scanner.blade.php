@@ -229,9 +229,19 @@
             if (data.success) {
                 resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
                 resultDiv.classList.add('bg-blue-100', 'border', 'border-blue-400');
-                const userTypeLabel = data.user_type === 'outside' ? 'Visitor' : 'Staff/Student';
                 // Show only user's name (hide QR value for security)
                 qrValueSpan.textContent = data.inside_user.fullname;
+                
+                // Set user type label based on user_type
+                let userTypeLabel;
+                if (data.user_type === 'quick_pass') {
+                    userTypeLabel = '🎫 Quick Pass';
+                } else if (data.user_type === 'outside') {
+                    userTypeLabel = 'Visitor';
+                } else {
+                    userTypeLabel = 'Staff/Student';
+                }
+                
                 scanMessage.textContent = `${data.message} (${userTypeLabel})`;
 
                 // Add to scan history with server timestamp

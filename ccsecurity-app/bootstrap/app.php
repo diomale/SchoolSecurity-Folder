@@ -38,5 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Delete old shift assignments
         $schedule->command('shifts:cleanup-old')
                  ->dailyAt('00:00');
+
+        // Deactivate all active outsider QR codes daily at midnight
+        $schedule->command('qr:deactivate-outsiders')
+                 ->dailyAt('00:00');
     })
     ->create();

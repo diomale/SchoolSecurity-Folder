@@ -125,12 +125,15 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `inside_user_id` INT(11) NULL DEFAULT NULL,
   `outside_user_id` INT(11) NULL DEFAULT NULL,
+  `quick_pass_id` INT(11) NULL DEFAULT NULL,
+  `qr_value` VARCHAR(100) NULL DEFAULT NULL,
   `security_guard_user_id` INT(11) NOT NULL,
   `scan_at` VARCHAR(45) NULL DEFAULT NULL,
   `scan_type` VARCHAR(50) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Entry_logs_inside_user_idx` (`inside_user_id` ASC) ,
   INDEX `fk_Entry_logs_security_guard_user1_idx` (`security_guard_user_id` ASC) ,
+  INDEX `fk_Entry_logs_quick_passes_idx` (`quick_pass_id` ASC) ,
   CONSTRAINT `fk_Entry_logs_inside_user`
     FOREIGN KEY (`inside_user_id`)
     REFERENCES `securitysystemdatabase`.`inside_user` (`id`)
@@ -140,7 +143,12 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
     FOREIGN KEY (`security_guard_user_id`)
     REFERENCES `securitysystemdatabase`.`security_guard_user` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Entry_logs_quick_passes`
+    FOREIGN KEY (`quick_pass_id`)
+    REFERENCES `securitysystemdatabase`.`quick_passes` (`id`)
+    ON DELETE SET NULL
+)
 ENGINE = InnoDB
 AUTO_INCREMENT = 206
 DEFAULT CHARACTER SET = utf8;
@@ -176,6 +184,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`outside_user` (
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   `qr_value` VARCHAR(200) NULL DEFAULT NULL,
   `qr_status` VARCHAR(200) NULL DEFAULT 'inactive',
+  `qr_expires_at` TIMESTAMP NULL DEFAULT NULL COMMENT 'QR code expiration timestamp',
   `purpose_of_visit` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB
@@ -287,6 +296,33 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`visit_requests` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 16
 DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`quick_passes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`quick_passes` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `visitor_name` VARCHAR(150) NOT NULL,
+  `vehicle_plate` VARCHAR(20) NULL DEFAULT NULL,
+  `purpose` VARCHAR(50) NOT NULL DEFAULT 'Other',
+  `qr_value` VARCHAR(100) NOT NULL UNIQUE,
+  `valid_date` DATE NOT NULL,
+  `expires_at` DATETIME NOT NULL,
+  `status` ENUM('active', 'used', 'expired') NOT NULL DEFAULT 'active',
+  `created_by_guard_id` INT(11) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `unique_qr_value` (`qr_value` ASC),
+  INDEX `idx_valid_date` (`valid_date` ASC),
+  INDEX `idx_status` (`status` ASC),
+  INDEX `fk_quick_passes_guard_idx` (`created_by_guard_id` ASC),
+  CONSTRAINT `fk_quick_passes_guard`
+    FOREIGN KEY (`created_by_guard_id`)
+    REFERENCES `securitysystemdatabase`.`security_guard_user` (`id`)
+    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Temporary same-day visitor passes';
 
 
 -- -----------------------------------------------------

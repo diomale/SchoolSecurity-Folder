@@ -176,7 +176,7 @@ Route::prefix('securityguard')->group(function(){
 
         // QR Status Management routes
         Route::get('/qr-status-management', [SecurityGuardController::class, 'showQrStatusManagement'])->name('security.qr.status.management');
-        Route::patch('/qr-status-toggle/{id}', [SecurityGuardController::class, 'toggleQrStatus'])->name('security.qr.status.toggle');
+        Route::patch('/qr-status-toggle/{id}/{type?}', [SecurityGuardController::class, 'toggleQrStatus'])->name('security.qr.status.toggle');
 
         // Walk-in User Management routes
         Route::get('/walkin-users', [SecurityGuardController::class, 'showWalkinUsers'])->name('security.walkin.list');
@@ -184,6 +184,13 @@ Route::prefix('securityguard')->group(function(){
         Route::post('/walkin-user/store', [SecurityGuardController::class, 'storeWalkinUser'])->name('security.walkin.store');
         Route::delete('/walkin-users/bulk-delete', [SecurityGuardController::class, 'bulkDeleteWalkinUsers'])->name('security.walkin.bulk-delete');
         Route::get('/user-qr/{id}/{type?}', [SecurityGuardController::class, 'viewUserQr'])->name('security.user.qr');
+
+        // Quick Pass (Temporary QR) routes
+        Route::get('/quick-pass', [SecurityGuardController::class, 'showQuickPass'])->name('security.quick-pass.list');
+        Route::get('/quick-pass/create', [SecurityGuardController::class, 'createQuickPass'])->name('security.quick-pass.create');
+        Route::post('/quick-pass/store', [SecurityGuardController::class, 'storeQuickPass'])->name('security.quick-pass.store');
+        Route::get('/quick-pass/{id}/qr', [SecurityGuardController::class, 'showQuickPassQr'])->name('security.quick-pass.qr');
+        Route::delete('/quick-pass/{id}', [SecurityGuardController::class, 'deleteQuickPass'])->name('security.quick-pass.delete');
     });
 });
 

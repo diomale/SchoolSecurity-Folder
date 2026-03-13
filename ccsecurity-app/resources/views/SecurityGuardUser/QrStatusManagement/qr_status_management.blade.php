@@ -63,8 +63,8 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                <a href="{{ route('security.user.qr', ['id' => $user->id, 'type' => 'inside']) }}" style="padding: 5px 10px; background-color: #e7f3ff; color: #007bff; text-decoration: none; border-radius: 4px; border: 1px solid #007bff;">View QR</a>
-                                <form action="{{ route('security.qr.status.toggle', $user->id) }}" method="POST" style="display:inline;">
+                                <a href="{{ route('security.user.qr', ['id' => $user->id, 'type' => 'inside', 'from' => 'qr-status']) }}" style="padding: 5px 10px; background-color: #e7f3ff; color: #007bff; text-decoration: none; border-radius: 4px; border: 1px solid #007bff;">View QR</a>
+                                <form action="{{ route('security.qr.status.toggle', ['id' => $user->id, 'type' => 'inside']) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('PATCH')
                                     @if(in_array(strtolower($user->qr_status), ['active']))
@@ -122,8 +122,8 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                <a href="{{ route('security.user.qr', ['id' => $user->id, 'type' => 'inside']) }}" style="padding: 5px 10px; background-color: #e7f3ff; color: #007bff; text-decoration: none; border-radius: 4px; border: 1px solid #007bff;">View QR</a>
-                                <form action="{{ route('security.qr.status.toggle', $user->id) }}" method="POST" style="display:inline;">
+                                <a href="{{ route('security.user.qr', ['id' => $user->id, 'type' => 'inside', 'from' => 'qr-status']) }}" style="padding: 5px 10px; background-color: #e7f3ff; color: #007bff; text-decoration: none; border-radius: 4px; border: 1px solid #007bff;">View QR</a>
+                                <form action="{{ route('security.qr.status.toggle', ['id' => $user->id, 'type' => 'inside']) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('PATCH')
                                     @if(in_array(strtolower($user->qr_status), ['active']))
@@ -195,8 +195,8 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                <a href="{{ route('security.user.qr', ['id' => $user->id, 'type' => 'outside']) }}" style="padding: 5px 10px; background-color: #e7f3ff; color: #007bff; text-decoration: none; border-radius: 4px; border: 1px solid #007bff;">View QR</a>
-                                <form action="{{ route('security.qr.status.toggle', $user->id) }}" method="POST" style="display:inline;">
+                                <a href="{{ route('security.user.qr', ['id' => $user->id, 'type' => 'outside', 'from' => 'qr-status']) }}" style="padding: 5px 10px; background-color: #e7f3ff; color: #007bff; text-decoration: none; border-radius: 4px; border: 1px solid #007bff;">View QR</a>
+                                <form action="{{ route('security.qr.status.toggle', ['id' => $user->id, 'type' => 'outside']) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('PATCH')
                                     @if(in_array(strtolower($user->qr_status), ['active']))

@@ -46,12 +46,30 @@ class AdminController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'LIKE', "%{$search}%")
+            // Split search into words for better multi-word matching
+            $searchWords = explode(' ', trim($search));
+            
+            $query->where(function($q) use ($searchWords, $search) {
+                // Match full name as a whole string
+                $q->where('fullname', 'LIKE', "%{$search}%")
+                  // Also match individual words in first/last name
+                  ->orWhere('first_name', 'LIKE', "%{$search}%")
                   ->orWhere('last_name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%")
                   ->orWhere('phone_number', 'LIKE', "%{$search}%")
                   ->orWhere('qr_value', 'LIKE', "%{$search}%");
+                
+                // If multiple words, also try matching each word separately
+                if (count($searchWords) > 1) {
+                    foreach ($searchWords as $word) {
+                        $word = trim($word);
+                        if (!empty($word)) {
+                            $q->orWhere('first_name', 'LIKE', "%{$word}%")
+                              ->orWhere('last_name', 'LIKE', "%{$word}%")
+                              ->orWhere('fullname', 'LIKE', "%{$word}%");
+                        }
+                    }
+                }
             });
         }
 
@@ -100,12 +118,13 @@ class AdminController extends Controller
             'purpose_of_visit' => $request->purpose_of_visit,
             'qr_value' => $qrValue,
             'qr_status' => 'active',
+            'qr_expires_at' => now()->addDay(),
             'status' => OutsideUser::STATUS_APPROVED,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('show.admin.outsider.list')->with('success', 'Walk-in account created successfully!');
+        return redirect()->route('show.admin.outsider.list')->with('success', 'Walk-in account created successfully! QR code will expire in 24 hours.');
     }
 
     public function editOutsider(Request $request, $id)
@@ -831,8 +850,10 @@ class AdminController extends Controller
         // Get statistics for each table
         $stats = [
             'entry_logs' => [
-                'total' => EntryLog::count(),
-                'older_than_30_days' => EntryLog::where('scan_at', '<', Carbon::now()->subDays(30)->toDateTimeString())->count(),
+                'total' => EntryLog::whereIn('scan_type', ['entry', 'exit'])->count(),
+                'older_than_30_days' => EntryLog::whereIn('scan_type', ['entry', 'exit'])
+                    ->where('scan_at', '<', Carbon::now()->subDays(30)->toDateTimeString())
+                    ->count(),
             ],
             'visit_requests' => [
                 'total' => VisitRequest::count(),
