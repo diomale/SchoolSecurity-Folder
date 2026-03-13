@@ -150,7 +150,11 @@ Run:
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
 👨‍💻 Developed By
+1. Diomale Romero
+2. Rushield Tan
+3. Charlize Agsaoay
 
 BitStack Studio
 2026
