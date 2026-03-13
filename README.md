@@ -89,67 +89,67 @@ This system uses Google reCAPTCHA.
 
 Add your keys in .env:
 
-RECAPTCHA_SITE_KEY=your_site_key
-RECAPTCHA_SECRET_KEY=your_secret_key
+  RECAPTCHA_SITE_KEY=your_site_key
+  RECAPTCHA_SECRET_KEY=your_secret_key
 
 You can get keys from:
-https://www.google.com/recaptcha
+ https://www.google.com/recaptcha
 
 🛠️ Development Commands
 
-Clear cache:
+ Clear cache:
+ 
+   php artisan optimize:clear
+ 
+ Rebuild assets:
+ 
+   npm run dev or composer run dev
 
-php artisan optimize:clear
-
-Rebuild assets:
-
-npm run dev or composer run dev
-
-📁 Project Structure Overview
- app/
-  ├── Http/Controllers/
-  ├── Models/
- resources/
-  ├── views/
- routes/
-  ├── web.php
- 🧪 Troubleshooting
- ❌ Database Connection Error
-
-Check .env
-
-Make sure MySQL is running
-
-Verify database names
-
-❌ Login Not Working
-
-Check guard configuration in config/auth.php
-
-Verify status column values
+ 📁 Project Structure Overview
+  app/
+   ├── Http/Controllers/
+   ├── Models/
+  resources/
+   ├── views/
+  routes/
+   ├── web.php
+    🧪 Troubleshooting
+   ❌ Database Connection Error
+  
+    Check .env
+    
+    Make sure MySQL is running
+    
+    Verify database names
+  
+  ❌ Login Not Working
+  
+     Check guard configuration in config/auth.php
+     
+     Verify status column values
 
 🔒 Security Reminder
 
-Never commit .env file to GitHub
-
-Change default database passwords
-
-Use strong production keys
-
-Set APP_DEBUG=false in production
+  Never commit .env file to GitHub
+  
+  Change default database passwords
+  
+  Use strong production keys
+  
+  Set APP_DEBUG=false in production
 
 📌 Production Deployment Notes
 
 Before deploying:
 
-APP_ENV=production
-APP_DEBUG=false
+  APP_ENV=production
+  APP_DEBUG=false
 
 Run:
 
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+  php artisan config:cache
+  php artisan route:cache
+  php artisan view:cache
 
 👨‍💻 Developed By
 1. Diomale Romero
