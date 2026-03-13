@@ -69,19 +69,19 @@ Update your database configuration:
 ⚠️ Replace credentials with your own database credentials.
 
  5️⃣ Generate Application Key
- php artisan key:generate
+      php artisan key:generate
  
  6️⃣ Run Migrations
- php artisan migrate
+      php artisan migrate
  
  If you are using multiple databases, make sure both databases are created in MySQL before running migrations.
  
  7️⃣ Start the Server
- php artisan serve
+    php artisan serve
 
 Then visit:
 
- http://localhost:8000
+    http://localhost:8000
  
 🔎 reCAPTCHA Configuration
 
@@ -89,17 +89,17 @@ This system uses Google reCAPTCHA.
 
 Add your keys in .env:
 
-  RECAPTCHA_SITE_KEY=your_site_key
-  RECAPTCHA_SECRET_KEY=your_secret_key
+    RECAPTCHA_SITE_KEY=your_site_key
+    RECAPTCHA_SECRET_KEY=your_secret_key
 
 You can get keys from:
- https://www.google.com/recaptcha
+    https://www.google.com/recaptcha
 
 🛠️ Development Commands
 
  Clear cache:
  
-   php artisan optimize:clear
+     php artisan optimize:clear
  
  Rebuild assets:
  
@@ -147,9 +147,9 @@ Before deploying:
 
 Run:
 
-  php artisan config:cache
-  php artisan route:cache
-  php artisan view:cache
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
 
 👨‍💻 Developed By
 1. Diomale Romero
