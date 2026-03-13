@@ -108,10 +108,11 @@ class AdminController extends Controller
         return redirect()->route('show.admin.outsider.list')->with('success', 'Walk-in account created successfully!');
     }
 
-    public function editOutsider($id)
+    public function editOutsider(Request $request, $id)
     {
         $outside_user = OutsideUser::findOrFail($id);
-        return view('Admin.AdminWaitingList.outside_user_edit', compact('outside_user'));
+        $backUrl = $request->query('back_url', route('show.admin.outsider.list'));
+        return view('Admin.AdminWaitingList.outside_user_edit', compact('outside_user', 'backUrl'));
     }
 
     public function updateOutsider(Request $request, $id)
@@ -264,16 +265,18 @@ class AdminController extends Controller
             ->with('success', 'New user created successfully!');
     }
 
-    public function showSecurityUserDetail($id)
+    public function showSecurityUserDetail(Request $request, $id)
     {
         $security_guard_user = securityguard::findOrFail($id);
-        return view('Admin.SecurityCrudSection.security_user_details', compact('security_guard_user'));
+        $backUrl = $request->query('back_url', route('security.user.table.section'));
+        return view('Admin.SecurityCrudSection.security_user_details', compact('security_guard_user', 'backUrl'));
     }
 
-    public function viewSecurityUserForm($id)
+    public function viewSecurityUserForm(Request $request, $id)
     {
         $security_guard_user = securityguard::findOrFail($id);
-        return view('Admin.SecurityCrudSection.security_user_edit_form', compact('security_guard_user'));
+        $backUrl = $request->query('back_url', route('security.user.table.section'));
+        return view('Admin.SecurityCrudSection.security_user_edit_form', compact('security_guard_user', 'backUrl'));
     }
 
     public function updateSecurityUser(Request $request, $id)
@@ -463,17 +466,19 @@ class AdminController extends Controller
             ->with('success', 'New user created successfully!');
     }
 
-    public function showUserDetail($id)
+    public function showUserDetail(Request $request, $id)
     {
         $inside_user = InsideUser::findOrFail($id);
-        return view('Admin.AdminCrudSection.admin_user_details', compact('inside_user'));
+        $backUrl = $request->query('back_url', route('admin.show.crudSection'));
+        return view('Admin.AdminCrudSection.admin_user_details', compact('inside_user', 'backUrl'));
     }
 
-    public function viewEditForm($id)
+    public function viewEditForm(Request $request, $id)
     {
         $inside_user = InsideUser::findOrFail($id);
+        $backUrl = $request->query('back_url', route('admin.show.crudSection'));
 
-        return view('Admin.AdminCrudSection.admin_user_edit_form', compact('inside_user'));
+        return view('Admin.AdminCrudSection.admin_user_edit_form', compact('inside_user', 'backUrl'));
     }
 
     public function updateUser(Request $request, $id)
@@ -660,7 +665,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Shift deleted successfully!');
     }
 
-    public function showGuardShifts($guardId)
+    public function showGuardShifts(Request $request, $guardId)
     {
         $guard = securityguard::findOrFail($guardId);
         $shifts = Shift::where('security_guard_user_id', $guardId)
@@ -668,7 +673,9 @@ class AdminController extends Controller
             ->orderBy('start_time', 'desc')
             ->paginate(20);
 
-        return view('Admin.ShiftManagement.guard_shifts', compact('guard', 'shifts'));
+        $backUrl = $request->query('back_url', route('admin.shift.management'));
+
+        return view('Admin.ShiftManagement.guard_shifts', compact('guard', 'shifts', 'backUrl'));
     }
 
 

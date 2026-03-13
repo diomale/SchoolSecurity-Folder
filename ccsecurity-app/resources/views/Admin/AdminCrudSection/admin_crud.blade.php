@@ -81,8 +81,8 @@
                 <td>{{ $inside_user->created_at }}</td>
                 <td>
                     <div style="display: flex; gap: 5px;">
-                        <a href="{{ route('admin.user.details', $inside_user->id) }}">View</a>
-                        <a href="{{ route('admin.user.edit.form', $inside_user->id) }}">Edit</a>
+                        <a href="{{ route('admin.user.details', ['id' => $inside_user->id, 'back_url' => url()->current()]) }}">View</a>
+                        <a href="{{ route('admin.user.edit.form', ['id' => $inside_user->id, 'back_url' => url()->current()]) }}">Edit</a>
                         <button type="button" onclick="openPasswordModal('delete-form-{{ $inside_user->id }}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
                         <form id="delete-form-{{ $inside_user->id }}" action="{{ route('admin.user.delete', $inside_user->id) }}" method="POST" style="display:none;">
                             @csrf

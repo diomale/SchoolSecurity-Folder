@@ -75,9 +75,9 @@
 
                 <td>
                     <div style="display: flex; gap: 5px;">
-                        <a href="{{ route('admin.guard.shifts', $security_guard_user->id) }}">View Shifts</a>
-                        <a href="{{ route('security.guard.user.details', $security_guard_user->id) }}">View</a>
-                        <a href="{{ route('security.guard.user.edit', $security_guard_user->id) }}">Edit</a>
+                        <a href="{{ route('admin.guard.shifts', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}">View Shifts</a>
+                        <a href="{{ route('security.guard.user.details', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}">View</a>
+                        <a href="{{ route('security.guard.user.edit', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}">Edit</a>
                         <button type="button" onclick="openPasswordModal('delete-form-{{ $security_guard_user->id }}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
                         <form id="delete-form-{{ $security_guard_user->id }}" action="{{ route('security.guard.user.delete', $security_guard_user->id) }}" method="POST" style="display:none;">
                             @csrf

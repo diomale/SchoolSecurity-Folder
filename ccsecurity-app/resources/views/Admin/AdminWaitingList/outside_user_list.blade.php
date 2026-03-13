@@ -89,7 +89,7 @@
 
                 <td>
                     <div style="display: flex; gap: 5px;">
-                        <a href="{{ route('admin.outsider.edit', $outside_user->id) }}">Edit</a>
+                        <a href="{{ route('admin.outsider.edit', ['id' => $outside_user->id, 'back_url' => url()->current()]) }}">Edit</a>
 
                         <button type="button" onclick="openPasswordModal('delete-form-{{ $outside_user->id }}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
                         <form id="delete-form-{{ $outside_user->id }}" action="{{ route('admin.outsider.delete', $outside_user->id) }}" method="POST" style="display:none;">

@@ -10,7 +10,7 @@
         <!-- Header -->
         <div>
             <h1>🕐 Shift Management</h1>
-            <a href="{{ route('admin.dashboard') }}">← Back to Dashboard</a>
+            <a href="{{ route('security.user.table.section') }}">← Back to Security User Table</a>
         </div>
 
         <!-- Messages -->
@@ -91,7 +91,7 @@
                         <td>{{ ucfirst($shift->status) }}</td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
+                                <a href="{{ route('admin.guard.shifts', ['id' => $shift->security_guard_user_id, 'back_url' => url()->current()]) }}">View Guard</a>
                                 <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
                                     @csrf
                                     @method('DELETE')
