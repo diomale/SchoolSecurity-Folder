@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use App\Models\OutsideUser;
 use App\Models\VisitRequest;
 use App\Models\Notification;
@@ -244,6 +245,7 @@ class OutsideUserController extends Controller
             'phone_number' => 'required|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
             'current_password' => 'nullable|string',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Validate current password if new password is provided
@@ -266,6 +268,29 @@ class OutsideUserController extends Controller
 
         if ($request->filled('password')) {
             $outsideUser->password = Hash::make($validated['password']);
+        }
+
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            // Delete old profile picture if exists
+            if ($outsideUser->profile_picture && Storage::disk('public')->exists('profiles/' . $outsideUser->profile_picture)) {
+                Storage::disk('public')->delete('profiles/' . $outsideUser->profile_picture);
+            }
+
+            // Store new profile picture
+            $file = $request->file('profile_picture');
+            $filename = 'profile_' . $outsideUser->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('profiles', $filename, 'public');
+
+            $outsideUser->profile_picture = $filename;
+        }
+
+        // Handle profile picture removal
+        if ($request->has('remove_profile_picture')) {
+            if ($outsideUser->profile_picture && Storage::disk('public')->exists('profiles/' . $outsideUser->profile_picture)) {
+                Storage::disk('public')->delete('profiles/' . $outsideUser->profile_picture);
+            }
+            $outsideUser->profile_picture = null;
         }
 
         $outsideUser->updated_at = now();
