@@ -1,0 +1,76 @@
+/* Page layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e1e;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e0e0e0;
+}
+
+/* Login form container */
+form {
+    background-color: #2a2a2a;
+    padding: 35px;
+    border-radius: 8px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+/* Input fields */
+input {
+    padding: 10px;
+    border: 1px solid #3d3d3d;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+input::placeholder {
+    color: #9a9a9a;
+}
+
+input:focus {
+    outline: none;
+    border-color: #565f7a;
+}
+
+/* Login button */
+button {
+    background-color: #3a3f5c;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #565f7a;
+}
+
+/* Error message */
+p {
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Back link */
+a {
+    position: absolute;
+    bottom: 200px;
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+a:hover {
+    color: #ffffff;
+}

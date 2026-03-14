@@ -1,0 +1,62 @@
+/* Page Background */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Container */
+div {
+    background-color: #2a2a2a;
+    padding: 40px;
+    border-radius: 8px;
+    width: 350px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ffffff;
+}
+
+/* Form Layout */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Inputs */
+input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #3d3d3d;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+input:focus {
+    outline: none;
+    border-color: #565f7a;
+}
+
+/* Button */
+button {
+    padding: 10px;
+    background-color: #3a3f5c;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+button:hover {
+    background-color: #565f7a;
+}
