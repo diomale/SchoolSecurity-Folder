@@ -41,6 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Deactivate all active outsider QR codes daily at midnight
         $schedule->command('qr:deactivate-outsiders')
-                 ->dailyAt('00:00');
+                ->dailyAt('00:00'); 
+                //->everyMinute(); for testing purposes
     })
     ->create();

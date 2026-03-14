@@ -75,6 +75,8 @@
                 @endif
             </a>
             <a href="{{ route('insideuser.connected.parents') }}"> My Connected Parents</a>
+            <a href="{{ route('insideuser.events.dashboard') }}"> 📅 My Events</a>
+            <a href="#entry-logs"> Entry/Exit Logs</a>
         </div>
 
         @if($pendingConnections->count() > 0)
@@ -100,6 +102,70 @@
             <p>When someone (parent/guardian) requests to connect with you, you'll see it here and can accept or reject the request.</p>
         </div>
         @endif
+
+        {{-- My Events Section --}}
+        <div style="margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin: 0;">📅 My Events</h2>
+                <a href="{{ route('insideuser.events.create') }}" style="background: #4caf50; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px;">+ Create Event</a>
+            </div>
+            <div class="info-box" style="background: #f3e5f5; border-left: 4px solid #9c27b0; margin-top: 0;">
+                <h3>Manage Your Events</h3>
+                <p>Create and manage events for alien user registration. Track registrations, approve participants, and generate QR codes.</p>
+                <a href="{{ route('insideuser.events.dashboard') }}" style="color: #7b1fa2; font-weight: bold;">View All Events →</a>
+            </div>
+        </div>
+
+        {{-- Entry/Exit Logs Section --}}
+        <div id="entry-logs" style="margin-top: 30px;">
+            <h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Entry/Exit Logs</h2>
+            
+            @if($entryLogs->count() > 0)
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+                    <thead style="background: #1976d2; color: white;">
+                        <tr>
+                            <th style="padding: 12px; text-align: left;">#</th>
+                            <th style="padding: 12px; text-align: left;">Type</th>
+                            <th style="padding: 12px; text-align: left;">Scanned By</th>
+                            <th style="padding: 12px; text-align: left;">Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($entryLogs as $index => $log)
+                        <tr style="border-bottom: 1px solid #eee; {{ $index % 2 === 1 ? 'background: #f9f9f9;' : '' }}">
+                            <td style="padding: 12px;">{{ $index + 1 }}</td>
+                            <td style="padding: 12px;">
+                                @if($log->scan_type === 'entry')
+                                    <span style="background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">ENTRY</span>
+                                @elseif($log->scan_type === 'exit')
+                                    <span style="background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">EXIT</span>
+                                @else
+                                    <span style="background: #e2e3e5; color: #383d41; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">{{ strtoupper($log->scan_type) }}</span>
+                                @endif
+                            </td>
+                            <td style="padding: 12px;">
+                                @if($log->securityGuardUser)
+                                    {{ $log->securityGuardUser->fullname ?? 'Guard #' . $log->security_guard_user_id }}
+                                @else
+                                    <em style="color: #999;">System</em>
+                                @endif
+                            </td>
+                            <td style="padding: 12px;">{{ $log->scan_at->format('M d, Y h:i A') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <p style="margin-top: 15px; color: #666; font-size: 14px;">Showing last {{ $entryLogs->count() }} records. Total: {{ $insideUser->entryLogs()->count() }} logs</p>
+            @else
+            <div class="info-box" style="background: #e3f2fd; border-left: 4px solid #2196f3;">
+                <h3>No Entry/Exit Records</h3>
+                <p>You don't have any entry or exit records yet.</p>
+                <p>Your entry/exit logs will appear here when you scan your QR code at the security checkpoint.</p>
+            </div>
+            @endif
+        </div>
     </div>
 </body>
 </html>

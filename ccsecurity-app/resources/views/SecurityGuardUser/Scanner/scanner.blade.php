@@ -201,6 +201,21 @@
     }
 
     function processScanResult(decodedText) {
+        // Extract QR code from URL if it's a full URL
+        let qrValue = decodedText;
+        
+        // Check if it's a URL with QR code at the end
+        const urlMatch = decodedText.match(/\/scan\/(.+)$/);
+        if (urlMatch && urlMatch[1]) {
+            qrValue = urlMatch[1];
+        }
+        
+        // Also check for event registration URL pattern
+        const eventMatch = decodedText.match(/\/event\/scan\/(.+)$/);
+        if (eventMatch && eventMatch[1]) {
+            qrValue = eventMatch[1];
+        }
+
         // Visual feedback
         const resultDiv = document.getElementById('scan-result');
         const errorDiv = document.getElementById('scan-error');
@@ -222,26 +237,37 @@
                 'X-CSRF-TOKEN': "{{ csrf_token() }}",
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ qr_value: decodedText })
+            body: JSON.stringify({ qr_value: qrValue })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
                 resultDiv.classList.add('bg-blue-100', 'border', 'border-blue-400');
-                // Show only user's name (hide QR value for security)
-                qrValueSpan.textContent = data.inside_user.fullname;
                 
+                // Get fullname based on user type
+                let fullname = 'Unknown User';
+                if (data.inside_user && data.inside_user.fullname) {
+                    fullname = data.inside_user.fullname;
+                } else if (data.event_registration && data.event_registration.fullname) {
+                    fullname = data.event_registration.fullname;
+                } else if (data.quick_pass && data.quick_pass.visitor_name) {
+                    fullname = data.quick_pass.visitor_name;
+                }
+                qrValueSpan.textContent = fullname;
+
                 // Set user type label based on user_type
                 let userTypeLabel;
                 if (data.user_type === 'quick_pass') {
                     userTypeLabel = '🎫 Quick Pass';
                 } else if (data.user_type === 'outside') {
                     userTypeLabel = 'Visitor';
+                } else if (data.user_type === 'event') {
+                    userTypeLabel = '🎫 Event Attendee';
                 } else {
                     userTypeLabel = 'Staff/Student';
                 }
-                
+
                 scanMessage.textContent = `${data.message} (${userTypeLabel})`;
 
                 // Add to scan history with server timestamp
@@ -255,11 +281,15 @@
                 resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
                 resultDiv.classList.add('bg-yellow-100', 'border', 'border-yellow-400');
                 // Show user's name even on error (if available)
+                let fullname = 'Unknown User';
                 if (data.inside_user && data.inside_user.fullname) {
-                    qrValueSpan.textContent = data.inside_user.fullname;
-                } else {
-                    qrValueSpan.textContent = 'Unknown User';
+                    fullname = data.inside_user.fullname;
+                } else if (data.event_registration && data.event_registration.fullname) {
+                    fullname = data.event_registration.fullname;
+                } else if (data.quick_pass && data.quick_pass.visitor_name) {
+                    fullname = data.quick_pass.visitor_name;
                 }
+                qrValueSpan.textContent = fullname;
                 scanMessage.textContent = data.message || 'User not found';
             }
         })
@@ -299,16 +329,42 @@
 
     // Add scan to history display
     function addToHistory(data) {
-        if (!data || !data.inside_user) return;
+        if (!data || (!data.inside_user && !data.event_registration && !data.quick_pass)) return;
 
         const historyDiv = document.getElementById('scan-history');
         const { timeString, dateString } = formatServerDateTime(data.scan_at);
 
-        // Handle entry/exit scan types only
+        // Get fullname based on user type
+        let fullname = 'Unknown User';
+        if (data.event_registration && data.event_registration.fullname) {
+            fullname = data.event_registration.fullname;
+        } else if (data.inside_user && data.inside_user.fullname) {
+            fullname = data.inside_user.fullname;
+        } else if (data.quick_pass && data.quick_pass.visitor_name) {
+            fullname = data.quick_pass.visitor_name;
+        }
+
+        // Handle scan types with special handling for event check-ins
         let typeLabel, typeColor, bgColor;
         const scanType = data.scan_type ? data.scan_type.toLowerCase() : 'unknown';
-        
-        if (scanType === 'entry') {
+        const userType = data.user_type || '';
+
+        // Check if this is an event registration scan
+        if (userType === 'event') {
+            if (scanType === 'entry') {
+                typeLabel = '✓ EVENT CHECK-IN';
+                typeColor = 'text-purple-600';
+                bgColor = 'bg-purple-50';
+            } else if (scanType === 'exit') {
+                typeLabel = '✓ EVENT CHECK-OUT';
+                typeColor = 'text-indigo-600';
+                bgColor = 'bg-indigo-50';
+            } else {
+                typeLabel = 'EVENT';
+                typeColor = 'text-purple-600';
+                bgColor = 'bg-purple-50';
+            }
+        } else if (scanType === 'entry') {
             typeLabel = 'ENTRY';
             typeColor = 'text-green-600';
             bgColor = 'bg-green-50';
@@ -321,8 +377,6 @@
             typeColor = 'text-gray-600';
             bgColor = 'bg-gray-50';
         }
-        
-        const fullname = data.inside_user.fullname || 'Unknown User';
 
         const historyItem = `
             <div class="${bgColor} border rounded-lg p-3 animate-fade-in mb-3">
@@ -360,7 +414,9 @@
             // Reverse the array so oldest is added first, then newer ones on top
             data.scans.reverse().forEach(scan => {
                 addToHistory({
+                    event_registration: scan.event_registration || null,
                     inside_user: scan.inside_user,
+                    quick_pass: scan.quick_pass,
                     scan_type: scan.scan_type,
                     scan_at: scan.scan_at,
                     user_type: scan.user_type

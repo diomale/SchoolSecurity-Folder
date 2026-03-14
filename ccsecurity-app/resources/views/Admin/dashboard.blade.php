@@ -63,7 +63,15 @@
                 <div>
                     <a href="{{ route('admin.cleanup.settings') }}">
                         <h3> Auto-Delete Cleanup Settings</h3>
-                        
+
+                    </a>
+                </div>
+
+                <!-- Event Management Card -->
+                <div>
+                    <a href="{{ route('admin.events.pending') }}">
+                        <h3>📅 Event Management</h3>
+                        <p>Approve and manage events</p>
                     </a>
                 </div>
             </div>
