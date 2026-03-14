@@ -46,15 +46,16 @@
         <div class="connection-card">
             <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
                 <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Email</th>
-                        <th>Relationship</th>
-                        <th>Status</th>
-                        <th>Admin Remarks</th>
-                        <th>Requested On</th>
-                        <th>{{ ucfirst($connections->first()->status === 'approved' ? 'Approved' : 'Updated') }} On</th>
-                    </tr>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Relationship</th>
+                    <th>Status</th>
+                    <th>Admin Remarks</th>
+                    <th>Requested On</th>
+                    <th>{{ ucfirst($connections->first()->status === 'approved' ? 'Approved' : 'Updated') }} On</th>
+                    <th>Actions</th>
+                </tr>
                 </thead>
                 <tbody>
                     @foreach($connections as $connection)
@@ -82,6 +83,23 @@
                         <td>
                             @if($connection->approved_at)
                                 {{ $connection->approved_at->format('M d, Y h:i A') }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>
+                            @if($connection->status === 'approved')
+                                <form action="{{ route('outsideuser.connections.cancel.approved', $connection->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="return confirm('Are you sure you want to cancel this connection?')">Cancel Connection</button>
+                                </form>
+                            @elseif($connection->status === 'pending')
+                                <form action="{{ route('outsideuser.connections.cancel', $connection->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background: #ffc107; color: #212529; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="return confirm('Are you sure you want to cancel this connection request?')">Cancel Request</button>
+                                </form>
                             @else
                                 -
                             @endif

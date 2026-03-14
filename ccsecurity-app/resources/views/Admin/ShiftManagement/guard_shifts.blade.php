@@ -175,7 +175,7 @@
         <!-- Header -->
         <div class="header">
             <h1>👤 Guard Shift Schedule</h1>
-            <a href="{{ route('admin.shift.management') }}" class="back-link">← Back to Shift Management</a>
+            <a href="{{ $backUrl }}" class="back-link">← Back</a>
         </div>
 
         <!-- Guard Info -->

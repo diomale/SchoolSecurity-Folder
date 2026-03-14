@@ -9,5 +9,5 @@
         </ul>
     </div>
 
-    <a href="{{ route('security.user.table.section') }}">Back</a>
+    <a href="{{ $backUrl }}">Back</a>
 </div>

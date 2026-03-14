@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Models\OutsideUser;
 use App\Models\EntryLog;
 use App\Models\InsideUser;
 use App\Models\securityguard;
 use App\Models\Shift;
 use App\Models\ShiftLog;
+use App\Models\QuickPass;
 use Carbon\Carbon;
 
 class SecurityGuardController extends Controller
@@ -26,9 +29,12 @@ class SecurityGuardController extends Controller
             ->limit(20)
             ->get();
 
-        // Get statistics for current guard
-        $totalScans = EntryLog::where('security_guard_user_id', $guard->id)->count();
+        // Get statistics for current guard (only count actual entry/exit scans, not QR status toggles)
+        $totalScans = EntryLog::where('security_guard_user_id', $guard->id)
+            ->whereIn('scan_type', ['entry', 'exit'])
+            ->count();
         $todayScans = EntryLog::where('security_guard_user_id', $guard->id)
+            ->whereIn('scan_type', ['entry', 'exit'])
             ->whereDate('scan_at', today())
             ->count();
         $todayEntries = EntryLog::where('security_guard_user_id', $guard->id)
@@ -155,19 +161,21 @@ class SecurityGuardController extends Controller
             'purpose_of_visit' => $request->purpose_of_visit,
             'qr_value' => $qrValue,
             'qr_status' => 'active',
+            'qr_expires_at' => now()->addDay(),
             'status' => OutsideUser::STATUS_APPROVED,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('security.walkin.list')->with('success', 'Walk-in account created successfully!');
+        return redirect()->route('security.walkin.list')->with('success', 'Walk-in account created successfully! QR code will expire in 24 hours.');
     }
 
     public function bulkDeleteWalkinUsers(Request $request)
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.outside_user,id'
+            'user_ids.*' => 'exists:mysql_second.outside_user,id',
+            'admin_password' => ['required', new \App\Rules\CurrentAdminPassword('securityguard')]
         ]);
 
         OutsideUser::whereIn('id', $request->user_ids)->delete();
@@ -186,15 +194,34 @@ class SecurityGuardController extends Controller
         return view('SecurityGuardUser.WalkinUsers.view_qr', compact('user', 'type'));
     }
 
-    public function toggleQrStatus($id)
+    public function toggleQrStatus($id, $type = null)
     {
         $guard = Auth::guard('securityguard')->user();
 
-        // Try to find inside user first
-        $inside_user = InsideUser::find($id);
+        // Use the type parameter if provided, otherwise determine by table lookup
+        if ($type === 'outside') {
+            // Directly look up outside user
+            $outside_user = OutsideUser::findOrFail($id);
+            $newStatus = in_array(strtolower($outside_user->qr_status), ['active']) ? 'inactive' : 'active';
 
-        if ($inside_user) {
-            // Toggle inside user QR status
+            $outside_user->update([
+                'qr_status' => $newStatus,
+                'updated_at' => now(),
+            ]);
+
+            // Create notification/activity log for other guards (QR status toggle)
+            EntryLog::create([
+                'inside_user_id' => null,
+                'outside_user_id' => $outside_user->id,
+                'security_guard_user_id' => $guard->id,
+                'scan_at' => now()->toDateTimeString(),
+                'scan_type' => 'qr_' . $newStatus,
+            ]);
+
+            return redirect()->back()->with('success', "QR status for visitor {$outside_user->fullname} changed to {$newStatus}!");
+        } else {
+            // Default to inside user (students/staff)
+            $inside_user = InsideUser::findOrFail($id);
             $newStatus = in_array(strtolower($inside_user->qr_status), ['active']) ? 'inactive' : 'active';
 
             $inside_user->update([
@@ -213,26 +240,6 @@ class SecurityGuardController extends Controller
 
             return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
         }
-
-        // Try to find outside user
-        $outside_user = OutsideUser::findOrFail($id);
-        $newStatus = in_array(strtolower($outside_user->qr_status), ['active']) ? 'inactive' : 'active';
-
-        $outside_user->update([
-            'qr_status' => $newStatus,
-            'updated_at' => now(),
-        ]);
-
-        // Create notification/activity log for other guards (QR status toggle)
-        EntryLog::create([
-            'inside_user_id' => null,
-            'outside_user_id' => $outside_user->id,
-            'security_guard_user_id' => $guard->id,
-            'scan_at' => now()->toDateTimeString(),
-            'scan_type' => 'qr_' . $newStatus,
-        ]);
-
-        return redirect()->back()->with('success', "QR status for visitor {$outside_user->fullname} changed to {$newStatus}!");
     }
 
     //function
@@ -291,14 +298,24 @@ class SecurityGuardController extends Controller
             // Try to find inside user first
             $insideUser = InsideUser::where('qr_value', $qrValue)->first();
             $outsideUser = null;
+            $quickPass = null;
             $userType = 'inside';
             $user = null;
 
             // If not found, try outside user
             if (!$insideUser) {
                 $outsideUser = OutsideUser::where('qr_value', $qrValue)->first();
-                $userType = 'outside';
-                $user = $outsideUser;
+                if ($outsideUser) {
+                    $userType = 'outside';
+                    $user = $outsideUser;
+                } else {
+                    // Try quick pass
+                    $quickPass = QuickPass::where('qr_value', $qrValue)->first();
+                    if ($quickPass) {
+                        $userType = 'quick_pass';
+                        $user = $quickPass;
+                    }
+                }
             } else {
                 $user = $insideUser;
             }
@@ -306,15 +323,117 @@ class SecurityGuardController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User not found'
+                    'message' => 'QR code not recognized. User not found.'
                 ]);
             }
 
             // Get user name helper
             $getUserName = function($u) {
                 if (!$u) return 'Unknown User';
+                if ($u instanceof QuickPass) {
+                    return $u->visitor_name . ' (Quick Pass)';
+                }
                 return $u->fullname ?: trim(($u->first_name ?? '') . ' ' . ($u->last_name ?? '')) ?: 'User ' . $u->id;
             };
+
+            // Handle Quick Pass scanning
+            if ($userType === 'quick_pass') {
+                // Check if quick pass is expired
+                if ($quickPass->isExpired()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '❌ Quick Pass expired at ' . $quickPass->expires_at->format('M d, h:i A'),
+                        'user_type' => $userType,
+                        'inside_user' => [
+                            'id' => $quickPass->id,
+                            'fullname' => $quickPass->visitor_name . ' (Quick Pass)',
+                            'qr_value' => $quickPass->qr_value,
+                        ],
+                        'quick_pass' => [
+                            'id' => $quickPass->id,
+                            'visitor_name' => $quickPass->visitor_name,
+                            'vehicle_plate' => $quickPass->vehicle_plate,
+                            'purpose' => $quickPass->purpose,
+                            'qr_value' => $quickPass->qr_value,
+                        ]
+                    ]);
+                }
+
+                // Check if quick pass is still active
+                if ($quickPass->status !== QuickPass::STATUS_ACTIVE) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '❌ Quick Pass is no longer active (Status: ' . $quickPass->status . ')',
+                        'user_type' => $userType,
+                        'inside_user' => [
+                            'id' => $quickPass->id,
+                            'fullname' => $quickPass->visitor_name . ' (Quick Pass)',
+                            'qr_value' => $quickPass->qr_value,
+                        ],
+                        'quick_pass' => [
+                            'id' => $quickPass->id,
+                            'visitor_name' => $quickPass->visitor_name,
+                            'vehicle_plate' => $quickPass->vehicle_plate,
+                            'purpose' => $quickPass->purpose,
+                            'qr_value' => $quickPass->qr_value,
+                        ]
+                    ]);
+                }
+
+                // For quick pass, check entry/exit logic
+                $lastEntryLog = EntryLog::where(function($q) use ($quickPass) {
+                        $q->where(function($q2) use ($quickPass) {
+                            $q2->where('qr_value', $quickPass->qr_value)
+                               ->orWhere('quick_pass_id', $quickPass->id);
+                        })
+                        ->whereIn('scan_type', ['entry', 'exit']);
+                    })
+                    ->latest('id')
+                    ->first();
+
+                $scanType = 'entry';
+                $message = '🎫 Quick Pass entry logged';
+
+                if ($lastEntryLog && $lastEntryLog->scan_type === 'entry') {
+                    $scanType = 'exit';
+                    $message = '🎫 Quick Pass exit logged';
+                }
+
+                // Create entry log for quick pass
+                $entryLog = EntryLog::create([
+                    'inside_user_id' => null,
+                    'outside_user_id' => null,
+                    'quick_pass_id' => $quickPass->id,
+                    'qr_value' => $quickPass->qr_value,
+                    'security_guard_user_id' => $guardId,
+                    'scan_at' => Carbon::now()->toDateTimeString(),
+                    'scan_type' => $scanType,
+                ]);
+
+                // Don't mark as used - allow multiple entries/exits until expired
+                // Quick Pass is valid for unlimited scans until 11:59 PM
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'scan_type' => $scanType,
+                    'scan_at' => $entryLog->scan_at,
+                    'user_type' => $userType,
+                    'inside_user' => [
+                        'id' => $quickPass->id,
+                        'fullname' => $quickPass->visitor_name . ' (Quick Pass)',
+                        'qr_value' => $quickPass->qr_value,
+                    ],
+                    'quick_pass' => [
+                        'id' => $quickPass->id,
+                        'visitor_name' => $quickPass->visitor_name,
+                        'vehicle_plate' => $quickPass->vehicle_plate ?? 'N/A',
+                        'purpose' => $quickPass->purpose,
+                        'qr_value' => $quickPass->qr_value,
+                        'expires_at' => $quickPass->expires_at->format('M d, h:i A'),
+                    ]
+                ]);
+            }
 
             // Check if user's QR status is active
             if (!in_array(strtolower($user->qr_status), ['active'])) {
@@ -329,6 +448,31 @@ class SecurityGuardController extends Controller
                         'qr_value' => $user->qr_value,
                     ]
                 ]);
+            }
+
+            // Check if outside user's QR code has expired
+            if ($userType === 'outside' && $outsideUser->qr_expires_at) {
+                if (Carbon::now()->gt($outsideUser->qr_expires_at)) {
+                    // Auto-deactivate expired QR code
+                    if ($outsideUser->qr_status === 'active') {
+                        $outsideUser->update([
+                            'qr_status' => 'inactive',
+                            'updated_at' => now(),
+                        ]);
+                    }
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'QR code has expired (expired at ' . $outsideUser->qr_expires_at->format('M d, Y h:i A') . '). Please contact admin to reactivate.',
+                        'user_type' => $userType,
+                        'inside_user' => [
+                            'id' => $outsideUser->id,
+                            'fullname' => $getUserName($outsideUser),
+                            'qr_value' => $outsideUser->qr_value,
+                        ],
+                        'qr_expires_at' => $outsideUser->qr_expires_at->format('M d, Y h:i A'),
+                    ]);
+                }
             }
 
             // For inside users, check entry/exit logic
@@ -425,25 +569,36 @@ class SecurityGuardController extends Controller
         // Only show entry/exit logs in scanner history (exclude QR status toggles)
         $scans = EntryLog::where('security_guard_user_id', $guardId)
             ->whereIn('scan_type', ['entry', 'exit'])
-            ->with(['insideUser', 'outsideUser'])
+            ->with(['insideUser', 'outsideUser', 'quickPass'])
             ->orderBy('id', 'desc')
             ->limit(10)
             ->get();
 
         // Map scans to a consistent format for the frontend
         $formattedScans = $scans->map(function($scan) {
-            $user = $scan->insideUser ?: $scan->outsideUser;
-            $userType = $scan->insideUser ? 'inside' : 'outside';
-            
             $fullname = 'Unknown User';
-            if ($user) {
-                $fullname = $user->fullname ?: trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: 'User ' . $user->id;
+            $userType = 'unknown';
+            $qrValue = 'N/A';
+
+            // Check for quick pass first
+            if ($scan->quickPass) {
+                $fullname = $scan->quickPass->visitor_name . ' (Quick Pass)';
+                $userType = 'quick_pass';
+                $qrValue = $scan->quickPass->qr_value;
+            } elseif ($scan->insideUser) {
+                $fullname = $scan->insideUser->fullname ?: trim(($scan->insideUser->first_name ?? '') . ' ' . ($scan->insideUser->last_name ?? '')) ?: 'User ' . $scan->insideUser->id;
+                $userType = 'inside';
+                $qrValue = $scan->insideUser->qr_value;
+            } elseif ($scan->outsideUser) {
+                $fullname = $scan->outsideUser->fullname ?: trim(($scan->outsideUser->first_name ?? '') . ' ' . ($scan->outsideUser->last_name ?? '')) ?: 'User ' . $scan->outsideUser->id;
+                $userType = 'outside';
+                $qrValue = $scan->outsideUser->qr_value;
             }
 
             return [
                 'inside_user' => [
                     'fullname' => $fullname,
-                    'qr_value' => $user ? $user->qr_value : 'N/A',
+                    'qr_value' => $qrValue,
                 ],
                 'scan_type' => $scan->scan_type,
                 'scan_at' => $scan->scan_at,
@@ -461,7 +616,7 @@ class SecurityGuardController extends Controller
      */
     public function viewEntryLogs(Request $request)
     {
-        $query = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser']);
+        $query = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'quickPass']);
 
         // Filter out QR status toggle logs (only show entry/exit)
         $query->whereNotIn('scan_type', ['qr_active', 'qr_inactive'])
@@ -492,6 +647,11 @@ class SecurityGuardController extends Controller
                 ->orWhereHas('outsideUser', function($q) use ($search) {
                     $q->where('fullname', 'LIKE', "%{$search}%")
                       ->orWhere('email', 'LIKE', "%{$search}%");
+                })
+                // Or search in quick passes
+                ->orWhereHas('quickPass', function($q) use ($search) {
+                    $q->where('visitor_name', 'LIKE', "%{$search}%")
+                      ->orWhere('vehicle_plate', 'LIKE', "%{$search}%");
                 });
             });
         }
@@ -506,11 +666,37 @@ class SecurityGuardController extends Controller
             ->whereDate('scan_at', $today)
             ->count();
 
-        $currentlyInside = $totalEntriesToday - $totalExitsToday;
+        $currentlyInsideCount = $totalEntriesToday - $totalExitsToday;
+
+        // Get people currently inside (those whose last scan was entry)
+        // Using a more efficient subquery approach
+        $currentlyInsidePeople = EntryLog::select('inside_user_id', DB::raw('MAX(id) as latest_id'))
+            ->whereNotNull('inside_user_id')
+            ->whereIn('scan_type', ['entry', 'exit'])
+            ->groupBy('inside_user_id')
+            ->get();
+        
+        // Get the actual latest log entries
+        $latestLogIds = $currentlyInsidePeople->pluck('latest_id');
+        $latestLogs = EntryLog::whereIn('id', $latestLogIds)
+            ->where('scan_type', 'entry')
+            ->with('insideUser')
+            ->get()
+            ->map(function($log) {
+                return [
+                    'fullname' => $log->insideUser->fullname ?? 'Unknown',
+                    'email' => $log->insideUser->email ?? 'N/A',
+                    'qr_value' => $log->insideUser->qr_value ?? 'N/A',
+                    'role' => $log->insideUser->role ?? 'N/A',
+                    'scan_at' => $log->scan_at,
+                ];
+            });
+        
+        $currentlyInsidePeople = $latestLogs;
 
         $logs = $query->orderBy('scan_at', 'desc')->paginate(20);
 
-        return view('SecurityGuardUser.EntryLogs.entry_logs', compact('logs', 'totalEntriesToday', 'totalExitsToday', 'currentlyInside'));
+        return view('SecurityGuardUser.EntryLogs.entry_logs', compact('logs', 'totalEntriesToday', 'totalExitsToday', 'currentlyInsideCount', 'currentlyInsidePeople'));
     }
 
     /**
@@ -690,5 +876,92 @@ class SecurityGuardController extends Controller
         });
 
         return view('SecurityGuardUser.ShiftManagement.shift_history', compact('shiftHistory', 'totalHours'));
+    }
+
+
+    // =========================================================================
+    // QUICK PASS (TEMPORARY QR) MANAGEMENT
+    // =========================================================================
+
+    /**
+     * Show list of today's quick passes
+     */
+    public function showQuickPass(Request $request)
+    {
+        $query = QuickPass::today()->notDeleted();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('visitor_name', 'LIKE', "%{$search}%")
+                  ->orWhere('vehicle_plate', 'LIKE', "%{$search}%")
+                  ->orWhere('purpose', 'LIKE', "%{$search}%")
+                  ->orWhere('qr_value', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $quickPasses = $query->orderBy('created_at', 'desc')->paginate(20);
+
+        return view('SecurityGuardUser.QuickPass.quick_pass_list', compact('quickPasses'));
+    }
+
+    /**
+     * Show form to create a new quick pass
+     */
+    public function createQuickPass()
+    {
+        return view('SecurityGuardUser.QuickPass.quick_pass_create');
+    }
+
+    /**
+     * Store a new quick pass
+     */
+    public function storeQuickPass(Request $request)
+    {
+        $request->validate([
+            'visitor_name' => 'required|string|max:150',
+            'vehicle_plate' => 'nullable|string|max:20',
+            'purpose' => 'required|in:Delivery,Meeting,Parent,Contractor,Other',
+        ]);
+
+        // Generate unique QR code: QUICK-YYYYMMDD-RANDOM
+        $qrValue = 'QUICK-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid() . rand(1000, 9999), -6));
+
+        // Create quick pass (expires tonight at 11:59 PM)
+        $quickPass = QuickPass::create([
+            'visitor_name' => $request->visitor_name,
+            'vehicle_plate' => $request->vehicle_plate,
+            'purpose' => $request->purpose,
+            'qr_value' => $qrValue,
+            'valid_date' => today(),
+            'expires_at' => today()->endOfDay(),
+            'status' => QuickPass::STATUS_ACTIVE,
+            'created_by_guard_id' => Auth::guard('securityguard')->id(),
+        ]);
+
+        return redirect()->route('security.quick-pass.qr', $quickPass->id)
+            ->with('success', 'Quick Pass created successfully!');
+    }
+
+    /**
+     * Display QR code for a quick pass
+     */
+    public function showQuickPassQr($id)
+    {
+        $quickPass = QuickPass::findOrFail($id);
+
+        return view('SecurityGuardUser.QuickPass.quick_pass_qr', compact('quickPass'));
+    }
+
+    /**
+     * Delete a quick pass
+     */
+    public function deleteQuickPass($id)
+    {
+        $quickPass = QuickPass::findOrFail($id);
+        $quickPass->delete(); // Soft delete
+
+        return redirect()->route('security.quick-pass.list')
+            ->with('success', 'Quick Pass deleted successfully!');
     }
 }

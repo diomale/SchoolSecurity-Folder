@@ -59,6 +59,6 @@
         <br>
 
         <button type="submit">Update User</button>
-        <a href="{{ route('admin.show.crudSection') }}">Cancel</a>
+        <a href="{{ $backUrl }}">Cancel</a>
     </form>
 </div>

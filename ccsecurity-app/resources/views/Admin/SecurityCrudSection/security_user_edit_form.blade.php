@@ -61,7 +61,7 @@
             <br>
 
             <button type="submit">Update User</button>
-            <a href="{{ route('security.user.table.section') }}">Cancel</a>
+            <a href="{{ $backUrl }}">Cancel</a>
         </form>
     </div>
 </div>

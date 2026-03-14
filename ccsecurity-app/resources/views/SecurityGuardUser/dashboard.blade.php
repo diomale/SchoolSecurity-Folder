@@ -21,6 +21,7 @@
                 <a href="{{ route('security.entry.logs') }}">Entry/Exit Logs</a> |
                 <a href="{{ route('security.shift.management') }}">Shift Management</a> |
                 <a href="{{ route('security.qr.status.management') }}">QR Status Management</a> |
+                <a href="{{ route('security.quick-pass.list') }}">Quick Pass</a> |
                 <form method="POST" action="{{ route('security.logout') }}" style="display:inline;">
                     @csrf
                     <button type="submit">Logout</button>
@@ -103,6 +104,11 @@
                     <li>
                         <a href="{{ route('security.walkin.list') }}">
                             <strong>Visitor Management</strong> - Create and manage walk-in visitor accounts
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('security.quick-pass.list') }}">
+                            <strong>🎫 Quick Pass</strong> - Create temporary same-day visitor passes (for visitors in vehicles)
                         </a>
                     </li>
                 </ul>

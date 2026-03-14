@@ -52,7 +52,7 @@
         <!-- Tab Navigation -->
         <div>
             <button class="tab-button active" onclick="switchTab('profile')">User Profile</button>
-            <button class="tab-button" onclick="switchTab('quick-actions')">Quick Actions</button>
+            <button class="tab-button" onclick="switchTab('quick-actions')">Visit Request</button>
             <button class="tab-button" onclick="switchTab('visit-history')">Visit History</button>
             <button class="tab-button" onclick="switchTab('child-connections')">
                 Child Connections
@@ -65,47 +65,26 @@
         <hr>
 
         <!-- User Profile Tab -->
-        <div id="profile" class="tab-content active">
-            <h2>User Profile</h2>
-            
-            <div>
-                <h3>Profile Information</h3>
-                <p><strong>Name:</strong> {{ auth('outsideuser')->user()->fullname }}</p>
-                <p><strong>Email:</strong> {{ auth('outsideuser')->user()->email }}</p>
-                <p><strong>Phone:</strong> {{ auth('outsideuser')->user()->phone_number }}</p>
-                <p>
-                    <strong>Account Status:</strong>
-                    @if(auth('outsideuser')->user()->status == 1)
-                         Approved
-                    @elseif(auth('outsideuser')->user()->status == 2)
-                         Rejected
-                    @else
-                         Pending Approval
-                    @endif
-                </p>
-                <p>
-                    <strong>QR Status:</strong>
-                    @if(auth('outsideuser')->user()->qr_status === 'active')
-                        ● ACTIVE
-                    @else
-                        ● INACTIVE
-                    @endif
-                </p>
-                <div>
-                    <h3>Request a Visit</h3>
-                    <p>Submit a visit request to activate your QR code</p>
-                    <a href="{{ route('outsideuser.visit.request') }}">Request Visit</a>
-                </div>
-                <a href="{{ route('outsideuser.profile.show') }}">Edit Profile</a>
-            </div>
 
+
+        <div id="profile" class="tab-content active">
             <div>
+                <h2>User Profile</h2>
                 <h3>My QR Code Pass</h3>
                 @if(auth('outsideuser')->user()->qr_value)
                     <div>
                         {!! QrCode::size(200)->margin(1)->generate(auth('outsideuser')->user()->qr_value) !!}
                     </div>
+                    <p>
+                        <strong>QR Status:</strong>
+                        @if(auth('outsideuser')->user()->qr_status === 'active')
+                            ● ACTIVE
+                        @else
+                            ● INACTIVE
+                        @endif
+                    </p>
                     <p><strong>QR Value:</strong> {{ auth('outsideuser')->user()->qr_value }}</p>
+
                     <p>
                         <em>Present this QR code to the guard at the entrance.</em>
                     </p>
@@ -113,6 +92,18 @@
                     <p>No QR code generated yet.</p>
                 @endif
             </div>
+
+            
+            <div>
+                <h3>Profile Information</h3>
+                <p><strong>Name:</strong> {{ auth('outsideuser')->user()->fullname }}</p>
+                <p><strong>Email:</strong> {{ auth('outsideuser')->user()->email }}</p>
+                <p><strong>Phone:</strong> {{ auth('outsideuser')->user()->phone_number }}</p>
+                <a href="{{ route('outsideuser.profile.show') }}">Edit Profile</a>
+            </div>
+
+                <hr>
+            
 
             <div>
                 <h3>Statistics</h3>
@@ -127,37 +118,14 @@
 
         <!-- Quick Actions Tab -->
         <div id="quick-actions" class="tab-content">
-            <h2>Quick Actions</h2>
+            <h2>Visit Request</h2>
 
-            @if(auth('outsideuser')->user()->status == 1)
-                <div>
-                    <h3>Request a Visit</h3>
-                    <p>Submit a visit request to activate your QR code</p>
-                    <a href="{{ route('outsideuser.visit.request') }}">Request Visit</a>
-                </div>
+            <div>
+                <h3>Request a Visit</h3>
+                <p>Submit a visit request to activate your QR code</p>
+                <a href="{{ route('outsideuser.visit.request') }}">Request Visit</a>
+            </div>
 
-                <hr>
-
-                <div>
-                    <h3>View Visit History</h3>
-                    <p>View your past and upcoming visit requests</p>
-                    <a href="{{ route('outsideuser.visit.history') }}">View History</a>
-                </div>
-
-                @if(auth('outsideuser')->user()->qr_status === 'active')
-                <hr>
-                <div>
-                    <h3>Request Another Visit</h3>
-                    <p>Your QR is currently active. Request a new visit to extend access.</p>
-                    <a href="{{ route('outsideuser.reactivate.qr') }}">Request Another Visit</a>
-                </div>
-                @endif
-            @else
-                <div>
-                    <p><strong>⚠ Your account is pending admin approval.</strong></p>
-                    <p>Please wait for approval before requesting visits.</p>
-                </div>
-            @endif
         </div>
 
         <!-- Visit History Tab -->
@@ -240,7 +208,7 @@
                         <td>{{ $connection->insideUser->email ?? 'N/A' }}</td>
                         <td>{{ $connection->insideUser->qr_value ?? 'N/A' }}</td>
                         <td>{{ $connection->relationship }}</td>
-                        <td>{{ $connection->approved_at->format('M d, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($connection->approved_at)->format('M d, Y') }}</td>
                     </tr>
                     @endforeach
                 </tbody>
