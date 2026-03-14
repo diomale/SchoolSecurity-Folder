@@ -1,3 +1,5 @@
+@vite(['resources/css/SuperadminStyleFolder/superadmin_style_edit.css','resources/js/app.js'])
+
 <div>
     <h1>Edit Admin Section</h1>
     <div>

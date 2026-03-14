@@ -90,18 +90,20 @@ class ParentConnectionController extends Controller
             ])->withInput();
         }
 
-        // Create connection request
+        // Create connection request with pending inside user approval
+        // No admin approval needed - automatically approved when inside user accepts
         ParentChildConnection::create([
             'outside_user_id' => $outsideUser->id,
             'inside_user_id' => $validated['inside_user_id'],
             'relationship' => $validated['relationship'],
             'status' => ParentChildConnection::STATUS_PENDING,
+            'inside_user_approval' => ParentChildConnection::INSIDE_USER_PENDING,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         return redirect()->route('outsideuser.connections.request')
-            ->with('success', 'Connection request submitted! Please wait for admin approval.');
+            ->with('success', 'Connection request sent! The student needs to accept your request.');
     }
 
     /**
@@ -125,14 +127,31 @@ class ParentConnectionController extends Controller
     public function cancelConnection($id)
     {
         $outsideUser = Auth::guard('outsideuser')->user();
-        
+
         $connection = ParentChildConnection::where('outside_user_id', $outsideUser->id)
             ->where('id', $id)
             ->where('status', ParentChildConnection::STATUS_PENDING)
             ->firstOrFail();
-        
+
         $connection->delete();
-        
+
         return redirect()->back()->with('success', 'Connection request cancelled.');
+    }
+
+    /**
+     * Cancel an approved connection
+     */
+    public function cancelApprovedConnection($id)
+    {
+        $outsideUser = Auth::guard('outsideuser')->user();
+
+        $connection = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+            ->where('id', $id)
+            ->where('status', ParentChildConnection::STATUS_APPROVED)
+            ->firstOrFail();
+
+        $connection->delete();
+
+        return redirect()->back()->with('success', 'Connection cancelled. You will no longer see entry/exit records for this student.');
     }
 }

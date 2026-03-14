@@ -8,9 +8,6 @@
 <body>
     <div>
         <h1> My Profile</h1>
-        
-        <p><a href="{{ route('outsider.dashboard') }}">← Back to Dashboard</a></p>
-
         @if(session('success'))
         <div>
             {{ session('success') }}
@@ -107,74 +104,6 @@
                 </div>
             </form>
         </div>
-
-        <div>
-            <h2> My QR Code Pass</h2>
-            <p>Present this QR code to the guard at the entrance.</p>
-            
-            <div>
-                @if($outsideUser->qr_value)
-                    <div>
-                        {!! QrCode::size(250)->margin(1)->generate($outsideUser->qr_value) !!}
-                    </div>
-                    <div>
-                        <span>
-                            {{ $outsideUser->qr_value }}
-                        </span>
-                    </div>
-                    <p>
-                        Status:
-                        @if($outsideUser->qr_status === 'active')
-                            <span>● ACTIVE (You can visit)</span>
-                        @else
-                            <span>● INACTIVE (Visit request needed)</span>
-                        @endif
-                    </p>
-                @else
-                    <p>No QR code generated yet.</p>
-                @endif
-            </div>
-
-            <div>
-                <label>Account Status:</label>
-                <p>
-                    @if($outsideUser->status == 1)
-                        <span>✓ Approved</span>
-                    @elseif($outsideUser->status == 2)
-                        <span>✗ Rejected</span>
-                    @else
-                        <span>⏳ Pending Approval</span>
-                    @endif
-                </p>
-            </div>
-
-            <div>
-                @if($outsideUser->status == 1)
-                    <a href="{{ route('outsideuser.visit.request') }}">Request a Visit</a>
-                    @if($outsideUser->qr_status === 'active')
-                    <a href="{{ route('outsideuser.reactivate.qr') }}">Request Another Visit</a>
-                    @endif
-                @endif
-            </div>
-        </div>
-
-        <div>
-            <h2> My Visit Statistics</h2>
-            <div>
-                <div>
-                    <h3>{{ $outsideUser->visitRequests->count() }}</h3>
-                    <p>Total Requests</p>
-                </div>
-                <div>
-                    <h3>{{ $outsideUser->visitRequests->where('status', 'approved')->count() }}</h3>
-                    <p>Approved</p>
-                </div>
-                <div>
-                    <h3>{{ $outsideUser->visitRequests->where('status', 'pending')->count() }}</h3>
-                    <p>Pending</p>
-                </div>
-            </div>
-        </div>
-    </div>
+        <p><a href="{{ route('outsider.dashboard') }}">Cancel</a></p>
 </body>
 </html>

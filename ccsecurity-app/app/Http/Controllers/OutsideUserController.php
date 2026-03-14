@@ -98,6 +98,16 @@ class OutsideUserController extends Controller
         ];
 
         if (Auth::guard('outsideuser')->attempt($credentials)) {
+            $user = Auth::guard('outsideuser')->user();
+            
+            // Check if account is approved
+            if ($user->status !== OutsideUser::STATUS_APPROVED) {
+                Auth::guard('outsideuser')->logout();
+                return back()->withErrors([
+                    'email' => 'Your account is pending admin approval. Please wait for approval before logging in.',
+                ])->onlyInput('email');
+            }
+            
             $request->session()->regenerate();
             return redirect()->intended(route('outsider.dashboard'));
         }
