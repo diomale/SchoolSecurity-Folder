@@ -16,6 +16,7 @@ use App\Models\CleanupTableSetting;
 use App\Models\EntryLog;
 use App\Models\ShiftLog;
 use App\Models\ParentChildConnection;
+use App\Rules\CurrentAdminPassword;
 use Carbon\Carbon;
 
 
@@ -45,12 +46,30 @@ class AdminController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'LIKE', "%{$search}%")
+            // Split search into words for better multi-word matching
+            $searchWords = explode(' ', trim($search));
+            
+            $query->where(function($q) use ($searchWords, $search) {
+                // Match full name as a whole string
+                $q->where('fullname', 'LIKE', "%{$search}%")
+                  // Also match individual words in first/last name
+                  ->orWhere('first_name', 'LIKE', "%{$search}%")
                   ->orWhere('last_name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%")
                   ->orWhere('phone_number', 'LIKE', "%{$search}%")
                   ->orWhere('qr_value', 'LIKE', "%{$search}%");
+                
+                // If multiple words, also try matching each word separately
+                if (count($searchWords) > 1) {
+                    foreach ($searchWords as $word) {
+                        $word = trim($word);
+                        if (!empty($word)) {
+                            $q->orWhere('first_name', 'LIKE', "%{$word}%")
+                              ->orWhere('last_name', 'LIKE', "%{$word}%")
+                              ->orWhere('fullname', 'LIKE', "%{$word}%");
+                        }
+                    }
+                }
             });
         }
 
@@ -62,7 +81,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.outside_user,id'
+            'user_ids.*' => 'exists:mysql_second.outside_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         OutsideUser::whereIn('id', $request->user_ids)->delete();
@@ -98,18 +118,20 @@ class AdminController extends Controller
             'purpose_of_visit' => $request->purpose_of_visit,
             'qr_value' => $qrValue,
             'qr_status' => 'active',
+            'qr_expires_at' => now()->addDay(),
             'status' => OutsideUser::STATUS_APPROVED,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('show.admin.outsider.list')->with('success', 'Walk-in account created successfully!');
+        return redirect()->route('show.admin.outsider.list')->with('success', 'Walk-in account created successfully! QR code will expire in 24 hours.');
     }
 
-    public function editOutsider($id)
+    public function editOutsider(Request $request, $id)
     {
         $outside_user = OutsideUser::findOrFail($id);
-        return view('Admin.AdminWaitingList.outside_user_edit', compact('outside_user'));
+        $backUrl = $request->query('back_url', route('show.admin.outsider.list'));
+        return view('Admin.AdminWaitingList.outside_user_edit', compact('outside_user', 'backUrl'));
     }
 
     public function updateOutsider(Request $request, $id)
@@ -148,6 +170,13 @@ class AdminController extends Controller
 
     public function deleteOutsider($id)
     {
+        $request = request();
+        
+        // Verify admin password
+        $request->validate([
+            'admin_password' => ['required', new CurrentAdminPassword]
+        ]);
+        
         $outside_user = OutsideUser::findOrFail($id);
         $outside_user->delete();
 
@@ -217,7 +246,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.security_guard_user,id'
+            'user_ids.*' => 'exists:mysql_second.security_guard_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         securityguard::whereIn('id', $request->user_ids)->delete();
@@ -254,16 +284,18 @@ class AdminController extends Controller
             ->with('success', 'New user created successfully!');
     }
 
-    public function showSecurityUserDetail($id)
+    public function showSecurityUserDetail(Request $request, $id)
     {
         $security_guard_user = securityguard::findOrFail($id);
-        return view('Admin.SecurityCrudSection.security_user_details', compact('security_guard_user'));
+        $backUrl = $request->query('back_url', route('security.user.table.section'));
+        return view('Admin.SecurityCrudSection.security_user_details', compact('security_guard_user', 'backUrl'));
     }
 
-    public function viewSecurityUserForm($id)
+    public function viewSecurityUserForm(Request $request, $id)
     {
         $security_guard_user = securityguard::findOrFail($id);
-        return view('Admin.SecurityCrudSection.security_user_edit_form', compact('security_guard_user'));
+        $backUrl = $request->query('back_url', route('security.user.table.section'));
+        return view('Admin.SecurityCrudSection.security_user_edit_form', compact('security_guard_user', 'backUrl'));
     }
 
     public function updateSecurityUser(Request $request, $id)
@@ -295,6 +327,13 @@ class AdminController extends Controller
 
     public function deleteSecurityUser($id)
     {
+        $request = request();
+        
+        // Verify admin password
+        $request->validate([
+            'admin_password' => ['required', new CurrentAdminPassword]
+        ]);
+        
         $security_guard_user = securityguard::findOrFail($id);
         $security_guard_user->delete();
 
@@ -336,7 +375,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.inside_user,id'
+            'user_ids.*' => 'exists:mysql_second.inside_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         InsideUser::whereIn('id', $request->user_ids)->delete();
@@ -403,7 +443,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:mysql_second.inside_user,id'
+            'user_ids.*' => 'exists:mysql_second.inside_user,id',
+            'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
         InsideUser::whereIn('id', $request->user_ids)->delete();
@@ -444,17 +485,19 @@ class AdminController extends Controller
             ->with('success', 'New user created successfully!');
     }
 
-    public function showUserDetail($id)
+    public function showUserDetail(Request $request, $id)
     {
         $inside_user = InsideUser::findOrFail($id);
-        return view('Admin.AdminCrudSection.admin_user_details', compact('inside_user'));
+        $backUrl = $request->query('back_url', route('admin.show.crudSection'));
+        return view('Admin.AdminCrudSection.admin_user_details', compact('inside_user', 'backUrl'));
     }
 
-    public function viewEditForm($id)
+    public function viewEditForm(Request $request, $id)
     {
         $inside_user = InsideUser::findOrFail($id);
+        $backUrl = $request->query('back_url', route('admin.show.crudSection'));
 
-        return view('Admin.AdminCrudSection.admin_user_edit_form', compact('inside_user'));
+        return view('Admin.AdminCrudSection.admin_user_edit_form', compact('inside_user', 'backUrl'));
     }
 
     public function updateUser(Request $request, $id)
@@ -486,6 +529,13 @@ class AdminController extends Controller
 
     public function deleteUser($id)
     {
+        $request = request();
+        
+        // Verify admin password
+        $request->validate([
+            'admin_password' => ['required', new CurrentAdminPassword]
+        ]);
+        
         $inside_user = InsideUser::findOrFail($id);
         $inside_user->delete();
 
@@ -587,7 +637,7 @@ class AdminController extends Controller
             'recurring_type' => 'required|in:single,recurring',
             'recurring_days' => 'required_if:recurring_type,recurring|array',
             'recurring_days.*' => 'required_if:recurring_type,recurring|integer|between:0,6',
-            'recurring_end_date' => 'required_if:recurring_type,recurring|date|after_or_equal:shift_date',
+            'recurring_end_date' => 'nullable|required_if:recurring_type,recurring|date|after_or_equal:shift_date',
         ]);
 
         if ($request->recurring_type === 'single') {
@@ -634,7 +684,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Shift deleted successfully!');
     }
 
-    public function showGuardShifts($guardId)
+    public function showGuardShifts(Request $request, $guardId)
     {
         $guard = securityguard::findOrFail($guardId);
         $shifts = Shift::where('security_guard_user_id', $guardId)
@@ -642,7 +692,9 @@ class AdminController extends Controller
             ->orderBy('start_time', 'desc')
             ->paginate(20);
 
-        return view('Admin.ShiftManagement.guard_shifts', compact('guard', 'shifts'));
+        $backUrl = $request->query('back_url', route('admin.shift.management'));
+
+        return view('Admin.ShiftManagement.guard_shifts', compact('guard', 'shifts', 'backUrl'));
     }
 
 
@@ -738,6 +790,11 @@ class AdminController extends Controller
     {
         $connection = ParentChildConnection::findOrFail($id);
 
+        // Check if inside user has accepted
+        if (!$connection->isInsideUserAccepted()) {
+            return redirect()->back()->with('error', 'Cannot approve: Student has not accepted this connection request yet.');
+        }
+
         $connection->approve('Approved by admin');
 
         Notification::create([
@@ -793,8 +850,10 @@ class AdminController extends Controller
         // Get statistics for each table
         $stats = [
             'entry_logs' => [
-                'total' => EntryLog::count(),
-                'older_than_30_days' => EntryLog::where('scan_at', '<', Carbon::now()->subDays(30)->toDateTimeString())->count(),
+                'total' => EntryLog::whereIn('scan_type', ['entry', 'exit'])->count(),
+                'older_than_30_days' => EntryLog::whereIn('scan_type', ['entry', 'exit'])
+                    ->where('scan_at', '<', Carbon::now()->subDays(30)->toDateTimeString())
+                    ->count(),
             ],
             'visit_requests' => [
                 'total' => VisitRequest::count(),

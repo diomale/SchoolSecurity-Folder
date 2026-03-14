@@ -51,5 +51,5 @@
     </form>
 
     <br>
-    <a href="{{ route('show.admin.outsider.list') }}">Back to List</a>
+    <a href="{{ $backUrl }}">Back to List</a>
 </div>

@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\DeleteOldNotifications::class,
         Commands\DeleteOldVisitRequests::class,
         Commands\DeleteOldShiftLogs::class,
+        Commands\DeactivateOutsiderQRCodes::class,
     ];
 
     /**

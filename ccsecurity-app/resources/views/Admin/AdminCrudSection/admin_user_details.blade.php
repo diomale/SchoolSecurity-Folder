@@ -11,5 +11,5 @@
     </div>
 
 
-    <a href="{{ route('admin.show.crudSection') }}">Back</a>
+    <a href="{{ $backUrl }}">Back</a>
 </div>

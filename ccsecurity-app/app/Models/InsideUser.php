@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\EntryLog;
+use App\Models\ParentChildConnection;
+use App\Models\OutsideUser;
 
 class InsideUser extends Authenticatable
 {
@@ -82,5 +85,13 @@ class InsideUser extends Authenticatable
         return $this->belongsToMany(OutsideUser::class, 'parent_child_connections', 'inside_user_id', 'outside_user_id')
                     ->wherePivot('status', ParentChildConnection::STATUS_APPROVED)
                     ->withPivot('relationship', 'approved_at');
+    }
+
+    /**
+     * Get all entry logs for this inside user
+     */
+    public function entryLogs()
+    {
+        return $this->hasMany(EntryLog::class, 'inside_user_id');
     }
 }

@@ -18,6 +18,8 @@ class EntryLog extends Model
     protected $fillable = [
         'inside_user_id',
         'outside_user_id',
+        'quick_pass_id',
+        'qr_value',
         'security_guard_user_id',
         'scan_at',
         'scan_type',
@@ -42,6 +44,14 @@ class EntryLog extends Model
     public function outsideUser()
     {
         return $this->belongsTo(OutsideUser::class, 'outside_user_id');
+    }
+
+    /**
+     * Get the quick pass associated with this entry log
+     */
+    public function quickPass()
+    {
+        return $this->belongsTo(QuickPass::class, 'quick_pass_id');
     }
 
     /**

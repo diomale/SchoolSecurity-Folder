@@ -26,6 +26,7 @@ class OutsideUser extends Authenticatable
         'status',
         'qr_value',
         'qr_status',
+        'qr_expires_at',
         'purpose_of_visit',
         'created_at',
         'updated_at',
@@ -39,6 +40,7 @@ class OutsideUser extends Authenticatable
         'password' => 'hashed',
         'created_at' => 'datetime:Y-m-d h:i A',
         'updated_at' => 'datetime:Y-m-d h:i A',
+        'qr_expires_at' => 'datetime:Y-m-d h:i A',
     ];
 
     protected static function booted()

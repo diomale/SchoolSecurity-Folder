@@ -10,7 +10,7 @@
         <!-- Header -->
         <div>
             <h1>🕐 Shift Management</h1>
-            <a href="{{ route('admin.dashboard') }}">← Back to Dashboard</a>
+            <a href="{{ route('security.user.table.section') }}">← Back to Security User Table</a>
         </div>
 
         <!-- Messages -->
@@ -91,7 +91,7 @@
                         <td>{{ ucfirst($shift->status) }}</td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                <a href="{{ route('admin.guard.shifts', $shift->security_guard_user_id) }}">View Guard</a>
+                                <a href="{{ route('admin.guard.shifts', ['id' => $shift->security_guard_user_id, 'back_url' => url()->current()]) }}">View Guard</a>
                                 <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
                                     @csrf
                                     @method('DELETE')
@@ -256,13 +256,25 @@
             const recurringType = document.getElementById('recurring_type').value;
             const singleDayOption = document.getElementById('single_day_option');
             const recurringOptions = document.getElementById('recurring_options');
-            
+
             if (recurringType === 'single') {
                 singleDayOption.style.display = 'block';
                 recurringOptions.style.display = 'none';
+                // Disable recurring fields so they don't get submitted
+                document.getElementById('recurring_end_date').disabled = true;
+                document.getElementById('recurring_start_date').disabled = true;
+                document.querySelectorAll('input[name="recurring_days[]"]').forEach(cb => {
+                    cb.disabled = true;
+                });
             } else {
                 singleDayOption.style.display = 'none';
                 recurringOptions.style.display = 'block';
+                // Enable recurring fields
+                document.getElementById('recurring_end_date').disabled = false;
+                document.getElementById('recurring_start_date').disabled = false;
+                document.querySelectorAll('input[name="recurring_days[]"]').forEach(cb => {
+                    cb.disabled = false;
+                });
             }
         }
 
