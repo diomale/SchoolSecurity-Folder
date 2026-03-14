@@ -1110,7 +1110,15 @@ class SecurityGuardController extends Controller
      */
     public function showQuickPass(Request $request)
     {
-        $query = QuickPass::today()->notDeleted();
+        // Auto-expire active passes that are past their date/time before displaying
+        QuickPass::where('status', QuickPass::STATUS_ACTIVE)
+            ->where(function($q) {
+                $q->where('expires_at', '<', Carbon::now())
+                  ->orWhere('valid_date', '<', Carbon::today()->toDateString());
+            })
+            ->update(['status' => QuickPass::STATUS_EXPIRED]);
+
+        $query = QuickPass::notDeleted();
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -1144,19 +1152,26 @@ class SecurityGuardController extends Controller
             'visitor_name' => 'required|string|max:150',
             'vehicle_plate' => 'nullable|string|max:20',
             'purpose' => 'required|in:Delivery,Meeting,Parent,Contractor,Other',
+            'expiry_time' => 'nullable',
         ]);
 
         // Generate unique QR code: QUICK-YYYYMMDD-RANDOM
         $qrValue = 'QUICK-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid() . rand(1000, 9999), -6));
 
-        // Create quick pass (expires tonight at 11:59 PM)
+        // Handle custom expiration time (for testing or early expiry)
+        $expiresAt = today()->endOfDay();
+        if ($request->filled('expiry_time')) {
+            $expiresAt = Carbon::parse(today()->toDateString() . ' ' . $request->expiry_time);
+        }
+
+        // Create quick pass
         $quickPass = QuickPass::create([
             'visitor_name' => $request->visitor_name,
             'vehicle_plate' => $request->vehicle_plate,
             'purpose' => $request->purpose,
             'qr_value' => $qrValue,
             'valid_date' => today(),
-            'expires_at' => today()->endOfDay(),
+            'expires_at' => $expiresAt,
             'status' => QuickPass::STATUS_ACTIVE,
             'created_by_guard_id' => Auth::guard('securityguard')->id(),
         ]);
@@ -1171,6 +1186,11 @@ class SecurityGuardController extends Controller
     public function showQuickPassQr($id)
     {
         $quickPass = QuickPass::findOrFail($id);
+
+        // Auto-expire if past expiration time or date
+        if ($quickPass->status === QuickPass::STATUS_ACTIVE && $quickPass->isExpired()) {
+            $quickPass->markAsExpired();
+        }
 
         return view('SecurityGuardUser.QuickPass.quick_pass_qr', compact('quickPass'));
     }

@@ -39,7 +39,7 @@
                             @if($outsideUser->profile_picture)
                                 <img src="{{ asset('storage/profiles/' . $outsideUser->profile_picture) }}" alt="Profile Picture" id="profile-preview">
                             @else
-                                <img src="{{ asset('storage/profiles/default-avatar.png') }}" alt="Default Avatar" id="profile-preview" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2240%22>👤</text></svg>'">
+                                <img src="{{ asset('storage/profiles/default-avatar.png') }}" alt="Default Avatar" id="profile-preview" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2240%22></text></svg>'">
                             @endif
                         </div>
                         <div class="picture-actions">
@@ -153,7 +153,7 @@
             
             if (confirm('Are you sure you want to remove your profile picture?')) {
                 removeInput.value = '1';
-                preview.src = 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2240%22>👤</text></svg>';
+                preview.src = 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2240%22></text></svg>';
                 fileInput.value = '';
             }
         }

@@ -63,7 +63,7 @@
                     <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
                 </select>
                 <input type="date" name="date_from" value="{{ request('date_from') }}">
-                <button type="submit" class="btn btn-primary">🔍 Filter</button>
+                <button type="submit" class="btn btn-primary"> Filter</button>
             </form>
         </div>
 
@@ -103,7 +103,7 @@
                             @if($event->status === 'approved')
                                 <form action="{{ route('admin.events.mark-completed', $event->id) }}" method="POST" style="display: inline;">
                                     @csrf
-                                    <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;" onclick="return confirm('Mark as completed?')">✓ Complete</button>
+                                    <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;" onclick="return confirm('Mark as completed?')"> Complete</button>
                                 </form>
                             @endif
                         </td>

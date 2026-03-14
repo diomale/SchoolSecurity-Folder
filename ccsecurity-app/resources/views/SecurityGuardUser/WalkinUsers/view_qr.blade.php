@@ -31,9 +31,6 @@
             <div style="margin-bottom: 25px; padding: 15px; background-color: white;">
                 @if($user->qr_value)
                     {!! QrCode::size(300)->margin(1)->generate($user->qr_value) !!}
-                    <div style="margin-top: 15px; font-weight: bold; font-family: monospace; font-size: 1.2rem; color: #555;">
-                        {{ $user->qr_value }}
-                    </div>
                 @else
                     <div style="color: red; font-weight: bold;">QR Code value missing!</div>
                 @endif

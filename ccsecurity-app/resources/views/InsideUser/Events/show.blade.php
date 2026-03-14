@@ -59,13 +59,13 @@
                 <div class="card">
                     <h2 style="margin: 0 0 15px 0; font-size: 18px;">Event Status</h2>
                     @if($event->status === 'pending')
-                        <span class="badge badge-yellow">⏳ Pending Approval</span>
+                        <span class="badge badge-yellow"> Pending Approval</span>
                     @elseif($event->status === 'approved')
-                        <span class="badge badge-green">✓ Approved</span>
+                        <span class="badge badge-green"> Approved</span>
                     @elseif($event->status === 'completed')
-                        <span class="badge badge-blue">✓ Completed</span>
+                        <span class="badge badge-blue"> Completed</span>
                     @elseif($event->status === 'cancelled')
-                        <span class="badge badge-red">✕ Cancelled</span>
+                        <span class="badge badge-red"> Cancelled</span>
                     @endif
                     @if($event->admin_remarks)
                         <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px;">

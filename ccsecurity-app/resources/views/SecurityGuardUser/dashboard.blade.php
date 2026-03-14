@@ -108,7 +108,7 @@
                     </li>
                     <li>
                         <a href="{{ route('security.quick-pass.list') }}">
-                            <strong>🎫 Quick Pass</strong> - Create temporary same-day visitor passes (for visitors in vehicles)
+                            <strong> Quick Pass</strong> - Create temporary same-day visitor passes (for visitors in vehicles)
                         </a>
                     </li>
                 </ul>
@@ -140,9 +140,9 @@
                     <th>Status:</th>
                     <td>
                         @if($guard->status == 1)
-                            ✓ Active
+                             Active
                         @else
-                            ✗ Inactive
+                             Inactive
                         @endif
                     </td>
                 </tr>
@@ -187,7 +187,7 @@
                         <td>{{ \Carbon\Carbon::parse($activity->scan_at)->format('M d, Y h:i A') }}</td>
                         <td>
                             @if($activity->eventRegistration)
-                                {{ $activity->eventRegistration->fullname }} 🎫
+                                {{ $activity->eventRegistration->fullname }} 
                             @elseif($activity->insideUser)
                                 {{ $activity->insideUser->fullname }}
                             @elseif($activity->outsideUser)
@@ -214,9 +214,9 @@
                                 @endphp
                                 QR {{ strtoupper($status) }}
                             @elseif($activity->scan_type === 'entry')
-                                ✓ Entry
+                                 Entry
                             @elseif($activity->scan_type === 'exit')
-                                ✗ Exit
+                                 Exit
                             @else
                                 {{ $activity->scan_type }}
                             @endif

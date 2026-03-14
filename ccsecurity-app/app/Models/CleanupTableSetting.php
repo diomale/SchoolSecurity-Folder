@@ -28,6 +28,7 @@ class CleanupTableSetting extends Model
         'notifications' => 'Notifications',
         'shift_logs' => 'Shift Logs',
         'shifts' => 'Shift Assignments',
+        'quick_passes' => 'Quick Passes',
     ];
 
     /**

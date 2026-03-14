@@ -145,18 +145,18 @@
 
         <!-- Header -->
         <div class="header">
-            <h1>🎫 Create Quick Pass</h1>
+            <h1> Create Quick Pass</h1>
             <p>Generate a temporary QR code for same-day visitor access</p>
         </div>
 
         <!-- Info Box -->
         <div class="info-box">
-            <h4>⚡ Quick Pass Benefits:</h4>
+            <h4> Quick Pass Benefits:</h4>
             <ul>
-                <li>✅ No email or phone required</li>
-                <li>✅ QR code generated instantly</li>
-                <li>✅ Valid until 11:59 PM today</li>
-                <li>✅ Perfect for visitors in vehicles</li>
+                <li> No email or phone required</li>
+                <li> QR code generated instantly</li>
+                <li> Valid until 11:59 PM today</li>
+                <li> Perfect for visitors in vehicles</li>
             </ul>
         </div>
 
@@ -218,17 +218,31 @@
                 </label>
                 <select id="purpose" name="purpose" required>
                     <option value="">Select Purpose</option>
-                    <option value="Delivery" {{ old('purpose') === 'Delivery' ? 'selected' : '' }}>📦 Delivery</option>
-                    <option value="Meeting" {{ old('purpose') === 'Meeting' ? 'selected' : '' }}>🤝 Meeting</option>
-                    <option value="Parent" {{ old('purpose') === 'Parent' ? 'selected' : '' }}>👨‍👩‍👧 Parent/Guardian</option>
-                    <option value="Contractor" {{ old('purpose') === 'Contractor' ? 'selected' : '' }}>🔧 Contractor</option>
-                    <option value="Other" {{ old('purpose') === 'Other' ? 'selected' : '' }}>📋 Other</option>
+                    <option value="Delivery" {{ old('purpose') === 'Delivery' ? 'selected' : '' }}> Delivery</option>
+                    <option value="Meeting" {{ old('purpose') === 'Meeting' ? 'selected' : '' }}> Meeting</option>
+                    <option value="Parent" {{ old('purpose') === 'Parent' ? 'selected' : '' }}> Parent/Guardian</option>
+                    <option value="Contractor" {{ old('purpose') === 'Contractor' ? 'selected' : '' }}> Contractor</option>
+                    <option value="Other" {{ old('purpose') === 'Other' ? 'selected' : '' }}> Other</option>
                 </select>
+            </div>
+
+            <!-- Custom Expiry (For Testing/Special cases) -->
+            <div class="form-group">
+                <label for="expiry_time">
+                    Custom Expiration (Today)
+                </label>
+                <input
+                    type="time"
+                    id="expiry_time"
+                    name="expiry_time"
+                    value="{{ old('expiry_time') }}"
+                >
+                <small>Leave blank for default (11:59 PM today)</small>
             </div>
 
             <!-- Submit Button -->
             <button type="submit" class="btn btn-primary">
-                🎫 Generate Quick Pass
+                 Generate Quick Pass
             </button>
 
             <!-- Cancel Button -->

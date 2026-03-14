@@ -16,6 +16,64 @@
             font-size: 12px;
             margin-left: 5px;
         }
+        
+        /* QR Code Protection Styles */
+        .qr-code-container {
+            display: inline-block;
+            position: relative;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .qr-code-container img {
+            display: block;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+        
+        .qr-code-container::after {
+            content: 'Right-click disabled';
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .qr-code-container:hover::after {
+            opacity: 1;
+        }
+        
+        /* Status Styles */
+        .status-active {
+            color: #4caf50;
+            font-weight: 600;
+        }
+        
+        .status-inactive {
+            color: #f44336;
+            font-weight: 600;
+        }
+        
+        .qr-instruction {
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -72,20 +130,19 @@
                 <h2>User Profile</h2>
                 <h3>My QR Code Pass</h3>
                 @if(auth('outsideuser')->user()->qr_value)
-                    <div>
+                    <div class="qr-code-container">
                         {!! QrCode::size(200)->margin(1)->generate(auth('outsideuser')->user()->qr_value) !!}
                     </div>
                     <p>
                         <strong>QR Status:</strong>
                         @if(auth('outsideuser')->user()->qr_status === 'active')
-                            ● ACTIVE
+                            <span class="status-active">● ACTIVE</span>
                         @else
-                            ● INACTIVE
+                            <span class="status-inactive">● INACTIVE</span>
                         @endif
                     </p>
-                    <p><strong>QR Value:</strong> {{ auth('outsideuser')->user()->qr_value }}</p>
 
-                    <p>
+                    <p class="qr-instruction">
                         <em>Present this QR code to the guard at the entrance.</em>
                     </p>
                 @else
@@ -190,7 +247,7 @@
             </div>
 
             @if($approvedConnections->count() > 0)
-            <h3>✓ Connected Children</h3>
+            <h3>Connected Children</h3>
             <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
                 <thead>
                     <tr>
@@ -206,7 +263,13 @@
                     <tr>
                         <td>{{ $connection->insideUser->fullname ?? 'N/A' }}</td>
                         <td>{{ $connection->insideUser->email ?? 'N/A' }}</td>
-                        <td>{{ $connection->insideUser->qr_value ?? 'N/A' }}</td>
+                        <td>
+                            @if($connection->insideUser->qr_status === 'active')
+                                <span style="color: #4caf50; font-weight: 600;">● ACTIVE</span>
+                            @else
+                                <span style="color: #f44336; font-weight: 600;">● INACTIVE</span>
+                            @endif
+                        </td>
                         <td>{{ $connection->relationship }}</td>
                         <td>{{ \Carbon\Carbon::parse($connection->approved_at)->format('M d, Y') }}</td>
                     </tr>
@@ -221,7 +284,7 @@
             @endif
 
             @if($pendingConnectionCount > 0)
-            <h3>⏳ Pending Requests</h3>
+            <h3>Pending Requests</h3>
             <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
                 <p>You have <strong>{{ $pendingConnectionCount }}</strong> pending connection request(s) awaiting admin approval.</p>
                 <a href="{{ route('outsideuser.connections.history') }}">View connection history</a>
@@ -250,9 +313,9 @@
                         </td>
                         <td>
                             @if($log->scan_type === 'entry')
-                                <span style="color: #4caf50; font-weight: bold;">➤ ENTRY</span>
+                                <span style="color: #4caf50; font-weight: bold;">ENTRY</span>
                             @elseif($log->scan_type === 'exit')
-                                <span style="color: #f44336; font-weight: bold;">➤ EXIT</span>
+                                <span style="color: #f44336; font-weight: bold;">EXIT</span>
                             @else
                                 {{ $log->scan_type ?? 'N/A' }}
                             @endif
@@ -328,6 +391,26 @@
             // Add active class to clicked button
             event.target.classList.add('active');
         }
+        
+        // Disable right-click on QR code
+        document.addEventListener('DOMContentLoaded', function() {
+            const qrContainer = document.querySelector('.qr-code-container');
+            if (qrContainer) {
+                qrContainer.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                
+                // Disable drag start on QR image
+                const qrImage = qrContainer.querySelector('img');
+                if (qrImage) {
+                    qrImage.addEventListener('dragstart', function(e) {
+                        e.preventDefault();
+                        return false;
+                    });
+                }
+            }
+        });
     </script>
 </body>
 </html>

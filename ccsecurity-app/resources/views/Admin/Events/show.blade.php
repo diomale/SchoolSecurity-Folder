@@ -79,11 +79,11 @@
                 <div class="card">
                     <h2 style="margin: 0 0 15px 0;">Current Status</h2>
                     @if($event->status === 'pending')
-                        <span class="badge badge-yellow">⏳ Pending Approval</span>
+                        <span class="badge badge-yellow"> Pending Approval</span>
                     @elseif($event->status === 'approved')
-                        <span class="badge badge-green">✓ Approved</span>
+                        <span class="badge badge-green"> Approved</span>
                     @elseif($event->status === 'rejected')
-                        <span class="badge badge-red">✕ Rejected</span>
+                        <span class="badge badge-red"> Rejected</span>
                     @endif
                     @if($event->admin_remarks)
                         <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
@@ -100,14 +100,14 @@
                         @csrf
                         <label style="font-weight: 600; margin-bottom: 8px; display: block;">Admin Remarks (Optional)</label>
                         <textarea name="admin_remarks" rows="3" placeholder="Add any notes or conditions..."></textarea>
-                        <button type="submit" class="btn btn-success" style="margin-top: 10px;" onclick="return confirm('Approve this event?')">✓ Approve Event</button>
+                        <button type="submit" class="btn btn-success" style="margin-top: 10px;" onclick="return confirm('Approve this event?')"> Approve Event</button>
                     </form>
 
                     <form action="{{ route('admin.events.reject', $event->id) }}" method="POST" style="margin-top: 15px;">
                         @csrf
                         <label style="font-weight: 600; margin-bottom: 8px; display: block;">Rejection Reason <span style="color: #dc3545;">*</span></label>
                         <textarea name="admin_remarks" rows="3" required placeholder="Explain why this event is rejected..."></textarea>
-                        <button type="submit" class="btn btn-danger" style="margin-top: 10px;" onclick="return confirm('Reject this event?')">✕ Reject Event</button>
+                        <button type="submit" class="btn btn-danger" style="margin-top: 10px;" onclick="return confirm('Reject this event?')"> Reject Event</button>
                     </form>
                 </div>
                 @endif

@@ -61,7 +61,7 @@
                 </div>
                 <div>
                     <button onclick="openModal()" class="btn btn-primary">+ Register Walk-in</button>
-                    <a href="{{ route('insideuser.events.exportRegistrations', $event->id) }}" class="btn btn-success">📥 Export CSV</a>
+                    <a href="{{ route('insideuser.events.exportRegistrations', $event->id) }}" class="btn btn-success"> Export CSV</a>
                 </div>
             </div>
         </div>
@@ -113,8 +113,8 @@
                         </td>
                         <td>{{ $reg->created_at->format('M d, Y g:i A') }}</td>
                         <td>
-                            <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" class="nav-link" title="Download QR">📥</a>
-                            <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" class="nav-link" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')">✉️</a>
+                            <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" class="nav-link" title="Download QR"></a>
+                            <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" class="nav-link" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')"></a>
                         </td>
                     </tr>
                     @endforeach

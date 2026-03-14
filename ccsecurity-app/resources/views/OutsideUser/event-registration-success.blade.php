@@ -32,9 +32,9 @@
             <div class="event-info">
                 <h2 style="margin: 0 0 10px 0; font-size: 16px;">Event Details</h2>
                 <div style="font-size: 13px; color: #666; line-height: 1.8;">
-                    <div>📅 {{ $event->event_date->format('l, F d, Y') }}</div>
-                    <div>🕐 {{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</div>
-                    <div>📍 School Security System Event</div>
+                    <div> {{ $event->event_date->format('l, F d, Y') }}</div>
+                    <div> {{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</div>
+                    <div> School Security System Event</div>
                 </div>
             </div>
 
@@ -47,8 +47,8 @@
             </div>
 
             <div>
-                <a href="{{ route('insideuser.events.downloadQR', $registration->id) }}" target="_blank" class="btn btn-primary">📥 Download QR Code</a>
-                <button onclick="window.print()" class="btn btn-secondary">🖨️ Print QR Code</button>
+                <a href="{{ route('insideuser.events.downloadQR', $registration->id) }}" target="_blank" class="btn btn-primary">Download QR Code</a>
+                <button onclick="window.print()" class="btn btn-secondary">Print QR Code</button>
             </div>
 
             <div class="alert alert-warning">

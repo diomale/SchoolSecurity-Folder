@@ -196,13 +196,13 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>📜 Shift History</h1>
+            <h1> Shift History</h1>
             <a href="{{ route('security.shift.management') }}" class="back-link">← Back to Shift Management</a>
         </div>
 
         <!-- Summary Card -->
         <div class="summary-card">
-            <h3>⏱️ Total Hours Worked (Selected Period)</h3>
+            <h3> Total Hours Worked (Selected Period)</h3>
             <p class="number">{{ number_format($totalHours, 1) }}</p>
         </div>
 
@@ -285,7 +285,7 @@
         @endif
         @else
         <div class="no-records">
-            <p>📭 No shift history found matching your criteria.</p>
+            <p> No shift history found matching your criteria.</p>
         </div>
         @endif
     </div>

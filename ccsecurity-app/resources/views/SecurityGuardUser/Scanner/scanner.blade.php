@@ -35,10 +35,10 @@
             <!-- Tabs -->
             <div class="flex mb-4 border-b">
                 <button id="camera-tab" class="px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600" onclick="switchTab('camera')">
-                    📷 Camera Scan
+                     Camera Scan
                 </button>
                 <button id="image-tab" class="px-4 py-2 font-semibold text-gray-600" onclick="switchTab('image')">
-                    🖼️ Upload Image
+                     Upload Image
                 </button>
             </div>
 
@@ -259,11 +259,11 @@
                 // Set user type label based on user_type
                 let userTypeLabel;
                 if (data.user_type === 'quick_pass') {
-                    userTypeLabel = '🎫 Quick Pass';
+                    userTypeLabel = ' Quick Pass';
                 } else if (data.user_type === 'outside') {
                     userTypeLabel = 'Visitor';
                 } else if (data.user_type === 'event') {
-                    userTypeLabel = '🎫 Event Attendee';
+                    userTypeLabel = ' Event Attendee';
                 } else {
                     userTypeLabel = 'Staff/Student';
                 }
@@ -352,11 +352,11 @@
         // Check if this is an event registration scan
         if (userType === 'event') {
             if (scanType === 'entry') {
-                typeLabel = '✓ EVENT CHECK-IN';
+                typeLabel = ' EVENT CHECK-IN';
                 typeColor = 'text-purple-600';
                 bgColor = 'bg-purple-50';
             } else if (scanType === 'exit') {
-                typeLabel = '✓ EVENT CHECK-OUT';
+                typeLabel = ' EVENT CHECK-OUT';
                 typeColor = 'text-indigo-600';
                 bgColor = 'bg-indigo-50';
             } else {

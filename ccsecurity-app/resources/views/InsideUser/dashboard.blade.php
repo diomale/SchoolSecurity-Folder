@@ -75,7 +75,7 @@
                 @endif
             </a>
             <a href="{{ route('insideuser.connected.parents') }}"> My Connected Parents</a>
-            <a href="{{ route('insideuser.events.dashboard') }}"> 📅 My Events</a>
+            <a href="{{ route('insideuser.events.dashboard') }}">  My Events</a>
             <a href="#entry-logs"> Entry/Exit Logs</a>
         </div>
 
@@ -89,7 +89,7 @@
 
         @if($connectedParents->count() > 0)
         <div class="info-box" style="background: #d4edda; border-left: 4px solid #4caf50;">
-            <h3>✓ Connected Parents/Guardians</h3>
+            <h3> Connected Parents/Guardians</h3>
             <p>You have <strong>{{ $connectedParents->count() }}</strong> connected parent(s) who can see your entry/exit records.</p>
             <a href="{{ route('insideuser.connected.parents') }}" style="color: #1976d2; font-weight: bold;">View connected parents →</a>
         </div>
@@ -106,7 +106,7 @@
         {{-- My Events Section --}}
         <div style="margin-top: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin: 0;">📅 My Events</h2>
+                <h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin: 0;"> My Events</h2>
                 <a href="{{ route('insideuser.events.create') }}" style="background: #4caf50; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px;">+ Create Event</a>
             </div>
             <div class="info-box" style="background: #f3e5f5; border-left: 4px solid #9c27b0; margin-top: 0;">

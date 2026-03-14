@@ -30,7 +30,7 @@
     <div class="container">
         <div class="card">
             <div class="text-center" style="margin-bottom: 20px;">
-                <h1 style="margin: 0; font-size: 28px;">📅 Event Registration</h1>
+                <h1 style="margin: 0; font-size: 28px;"> Event Registration</h1>
                 <p style="margin: 5px 0 0 0; color: #666;">Register for this event</p>
             </div>
 
@@ -55,10 +55,10 @@
             <div class="event-info">
                 <h2 style="margin: 0 0 10px 0; font-size: 18px;">{{ $event->event_name }}</h2>
                 <div style="font-size: 13px; color: #666; line-height: 1.8;">
-                    <div>📅 {{ $event->event_date->format('l, F d, Y') }}</div>
-                    <div>🕐 {{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</div>
-                    <div>👥 Slots: {{ $event->registrations_count }} / {{ $event->alien_user_limit }}</div>
-                    <div>⏰ Registration ends: {{ $event->qr_request_deadline->format('M d, Y g:i A') }}</div>
+                    <div> {{ $event->event_date->format('l, F d, Y') }}</div>
+                    <div> {{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</div>
+                    <div> Slots: {{ $event->registrations_count }} / {{ $event->alien_user_limit }}</div>
+                    <div> Registration ends: {{ $event->qr_request_deadline->format('M d, Y g:i A') }}</div>
                 </div>
             </div>
 

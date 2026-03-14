@@ -41,7 +41,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Deactivate all active outsider QR codes daily at midnight
         $schedule->command('qr:deactivate-outsiders')
-                ->dailyAt('00:00'); 
-                //->everyMinute(); for testing purposes
+                ->dailyAt('00:00');
+
+        // Auto-expire old quick passes (daily at midnight)
+        $schedule->command('quickpass:expire-old')
+                ->dailyAt('00:00');
+
+        // Auto-delete old quick passes (daily at midnight)
+        $schedule->command('quickpass:cleanup-old')
+                ->dailyAt('00:00');
     })
     ->create();

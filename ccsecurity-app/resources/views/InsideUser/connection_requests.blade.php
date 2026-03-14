@@ -208,7 +208,7 @@
 
         @if(session('success'))
         <div class="alert alert-success">
-            ✓ {{ session('success') }}
+             {{ session('success') }}
         </div>
         @endif
 
@@ -267,10 +267,10 @@
                             <form action="{{ route('insideuser.connection.accept', $request->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="btn btn-accept" onclick="return confirm('Accept this connection request?')">✓ Accept</button>
+                                <button type="submit" class="btn btn-accept" onclick="return confirm('Accept this connection request?')"> Accept</button>
                             </form>
                             
-                            <button class="btn btn-reject" onclick="openRejectModal({{ $request->id }})">✗ Reject</button>
+                            <button class="btn btn-reject" onclick="openRejectModal({{ $request->id }})"> Reject</button>
                             
                             <!-- Reject Modal -->
                             <div id="rejectModal{{ $request->id }}" class="modal">
@@ -292,7 +292,7 @@
                                 </div>
                             </div>
                         @elseif($request->inside_user_approval === 'accepted')
-                            <span style="color: #4caf50;">✓ Accepted</span>
+                            <span style="color: #4caf50;"> Accepted</span>
                         @elseif($request->inside_user_approval === 'rejected')
                             <span style="color: #999;">Rejected</span>
                         @endif

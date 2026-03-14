@@ -13,7 +13,7 @@
                     <!-- Header -->
                     <tr>
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🎫 Your Event QR Code</h1>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;"> Your Event QR Code</h1>
                         </td>
                     </tr>
                     
@@ -38,22 +38,22 @@
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>📅 Event:</strong> {{ $registration->event->event_name }}
+                                                    <strong> Event:</strong> {{ $registration->event->event_name }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>📆 Date:</strong> {{ $registration->event->event_date->format('l, F d, Y') }}
+                                                    <strong> Date:</strong> {{ $registration->event->event_date->format('l, F d, Y') }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>🕐 Time:</strong> {{ $registration->event->event_start_time->format('g:i A') }} - {{ $registration->event->event_end_time->format('g:i A') }}
+                                                    <strong> Time:</strong> {{ $registration->event->event_start_time->format('g:i A') }} - {{ $registration->event->event_end_time->format('g:i A') }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>📍 Location:</strong> School Security System Event
+                                                    <strong> Location:</strong> School Security System Event
                                                 </td>
                                             </tr>
                                         </table>
@@ -83,7 +83,7 @@
                                 <tr>
                                     <td>
                                         <p style="color: #856404; font-size: 14px; margin: 0;">
-                                            <strong>⚠️ Important:</strong> Please arrive at least 15 minutes before the event starts. 
+                                            <strong> Important:</strong> Please arrive at least 15 minutes before the event starts. 
                                             Make sure your QR code is clearly visible on your phone or printed out.
                                         </p>
                                     </td>

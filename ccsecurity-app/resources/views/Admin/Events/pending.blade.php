@@ -41,7 +41,7 @@
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search events...">
                 <input type="date" name="date_from" value="{{ request('date_from') }}">
                 <input type="date" name="date_to" value="{{ request('date_to') }}">
-                <button type="submit" class="btn btn-primary">🔍 Filter</button>
+                <button type="submit" class="btn btn-primary"> Filter</button>
             </form>
         </div>
 

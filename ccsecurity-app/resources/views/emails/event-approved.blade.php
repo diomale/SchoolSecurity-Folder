@@ -13,7 +13,7 @@
                     <!-- Header -->
                     <tr>
                         <td style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 40px 30px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">✓ Event Approved!</h1>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;"> Event Approved!</h1>
                         </td>
                     </tr>
                     
@@ -37,27 +37,27 @@
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>📝 Event Name:</strong> {{ $event->event_name }}
+                                                    <strong> Event Name:</strong> {{ $event->event_name }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>📅 Date:</strong> {{ $event->event_date->format('l, F d, Y') }}
+                                                    <strong> Date:</strong> {{ $event->event_date->format('l, F d, Y') }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>🕐 Time:</strong> {{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}
+                                                    <strong> Time:</strong> {{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>👥 Participant Limit:</strong> {{ $event->alien_user_limit }}
+                                                    <strong> Participant Limit:</strong> {{ $event->alien_user_limit }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #666666; font-size: 14px;">
-                                                    <strong>⏰ Registration Deadline:</strong> {{ $event->qr_request_deadline->format('F d, Y g:i A') }}
+                                                    <strong> Registration Deadline:</strong> {{ $event->qr_request_deadline->format('F d, Y g:i A') }}
                                                 </td>
                                             </tr>
                                         </table>
@@ -71,7 +71,7 @@
                                 <tr>
                                     <td>
                                         <p style="color: #0d47a1; font-size: 14px; margin: 0;">
-                                            <strong>📋 Admin Remarks:</strong>
+                                            <strong> Admin Remarks:</strong>
                                         </p>
                                         <p style="color: #0d47a1; font-size: 14px; margin: 10px 0 0 0;">
                                             {{ $event->admin_remarks }}
