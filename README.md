@@ -6,7 +6,7 @@ A Laravel-based security monitoring system designed to manage:
  
  🧑‍💼 Admin
  
- 🏫 Inside Users
+ 🏫 Inside Users (Student and Staff)
  
  🌍 Outside Users
  
@@ -69,15 +69,18 @@ Update your database configuration:
 ⚠️ Replace credentials with your own database credentials.
 
  5️⃣ Generate Application Key
+ 
       php artisan key:generate
  
  6️⃣ Run Migrations
+ 
       php artisan migrate
  
  If you are using multiple databases, make sure both databases are created in MySQL before running migrations.
  
- 7️⃣ Start the Server
-    php artisan serve
+7️⃣ Start the Server: 
+
+    php artisan serve or composer run dev
 
 Then visit:
 
@@ -93,6 +96,7 @@ Add your keys in .env:
     RECAPTCHA_SECRET_KEY=your_secret_key
 
 You can get keys from:
+
     https://www.google.com/recaptcha
 
 🛠️ Development Commands
@@ -103,7 +107,7 @@ You can get keys from:
  
  Rebuild assets:
  
-   npm run dev or composer run dev
+    npm run dev or composer run dev
 
  📁 Project Structure Overview
   app/
@@ -142,8 +146,8 @@ You can get keys from:
 
 Before deploying:
 
-  APP_ENV=production
-  APP_DEBUG=false
+    APP_ENV=production
+    APP_DEBUG=false
 
 Run:
 
@@ -152,9 +156,8 @@ Run:
     php artisan view:cache
 
 👨‍💻 Developed By
-1. Diomale Romero
-2. Rushield Tan
-3. Charlize Agsaoay
+ 1. Diomale Romero
+ 2. Rushield Tan
+ 3. Charlize Agsaoay
 
-BitStack Studio
-2026
+BitStack Studio 2026
