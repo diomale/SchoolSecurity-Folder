@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visitor Login - School Security</title>
+    @vite(['resources/css/SuperadminStyleFolder/superadmin_style_login.css','resources/js/app.js'])
 </head>
 <body>
     <div>
