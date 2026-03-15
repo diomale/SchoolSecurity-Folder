@@ -128,16 +128,6 @@
                 </div>
                 
                 <div class="flex justify-between items-center py-2 border-b">
-                    <span class="text-gray-700">Commands:</span>
-                    <div class="text-right">
-                        <code class="text-xs bg-gray-100 px-2 py-1 rounded">notifications:cleanup-old</code><br>
-                        <code class="text-xs bg-gray-100 px-2 py-1 rounded">visitrequests:cleanup-old</code><br>
-                        <code class="text-xs bg-gray-100 px-2 py-1 rounded">shiftlogs:cleanup-old</code><br>
-                        <code class="text-xs bg-gray-100 px-2 py-1 rounded">shifts:cleanup-old</code>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between items-center py-2 border-b">
                     <span class="text-gray-700">Global Auto-Delete:</span>
                     <span class="font-medium {{ $globalSettings->auto_delete_enabled ? 'text-green-600' : 'text-red-600' }}">
                         {{ $globalSettings->auto_delete_enabled ? 'Enabled' : 'Disabled' }}

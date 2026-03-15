@@ -35,7 +35,7 @@
     <!-- Password Confirmation Modal -->
     <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
         <div style="background:white; padding:20px; border-radius:8px; max-width:400px; margin:100px auto;">
-            <h3 style="margin-top:0;">🔐 Confirm Your Identity</h3>
+            <h3 style="margin-top:0;"> Confirm Your Identity</h3>
             <p>Please enter your password to confirm deletion.</p>
             <form id="passwordConfirmForm" method="POST">
                 @csrf
@@ -73,9 +73,9 @@
                 <td>{{ ucfirst($inside_user->role) }}</td>
                 <td>
                     @if($inside_user->qr_status === 'active')
-                        <span style="color: green;">Active ✓</span>
+                        <span style="color: green;">Active </span>
                     @else
-                        <span style="color: gray;">Inactive ✗</span>
+                        <span style="color: gray;">Inactive </span>
                     @endif
                 </td>
                 <td>{{ $inside_user->created_at }}</td>

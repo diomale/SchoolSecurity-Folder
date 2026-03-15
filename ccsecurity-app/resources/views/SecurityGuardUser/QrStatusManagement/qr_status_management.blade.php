@@ -56,9 +56,9 @@
                         <td>{{ $user->email }}</td>
                         <td>
                             @if(in_array(strtolower($user->qr_status), ['active']))
-                                <span style="color: green;">✓ Active</span>
+                                <span style="color: green;"> Active</span>
                             @else
-                                <span style="color: gray;">✗ Inactive</span>
+                                <span style="color: gray;"> Inactive</span>
                             @endif
                         </td>
                         <td>
@@ -115,9 +115,9 @@
                         <td>{{ $user->email }}</td>
                         <td>
                             @if(in_array(strtolower($user->qr_status), ['active']))
-                                <span style="color: green;">✓ Active</span>
+                                <span style="color: green;"> Active</span>
                             @else
-                                <span style="color: gray;">✗ Inactive</span>
+                                <span style="color: gray;"> Inactive</span>
                             @endif
                         </td>
                         <td>
@@ -179,18 +179,18 @@
                         <td>{{ $user->phone_number ?? 'N/A' }}</td>
                         <td>
                             @if(in_array(strtolower($user->qr_status), ['active']))
-                                <span style="color: green;">✓ Active</span>
+                                <span style="color: green;"> Active</span>
                             @else
-                                <span style="color: gray;">✗ Inactive</span>
+                                <span style="color: gray;"> Inactive</span>
                             @endif
                         </td>
                         <td>
                             @if($user->status == \App\Models\OutsideUser::STATUS_APPROVED)
-                                <span style="color: green;">✓ Approved</span>
+                                <span style="color: green;"> Approved</span>
                             @elseif($user->status == \App\Models\OutsideUser::STATUS_REJECTED)
-                                <span style="color: red;">✗ Rejected</span>
+                                <span style="color: red;"> Rejected</span>
                             @else
-                                <span style="color: orange;">⏳ Pending</span>
+                                <span style="color: orange;"> Pending</span>
                             @endif
                         </td>
                         <td>

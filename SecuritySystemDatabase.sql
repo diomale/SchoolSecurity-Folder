@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
   `inside_user_id` INT(11) NULL DEFAULT NULL,
   `outside_user_id` INT(11) NULL DEFAULT NULL,
   `quick_pass_id` INT(11) NULL DEFAULT NULL,
+  `event_registration_id` INT(11) NULL DEFAULT NULL,
   `qr_value` VARCHAR(100) NULL DEFAULT NULL,
   `security_guard_user_id` INT(11) NOT NULL,
   `scan_at` VARCHAR(45) NULL DEFAULT NULL,
@@ -134,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
   INDEX `fk_Entry_logs_inside_user_idx` (`inside_user_id` ASC) ,
   INDEX `fk_Entry_logs_security_guard_user1_idx` (`security_guard_user_id` ASC) ,
   INDEX `fk_Entry_logs_quick_passes_idx` (`quick_pass_id` ASC) ,
+  INDEX `fk_Entry_logs_event_registrations_idx` (`event_registration_id` ASC) ,
   CONSTRAINT `fk_Entry_logs_inside_user`
     FOREIGN KEY (`inside_user_id`)
     REFERENCES `securitysystemdatabase`.`inside_user` (`id`)
@@ -147,7 +149,12 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
   CONSTRAINT `fk_Entry_logs_quick_passes`
     FOREIGN KEY (`quick_pass_id`)
     REFERENCES `securitysystemdatabase`.`quick_passes` (`id`)
+    ON DELETE SET NULL,
+  CONSTRAINT `fk_Entry_logs_event_registrations`
+    FOREIGN KEY (`event_registration_id`)
+    REFERENCES `securitysystemdatabase`.`event_registrations` (`id`)
     ON DELETE SET NULL
+    ON UPDATE NO ACTION
 )
 ENGINE = InnoDB
 AUTO_INCREMENT = 206
@@ -358,6 +365,86 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`parent_child_connections` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COMMENT = 'Stores parent-child connection requests for tracking student entry/exit notifications';
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`events`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`events` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `inside_user_id` INT(11) NOT NULL,
+  `event_name` VARCHAR(255) NOT NULL,
+  `event_description` TEXT NULL DEFAULT NULL,
+  `event_date` DATE NOT NULL,
+  `event_start_time` TIME NOT NULL,
+  `event_end_time` TIME NOT NULL,
+  `qr_request_deadline` TIMESTAMP NOT NULL,
+  `alien_user_limit` INT(11) NOT NULL DEFAULT 50,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'pending' COMMENT 'pending, approved, rejected, cancelled, completed',
+  `admin_remarks` TEXT NULL DEFAULT NULL,
+  `approved_at` TIMESTAMP NULL DEFAULT NULL,
+  `show_on_welcome` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=show event on welcome page, 0=hide',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  INDEX `fk_events_inside_user_idx` (`inside_user_id` ASC),
+  INDEX `idx_events_status` (`status` ASC),
+  INDEX `idx_events_date` (`event_date` ASC),
+  INDEX `idx_events_show_welcome` (`show_on_welcome` ASC),
+  CONSTRAINT `fk_events_inside_user`
+    FOREIGN KEY (`inside_user_id`)
+    REFERENCES `securitysystemdatabase`.`inside_user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Stores events created by inside users for alien user registration';
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`event_registrations`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`event_registrations` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `event_id` INT(11) NOT NULL,
+  `outside_user_id` INT(11) NULL DEFAULT NULL,
+  `first_name` VARCHAR(255) NOT NULL,
+  `last_name` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `phone_number` VARCHAR(50) NULL DEFAULT NULL,
+  `qr_code` VARCHAR(100) NOT NULL UNIQUE,
+  `qr_downloaded` TINYINT(1) NOT NULL DEFAULT 0,
+  `qr_downloaded_at` TIMESTAMP NULL DEFAULT NULL,
+  `qr_emailed` TINYINT(1) NOT NULL DEFAULT 0,
+  `qr_emailed_at` TIMESTAMP NULL DEFAULT NULL,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'registered' COMMENT 'registered, checked_in, checked_out',
+  `checked_in_at` TIMESTAMP NULL DEFAULT NULL,
+  `checked_out_at` TIMESTAMP NULL DEFAULT NULL,
+  `needs_creator_approval` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=requires creator approval before QR is sent',
+  `creator_approved_at` TIMESTAMP NULL DEFAULT NULL COMMENT 'Timestamp when event creator approved the registration',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  INDEX `fk_event_registrations_events_idx` (`event_id` ASC),
+  INDEX `fk_event_registrations_outside_user_idx` (`outside_user_id` ASC),
+  INDEX `idx_registrations_status` (`status` ASC),
+  INDEX `idx_registrations_qr_code` (`qr_code` ASC),
+  INDEX `idx_registrations_needs_approval` (`needs_creator_approval` ASC),
+  CONSTRAINT `fk_event_registrations_events`
+    FOREIGN KEY (`event_id`)
+    REFERENCES `securitysystemdatabase`.`events` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_registrations_outside_user`
+    FOREIGN KEY (`outside_user_id`)
+    REFERENCES `securitysystemdatabase`.`outside_user` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Stores event registrations for alien users with QR codes and creator approval workflow';
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

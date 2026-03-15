@@ -3,11 +3,27 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdminAuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminEventController;
 use App\Http\Controllers\InsideUserController;
+use App\Http\Controllers\InsideUserEventController;
 use App\Http\Controllers\OutsideUserController;
 use App\Http\Controllers\SecurityGuardController;
 
-Route::get('/', function () {return view('welcome');})->name('welcome');
+Route::get('/', function () {
+    $publicEvents = \App\Models\Event::with(['insideUser'])
+        ->withCount('registrations')
+        ->where('show_on_welcome', true)
+        ->where('status', \App\Models\Event::STATUS_APPROVED)
+        ->where('event_date', '>=', now()->toDateString())
+        ->orderBy('event_date', 'asc')
+        ->paginate(9);
+
+    return view('welcome', compact('publicEvents'));
+})->name('welcome');
+
+// Public event registration routes (no login required)
+Route::get('/event/register/{code}', [InsideUserEventController::class, 'showPublicRegistration'])->name('public.event.register');
+Route::post('/event/register/{eventId}/submit', [InsideUserEventController::class, 'submitPublicRegistration'])->name('public.event.register.submit');
 
 // --- SUPER ADMIN ROUTES --- //
 Route::prefix('superadmin')->group(function () {
@@ -109,6 +125,17 @@ Route::prefix('admin')->group(function () {
         Route::post('/cleanup-settings/update-table', [AdminController::class, 'updateTableSettings'])->name('admin.cleanup.update-table');
         Route::post('/cleanup-settings/run-now', [AdminController::class, 'runCleanupNow'])->name('admin.cleanup.run-now');
         Route::post('/cleanup-settings/toggle-global', [AdminController::class, 'toggleGlobalAutoDelete'])->name('admin.cleanup.toggle-global');
+
+        // Event Management routes for admin
+        Route::get('/events/pending', [AdminEventController::class, 'pendingEvents'])->name('admin.events.pending');
+        Route::get('/events/all', [AdminEventController::class, 'allEvents'])->name('admin.events.all');
+        Route::get('/events/analytics', [AdminEventController::class, 'analytics'])->name('admin.events.analytics');
+        Route::get('/events/{id}', [AdminEventController::class, 'show'])->name('admin.events.show');
+        Route::post('/events/{id}/approve', [AdminEventController::class, 'approve'])->name('admin.events.approve');
+        Route::post('/events/{id}/reject', [AdminEventController::class, 'reject'])->name('admin.events.reject');
+        Route::post('/events/{id}/mark-completed', [AdminEventController::class, 'markCompleted'])->name('admin.events.mark-completed');
+        Route::post('/events/bulk-approve', [AdminEventController::class, 'bulkApprove'])->name('admin.events.bulk-approve');
+        Route::post('/events/bulk-reject', [AdminEventController::class, 'bulkReject'])->name('admin.events.bulk-reject');
     });
 
     
@@ -117,6 +144,7 @@ Route::prefix('admin')->group(function () {
 //-- INSIDE USER --//
 
 use App\Http\Controllers\InsideUserConnectionController;
+use App\Http\Controllers\EventCreatorApprovalController;
 
 Route::prefix('insideuser')->group(function(){
 
@@ -139,6 +167,31 @@ Route::prefix('insideuser')->group(function(){
         Route::patch('/connection-reject/{id}', [InsideUserConnectionController::class, 'rejectConnection'])->name('insideuser.connection.reject');
         Route::get('/connected-parents', [InsideUserConnectionController::class, 'connectedParents'])->name('insideuser.connected.parents');
         Route::delete('/connection/{id}/cancel', [InsideUserConnectionController::class, 'cancelConnection'])->name('insideuser.connection.cancel');
+
+        // Event Management routes for inside user
+        Route::get('/events', [InsideUserEventController::class, 'dashboard'])->name('insideuser.events.dashboard');
+        Route::get('/events/create', [InsideUserEventController::class, 'create'])->name('insideuser.events.create');
+        Route::post('/events/store', [InsideUserEventController::class, 'store'])->name('insideuser.events.store');
+        Route::get('/events/{id}', [InsideUserEventController::class, 'show'])->name('insideuser.events.show');
+        Route::get('/events/{id}/edit', [InsideUserEventController::class, 'edit'])->name('insideuser.events.edit');
+        Route::put('/events/{id}/update', [InsideUserEventController::class, 'update'])->name('insideuser.events.update');
+        Route::delete('/events/{id}/cancel', [InsideUserEventController::class, 'cancel'])->name('insideuser.events.cancel');
+        Route::get('/events/{id}/registrations', [InsideUserEventController::class, 'registrations'])->name('insideuser.events.registrations');
+        Route::get('/events/{id}/pending-approvals', [EventCreatorApprovalController::class, 'pendingApprovals'])->name('insideuser.events.pending-approvals');
+        Route::post('/events/register-walkin', [InsideUserEventController::class, 'registerWalkin'])->name('insideuser.events.registerWalkin');
+        Route::get('/events/registrations/{registrationId}/download-qr', [InsideUserEventController::class, 'downloadQR'])->name('insideuser.events.downloadQR');
+        Route::get('/events/registrations/{registrationId}/resend-qr', [InsideUserEventController::class, 'resendQR'])->name('insideuser.events.resendQR');
+        Route::get('/events/{id}/export-registrations', [InsideUserEventController::class, 'exportRegistrations'])->name('insideuser.events.exportRegistrations');
+        Route::post('/events/{id}/toggle-welcome', [InsideUserEventController::class, 'toggleWelcomeVisibility'])->name('insideuser.events.toggle-welcome');
+
+        // Event Creator Approval routes
+        Route::prefix('events/approvals')->group(function() {
+            Route::get('/{eventId}', [EventCreatorApprovalController::class, 'pendingApprovals'])->name('insideuser.events.approvals.pending');
+            Route::post('/{registrationId}/approve', [EventCreatorApprovalController::class, 'approve'])->name('insideuser.events.approvals.approve');
+            Route::post('/{registrationId}/reject', [EventCreatorApprovalController::class, 'reject'])->name('insideuser.events.approvals.reject');
+            Route::post('/{eventId}/bulk-approve', [EventCreatorApprovalController::class, 'bulkApprove'])->name('insideuser.events.approvals.bulk-approve');
+            Route::post('/{eventId}/bulk-reject', [EventCreatorApprovalController::class, 'bulkReject'])->name('insideuser.events.approvals.bulk-reject');
+        });
 
 
     });
@@ -191,6 +244,9 @@ Route::prefix('securityguard')->group(function(){
         Route::post('/quick-pass/store', [SecurityGuardController::class, 'storeQuickPass'])->name('security.quick-pass.store');
         Route::get('/quick-pass/{id}/qr', [SecurityGuardController::class, 'showQuickPassQr'])->name('security.quick-pass.qr');
         Route::delete('/quick-pass/{id}', [SecurityGuardController::class, 'deleteQuickPass'])->name('security.quick-pass.delete');
+
+        // Event QR Scan route
+        Route::get('/event/scan/{qr}', [SecurityGuardController::class, 'scanEventQR'])->name('security.event.scan');
     });
 });
 

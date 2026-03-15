@@ -9,7 +9,7 @@
     <div>
         <!-- Header -->
         <div>
-            <h1>🕐 Shift Management</h1>
+            <h1> Shift Management</h1>
             <a href="{{ route('security.user.table.section') }}">← Back to Security User Table</a>
         </div>
 
@@ -49,7 +49,7 @@
 
         <!-- Shifts List Section -->
         <div>
-            <h3>📋 Shifts List</h3>
+            <h3> Shifts List</h3>
             
             <div style="margin-bottom: 10px;">
                 <button type="button" onclick="submitBulkAction('bulk-delete-form', true)" id="bulk-delete-btn" disabled style="background-color: #fff0f0; color: #dc3545; border: 1px solid #dc3545; padding: 5px 10px; cursor: pointer;">
@@ -117,7 +117,7 @@
     <div id="assignShiftModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
         <div style="background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 600px; border-radius: 8px; max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
-                <h3 style="margin: 0;">📅 Assign New Shift</h3>
+                <h3 style="margin: 0;"> Assign New Shift</h3>
                 <button type="button" onclick="closeAssignShiftModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
             </div>
 

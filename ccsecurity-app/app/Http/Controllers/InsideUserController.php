@@ -15,14 +15,21 @@ class InsideUserController extends Controller
     public function dashboard()
     {
         $insideUser = Auth::guard('insideuser')->user();
-        
+
         // Get approved parent connections
         $connectedParents = $insideUser->connectedParents()->get();
-        
+
         // Get pending connection requests
         $pendingConnections = $insideUser->pendingConnections()->with('outsideUser')->get();
-        
-        return view('InsideUser.dashboard', compact('connectedParents', 'pendingConnections'));
+
+        // Get recent entry/exit logs (last 20)
+        $entryLogs = $insideUser->entryLogs()
+            ->with('securityGuardUser')
+            ->orderBy('scan_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        return view('InsideUser.dashboard', compact('insideUser', 'connectedParents', 'pendingConnections', 'entryLogs'));
     }
 
     public function userProfile()

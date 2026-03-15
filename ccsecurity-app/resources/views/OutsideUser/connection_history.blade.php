@@ -38,7 +38,7 @@
 
         @if(session('success'))
         <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 15px 0;">
-            ✓ {{ session('success') }}
+            {{ session('success') }}
         </div>
         @endif
 
@@ -65,11 +65,11 @@
                         <td>{{ $connection->relationship }}</td>
                         <td class="status-{{ $connection->status }}">
                             @if($connection->status === 'approved')
-                                ✓ APPROVED
+                                APPROVED
                             @elseif($connection->status === 'rejected')
-                                ✗ REJECTED
+                                REJECTED
                             @else
-                                ⏳ PENDING
+                                PENDING
                             @endif
                         </td>
                         <td>

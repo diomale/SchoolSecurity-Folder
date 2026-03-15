@@ -167,27 +167,28 @@
         <!-- Header -->
         <div class="header">
             <div>
-                <h1>🎫 Quick Pass Management</h1>
+                <h1> Quick Pass Management</h1>
                 <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
-                    Today's Temporary Visitor Passes - {{ today()->format('M d, Y') }}
+                    History and Status of Temporary Visitor Passes
                 </p>
             </div>
             <div style="display: flex; gap: 10px;">
                 <a href="{{ route('security.dashboard') }}" class="btn btn-sm" style="background: #6c757d; color: white;">← Back to Dashboard</a>
                 <a href="{{ route('security.quick-pass.create') }}" class="btn btn-primary">+ New Quick Pass</a>
+                <a href="{{ route('security.quick-pass.list') }}" class="btn btn-sm" style="background: #17a2b8; color: white;" title="Refresh to check expiration">↻ Refresh</a>
             </div>
         </div>
 
         <!-- Messages -->
         @if(session('success'))
         <div class="message success">
-            ✓ {{ session('success') }}
+             {{ session('success') }}
         </div>
         @endif
 
         @if(session('error'))
         <div class="message error">
-            ⚠ {{ session('error') }}
+             {{ session('error') }}
         </div>
         @endif
 
@@ -200,12 +201,16 @@
             @endif
         </form>
 
+        <!-- Current Time Info -->
+        <div style="background: #e7f3ff; border: 1px solid #b8daff; border-radius: 6px; padding: 10px 15px; margin-bottom: 15px; font-size: 13px; color: #004085;">
+            <strong> Current Server Time:</strong> {{ \Carbon\Carbon::now()->format('l, F j, Y h:i:s A') }} ({{ config('app.timezone') }} timezone)
+        </div>
+
         <!-- Quick Passes Table -->
         @if($quickPasses->count() > 0)
         <table>
             <thead>
                 <tr>
-                    <th>QR Code</th>
                     <th>Visitor Name</th>
                     <th>Vehicle Plate</th>
                     <th>Purpose</th>
@@ -217,12 +222,7 @@
             </thead>
             <tbody>
                 @foreach($quickPasses as $pass)
-                <tr>
-                    <td>
-                        <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; font-size: 11px;">
-                            {{ $pass->qr_value }}
-                        </code>
-                    </td>
+                <tr style="{{ $pass->isExpired() && $pass->status !== 'expired' ? 'opacity: 0.6;' : '' }}">
                     <td><strong>{{ $pass->visitor_name }}</strong></td>
                     <td>{{ $pass->vehicle_plate ?? '—' }}</td>
                     <td>
@@ -242,6 +242,9 @@
                             <span class="badge badge-used">Used</span>
                         @else
                             <span class="badge badge-expired">Expired</span>
+                        @endif
+                        @if($pass->isExpired() && $pass->status !== 'expired')
+                            <br><small style="color: #dc3545; font-size: 10px;">(Past expiration)</small>
                         @endif
                     </td>
                     <td>
@@ -273,8 +276,8 @@
 
         @else
         <div class="empty-state">
-            <h2 style="margin-bottom: 10px;">🎫 No Quick Passes Today</h2>
-            <p>No temporary visitor passes have been created today.</p>
+            <h2 style="margin-bottom: 10px;"> No Quick Passes Found</h2>
+            <p>No temporary visitor passes have been created yet.</p>
             <a href="{{ route('security.quick-pass.create') }}" class="btn btn-primary" style="margin-top: 15px;">
                 + Create Your First Quick Pass
             </a>

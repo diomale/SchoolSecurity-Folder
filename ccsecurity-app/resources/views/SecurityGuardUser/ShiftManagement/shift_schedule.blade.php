@@ -168,7 +168,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>📅 Shift Schedule</h1>
+            <h1> Shift Schedule</h1>
             <a href="{{ route('security.shift.management') }}" class="back-link">← Back to Shift Management</a>
         </div>
 
@@ -194,16 +194,16 @@
             <div class="shift-card {{ $shift->shift_date->isToday() ? 'today' : 'scheduled' }}">
                 <div class="shift-info">
                     <p class="date">
-                        📆 {{ $shift->shift_date->format('l, F d, Y') }}
+                         {{ $shift->shift_date->format('l, F d, Y') }}
                         @if($shift->shift_date->isToday())
                             <span class="badge badge-today">Today</span>
                         @endif
                     </p>
                     <p class="time">
-                        🕐 {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
+                         {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
                     </p>
                     <p>
-                        ⏱️ Duration: {{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours
+                         Duration: {{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours
                     </p>
                 </div>
                 <div class="shift-status">
@@ -222,7 +222,7 @@
             @endif
         @else
             <div class="no-shifts">
-                <h3>📭 No Upcoming Shifts</h3>
+                <h3> No Upcoming Shifts</h3>
                 <p>You don't have any scheduled shifts at the moment.</p>
             </div>
         @endif
