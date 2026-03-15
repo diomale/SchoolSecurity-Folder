@@ -33,11 +33,11 @@
                     <td>{{ $request->person_to_meet }}</td>
                     <td>
                         @if($request->status === 'approved')
-                            <span>✓ Approved</span>
+                            <span> Approved</span>
                         @elseif($request->status === 'rejected')
-                            <span>✗ Rejected</span>
+                            <span> Rejected</span>
                         @else
-                            <span>⏳ Pending</span>
+                            <span> Pending</span>
                         @endif
                     </td>
                     <td>

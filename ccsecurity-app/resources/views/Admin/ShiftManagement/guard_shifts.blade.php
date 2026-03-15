@@ -174,15 +174,15 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>👤 Guard Shift Schedule</h1>
+            <h1> Guard Shift Schedule</h1>
             <a href="{{ $backUrl }}" class="back-link">← Back</a>
         </div>
 
         <!-- Guard Info -->
         <div class="guard-info">
             <h2>{{ $guard->first_name }} {{ $guard->last_name }}</h2>
-            <p>📧 {{ $guard->email }}</p>
-            <p>🆔 ID: {{ $guard->id }}</p>
+            <p> {{ $guard->email }}</p>
+            <p> ID: {{ $guard->id }}</p>
         </div>
 
         <!-- Shifts List -->
@@ -191,16 +191,16 @@
             <div class="shift-card {{ $shift->shift_date->isToday() ? 'today' : ($shift->shift_date->isPast() ? 'past' : '') }}">
                 <div class="shift-info">
                     <p class="date">
-                        📆 {{ $shift->shift_date->format('l, F d, Y') }}
+                         {{ $shift->shift_date->format('l, F d, Y') }}
                         @if($shift->shift_date->isToday())
                             <span class="badge badge-scheduled">Today</span>
                         @endif
                     </p>
                     <p class="time">
-                        🕐 {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
+                         {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
                     </p>
                     <p>
-                        ⏱️ Duration: {{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours
+                         Duration: {{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours
                     </p>
                 </div>
                 <div class="shift-status">
@@ -225,7 +225,7 @@
             @endif
         @else
             <div class="no-shifts">
-                <h3>📭 No Shifts Assigned</h3>
+                <h3> No Shifts Assigned</h3>
                 <p>This guard doesn't have any scheduled shifts yet.</p>
             </div>
         @endif

@@ -100,6 +100,14 @@
             background: #d4edda;
             color: #155724;
         }
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-used {
+            background: #e2e3e5;
+            color: #383d41;
+        }
         .btn-group {
             display: flex;
             gap: 10px;
@@ -194,21 +202,20 @@
 
         <!-- Header -->
         <div class="header">
-            <h1>🎫 Quick Pass</h1>
+            <h1> Quick Pass</h1>
             <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Temporary Visitor Access</p>
         </div>
 
         <!-- Expiry Banner -->
         <div class="expiry-banner">
-            <span class="icon">⏰</span>
+            <span class="icon"></span>
             VALID UNTIL {{ $quickPass->expires_at->format('h:i A') }} TODAY
-            <span class="icon">⏰</span>
+            <span class="icon"></span>
         </div>
 
         <!-- QR Code -->
         <div class="qr-container" id="qr-code-area">
             {!! QrCode::size(200)->generate($quickPass->qr_value) !!}
-            <div class="qr-code-text">{{ $quickPass->qr_value }}</div>
         </div>
 
         <!-- Visitor Info -->
@@ -232,9 +239,13 @@
             <div class="visitor-info-row">
                 <label>Status:</label>
                 <span>
-                    <span class="status-badge status-active">
-                        {{ ucfirst($quickPass->status) }}
-                    </span>
+                    @if($quickPass->isExpired())
+                        <span class="status-badge status-expired">Expired</span>
+                    @elseif($quickPass->status === 'used')
+                        <span class="status-badge status-used">Used</span>
+                    @else
+                        <span class="status-badge status-active">Active</span>
+                    @endif
                 </span>
             </div>
             <div class="visitor-info-row">
@@ -246,19 +257,19 @@
         <!-- Action Buttons -->
         <div class="btn-group">
             <button type="button" onclick="printQR()" class="btn btn-primary">
-                🖨️ Print
+                 Print
             </button>
             <button type="button" onclick="takeScreenshot()" class="btn btn-success">
-                📷 Screenshot
+                 Screenshot
             </button>
             <a href="{{ route('security.quick-pass.list') }}" class="btn btn-secondary">
-                ✓ Done
+                 Done
             </a>
         </div>
 
         <!-- Instructions -->
         <div class="instructions">
-            <h4>📱 How to use:</h4>
+            <h4> How to use:</h4>
             <ol>
                 <li><strong>Print:</strong> Print this QR code on paper for the visitor</li>
                 <li><strong>Screenshot:</strong> Take a screenshot and show to visitor</li>
@@ -275,7 +286,7 @@
 
         function takeScreenshot() {
             // Simple method: select the QR area for screenshot
-            alert('📷 To capture:\n\nWindows: Press Win + Shift + S\nMac: Press Cmd + Shift + 4\n\nThen select the QR code area.');
+            alert(' To capture:\n\nWindows: Press Win + Shift + S\nMac: Press Cmd + Shift + 4\n\nThen select the QR code area.');
         }
     </script>
 </body>

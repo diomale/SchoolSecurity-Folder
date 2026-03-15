@@ -117,7 +117,25 @@ class QuickPass extends Model
      */
     public function isExpired()
     {
-        return Carbon::now()->isAfter($this->expires_at);
+        $now = Carbon::now();
+        $today = Carbon::today();
+
+        // 1. Check if the specific expiration timestamp is in the past
+        if ($now->isAfter($this->expires_at)) {
+            return true;
+        }
+
+        // 2. Check if the valid date is from a previous day
+        // Compare date strings for reliable comparison across timezones
+        $validDateStr = $this->valid_date instanceof Carbon
+            ? $this->valid_date->toDateString()
+            : $this->valid_date;
+
+        if ($validDateStr < $today->toDateString()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

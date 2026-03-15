@@ -66,7 +66,13 @@
             </div>
 
             <div>
-                <p><strong>Your QR Code:</strong> {{ auth('outsideuser')->user()->qr_value }}</p>
+                <p><strong>QR Code Status:</strong> 
+                    @if(auth('outsideuser')->user()->qr_status === 'active')
+                        <span style="color: #4caf50; font-weight: 600;">● ACTIVE</span>
+                    @else
+                        <span style="color: #f44336; font-weight: 600;">● INACTIVE</span>
+                    @endif
+                </p>
                 <p><em>After admin approval, your QR code will be activated for the visit.</em></p>
             </div>
 

@@ -133,6 +133,22 @@
             font-size: 12px;
             font-weight: 600;
         }
+        .event-checkin-badge {
+            background: #f3e8ff;
+            color: #6b21a8;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .event-checkout-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
         .pagination {
             margin-top: 20px;
         }
@@ -204,7 +220,7 @@
                             @endif
                         </td>
                         <td>
-                            <span class="entry-badge">✓ Entry</span>
+                            <span class="entry-badge"> Entry</span>
                             {{ $person['scan_at'] ? \Carbon\Carbon::parse($person['scan_at'])->format('M d, Y h:i A') : 'N/A' }}
                         </td>
                     </tr>
@@ -213,7 +229,7 @@
             </table>
             @else
             <div class="no-inside">
-                <p>📭 No one is currently inside the school premises.</p>
+                <p> No one is currently inside the school premises.</p>
             </div>
             @endif
         </div>
@@ -222,7 +238,7 @@
         <div class="filters">
             <form method="GET" action="{{ route('security.entry.logs') }}">
                 <div>
-                    <label for="search">🔍 Search</label>
+                    <label for="search"> Search</label>
                     <input
                         type="text"
                         id="search"
@@ -261,7 +277,7 @@
 
         <!-- Logs Table -->
         <div>
-            <h2 style="margin-bottom: 15px;">📜 Recent Entry/Exit Logs</h2>
+            <h2 style="margin-bottom: 15px;"> Recent Entry/Exit Logs</h2>
             @if($logs->count() > 0)
             <table>
                 <thead>
@@ -276,21 +292,32 @@
                     @foreach($logs as $log)
                     <tr>
                         <td>
-                            @if($log->quickPass)
-                                {{ $log->quickPass->visitor_name }} <span style="color: #007bff; font-size: 12px;">🎫 (Quick Pass)</span>
+                            @if($log->eventRegistration)
+                                {{ $log->eventRegistration->fullname }} 
+                                <span style="color: #6b21a8; font-size: 12px;"> (Event)</span>
+                            @elseif($log->quickPass)
+                                {{ $log->quickPass->visitor_name }} <span style="color: #007bff; font-size: 12px;"> (Quick Pass)</span>
                             @elseif($log->insideUser)
                                 {{ $log->insideUser->fullname }}
                             @elseif($log->outsideUser)
                                 {{ $log->outsideUser->fullname }} <span style="color: #999; font-size: 12px;">(Visitor)</span>
+                            @elseif(str_starts_with($log->qr_value, 'EVT'))
+                                <span style="color: #6b21a8; font-weight: 600;"> Event Attendee</span>
                             @else
-                                N/A
+                                <span style="color: #666;">QR Scan</span>
                             @endif
                         </td>
                         <td>
-                            @if($log->scan_type === 'entry')
-                                <span class="entry-badge">✓ Entry</span>
+                            @if($log->eventRegistration)
+                                @if($log->scan_type === 'entry')
+                                    <span class="event-checkin-badge"> EVENT CHECK-IN</span>
+                                @elseif($log->scan_type === 'exit')
+                                    <span class="event-checkout-badge"> EVENT CHECK-OUT</span>
+                                @endif
+                            @elseif($log->scan_type === 'entry')
+                                <span class="entry-badge"> Entry</span>
                             @elseif($log->scan_type === 'exit')
-                                <span class="exit-badge">✗ Exit</span>
+                                <span class="exit-badge"> Exit</span>
                             @else
                                 <span>{{ $log->scan_type }}</span>
                             @endif
@@ -318,7 +345,7 @@
             @endif
             @else
             <div class="empty-state">
-                <p>📭 No entry/exit logs found matching your criteria.</p>
+                <p> No entry/exit logs found matching your criteria.</p>
             </div>
             @endif
         </div>

@@ -15,6 +15,7 @@ use App\Models\CleanupSetting;
 use App\Models\CleanupTableSetting;
 use App\Models\EntryLog;
 use App\Models\ShiftLog;
+use App\Models\QuickPass;
 use App\Models\ParentChildConnection;
 use App\Rules\CurrentAdminPassword;
 use Carbon\Carbon;
@@ -871,10 +872,14 @@ class AdminController extends Controller
                 'total' => Shift::count(),
                 'older_than_30_days' => Shift::where('shift_date', '<', Carbon::now()->subDays(30)->toDateString())->count(),
             ],
+            'quick_passes' => [
+                'total' => QuickPass::count(),
+                'older_than_30_days' => QuickPass::where('created_at', '<', Carbon::now()->subDays(30)->toDateTimeString())->count(),
+            ],
         ];
 
         $globalSettings = CleanupSetting::getInstance();
-        
+
         return view('Admin.CleanupSettings.cleanup_settings', compact('tableSettings', 'stats', 'globalSettings'));
     }
 
@@ -890,7 +895,7 @@ class AdminController extends Controller
         }
 
         $validated = $request->validate([
-            'table_name' => 'required|string|in:entry_logs,visit_requests,notifications,shift_logs,shifts',
+            'table_name' => 'required|string|in:entry_logs,visit_requests,notifications,shift_logs,shifts,quick_passes',
             'auto_delete_enabled' => 'required|boolean',
             'retention_days' => 'required|integer|min:0|max:365',
         ]);
@@ -919,7 +924,7 @@ class AdminController extends Controller
         }
 
         $validated = $request->validate([
-            'table_name' => 'required|string|in:entry_logs,visit_requests,notifications,shift_logs,shifts',
+            'table_name' => 'required|string|in:entry_logs,visit_requests,notifications,shift_logs,shifts,quick_passes',
             'retention_days' => 'required|integer|min:0|max:365',
         ]);
 
@@ -975,12 +980,23 @@ class AdminController extends Controller
             if (!CleanupTableSetting::isAutoDeleteEnabled('shifts')) {
                 return redirect()->back()->with('error', 'Auto-delete is disabled for shifts. Enable it first.');
             }
-            
+
             $cutoffDate = Carbon::now()->subDays($days);
             $deletedCount = Shift::where('shift_date', '<=', $cutoffDate->toDateString())->count();
             Shift::where('shift_date', '<=', $cutoffDate->toDateString())->delete();
-            
+
             CleanupTableSetting::getForTable('shifts')->updateLastCleanupDate();
+
+        } elseif ($tableName === 'quick_passes') {
+            if (!CleanupTableSetting::isAutoDeleteEnabled('quick_passes')) {
+                return redirect()->back()->with('error', 'Auto-delete is disabled for quick_passes. Enable it first.');
+            }
+
+            $cutoffDate = Carbon::now()->subDays($days);
+            $deletedCount = QuickPass::where('created_at', '<=', $cutoffDate->toDateTimeString())->count();
+            QuickPass::where('created_at', '<=', $cutoffDate->toDateTimeString())->delete();
+
+            CleanupTableSetting::getForTable('quick_passes')->updateLastCleanupDate();
         }
 
         $tableLabel = CleanupTableSetting::TABLES[$tableName];

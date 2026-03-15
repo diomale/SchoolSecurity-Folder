@@ -13,6 +13,8 @@ use App\Models\securityguard;
 use App\Models\Shift;
 use App\Models\ShiftLog;
 use App\Models\QuickPass;
+use App\Models\EventRegistration;
+use App\Models\Event;
 use Carbon\Carbon;
 
 class SecurityGuardController extends Controller
@@ -23,7 +25,7 @@ class SecurityGuardController extends Controller
         $guard = Auth::guard('securityguard')->user();
 
         // Get recent QR status change activities from ALL guards (shared notifications)
-        $recentActivities = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser'])
+        $recentActivities = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'eventRegistration'])
             ->whereNotNull('security_guard_user_id')
             ->orderBy('id', 'desc')
             ->limit(20)
@@ -299,8 +301,11 @@ class SecurityGuardController extends Controller
             $insideUser = InsideUser::where('qr_value', $qrValue)->first();
             $outsideUser = null;
             $quickPass = null;
+            $eventRegistration = null;
             $userType = 'inside';
             $user = null;
+
+            \Log::info('QR Scan attempt: ' . $qrValue);
 
             // If not found, try outside user
             if (!$insideUser) {
@@ -314,6 +319,17 @@ class SecurityGuardController extends Controller
                     if ($quickPass) {
                         $userType = 'quick_pass';
                         $user = $quickPass;
+                    } else {
+                        // Try event registration (QR codes start with EVT)
+                        \Log::info('Checking for event registration, starts with EVT: ' . (strpos($qrValue, 'EVT') === 0 ? 'YES' : 'NO'));
+                        if (strpos($qrValue, 'EVT') === 0) {
+                            $eventRegistration = EventRegistration::where('qr_code', $qrValue)->first();
+                            \Log::info('Event registration found: ' . ($eventRegistration ? 'YES' : 'NO'));
+                            if ($eventRegistration) {
+                                $userType = 'event';
+                                $user = $eventRegistration;
+                            }
+                        }
                     }
                 }
             } else {
@@ -436,7 +452,8 @@ class SecurityGuardController extends Controller
             }
 
             // Check if user's QR status is active
-            if (!in_array(strtolower($user->qr_status), ['active'])) {
+            // Note: Event registrations don't have qr_status field, so we only check for user types that have it
+            if ($userType !== 'event' && !in_array(strtolower($user->qr_status ?? ''), ['active'])) {
                 // Return user info even when QR is inactive (for display purposes)
                 return response()->json([
                     'success' => false,
@@ -475,6 +492,129 @@ class SecurityGuardController extends Controller
                 }
             }
 
+            // Handle Event Registration scanning
+            if ($userType === 'event' && $eventRegistration) {
+                // Check if event is approved
+                $event = $eventRegistration->event;
+                if (!$event) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '❌ Event not found for this registration',
+                        'user_type' => $userType,
+                        'event_registration' => [
+                            'id' => $eventRegistration->id,
+                            'fullname' => $eventRegistration->fullname,
+                            'qr_code' => $eventRegistration->qr_code,
+                            'email' => $eventRegistration->email,
+                        ],
+                        'event' => [
+                            'name' => 'Unknown',
+                            'status' => 'Unknown',
+                        ]
+                    ]);
+                }
+                
+                if ($event->status !== 'approved') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '❌ Event is not active (Status: ' . ucfirst($event->status) . ')',
+                        'user_type' => $userType,
+                        'event_registration' => [
+                            'id' => $eventRegistration->id,
+                            'fullname' => $eventRegistration->fullname,
+                            'qr_code' => $eventRegistration->qr_code,
+                            'email' => $eventRegistration->email,
+                        ],
+                        'event' => [
+                            'name' => $event->event_name ?? 'Unknown',
+                            'status' => $event->status ?? 'Unknown',
+                        ]
+                    ]);
+                }
+
+                // Check event date (allow today's events)
+                if (!$event->event_date || $event->event_date->lt(Carbon::today())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '❌ Event has already passed',
+                        'user_type' => $userType,
+                        'event_registration' => [
+                            'id' => $eventRegistration->id,
+                            'fullname' => $eventRegistration->fullname,
+                            'qr_code' => $eventRegistration->qr_code,
+                            'email' => $eventRegistration->email,
+                        ],
+                        'event' => [
+                            'name' => $event->event_name ?? 'Unknown',
+                            'date' => $event->event_date ? $event->event_date->format('M d, Y') : 'Unknown',
+                        ]
+                    ]);
+                }
+
+                // Handle check-in/check-out for event
+                // Toggle between: registered -> checked_in -> checked_out -> checked_in -> ...
+                $scanType = 'entry';
+                $message = '✓ Event check-in successful';
+
+                if ($eventRegistration->status === 'checked_in') {
+                    // Check out
+                    $scanType = 'exit';
+                    $message = '✓ Event check-out successful';
+
+                    $eventRegistration->update([
+                        'status' => 'checked_out',
+                        'checked_out_at' => now(),
+                    ]);
+                } elseif ($eventRegistration->status === 'checked_out') {
+                    // Re-check in (allow toggling)
+                    $scanType = 'entry';
+                    $message = '✓ Event check-in successful';
+
+                    $eventRegistration->update([
+                        'status' => 'checked_in',
+                        'checked_in_at' => now(),
+                    ]);
+                } elseif ($eventRegistration->status === 'registered') {
+                    // First check-in
+                    $eventRegistration->update([
+                        'status' => 'checked_in',
+                        'checked_in_at' => now(),
+                    ]);
+                }
+
+                // Log the scan for event registration
+                EntryLog::create([
+                    'inside_user_id' => null,
+                    'outside_user_id' => $eventRegistration->outside_user_id,
+                    'event_registration_id' => $eventRegistration->id,
+                    'quick_pass_id' => null,
+                    'qr_value' => $eventRegistration->qr_code,
+                    'security_guard_user_id' => $guardId,
+                    'scan_at' => Carbon::now()->toDateTimeString(),
+                    'scan_type' => $scanType,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'scan_type' => $scanType,
+                    'scan_at' => Carbon::now()->toDateTimeString(),
+                    'user_type' => $userType,
+                    'event_registration' => [
+                        'id' => $eventRegistration->id,
+                        'fullname' => $eventRegistration->fullname,
+                        'qr_code' => $eventRegistration->qr_code,
+                        'email' => $eventRegistration->email,
+                        'status' => $eventRegistration->status,
+                    ],
+                    'event' => [
+                        'name' => $event->event_name ?? 'Unknown',
+                        'date' => $event->event_date ? $event->event_date->format('M d, Y') : 'Unknown',
+                        'time' => $event->event_start_time ? $event->event_start_time->format('g:i A') : 'Unknown',
+                    ]
+                ]);
+            }
+
             // For inside users, check entry/exit logic
             if ($userType === 'inside') {
                 // Only consider actual entry/exit logs, NOT QR status toggle logs
@@ -506,15 +646,17 @@ class SecurityGuardController extends Controller
                     'scan_type' => $scanType,
                     'scan_at' => $entryLog->scan_at,
                     'user_type' => $userType,
-                    'inside_user' => [ 
+                    'inside_user' => [
                         'id' => $insideUser->id,
                         'fullname' => $getUserName($insideUser),
                         'qr_value' => $insideUser->qr_value,
                     ]
                 ]);
-            } else {
-                // For outside users, check entry/exit logic (alternate between entry and exit)
-                // Only consider actual entry/exit logs, NOT QR status toggle logs
+            }
+
+            // For outside users, check entry/exit logic (alternate between entry and exit)
+            // Only consider actual entry/exit logs, NOT QR status toggle logs
+            if ($userType === 'outside' && $outsideUser) {
                 $lastEntryLog = EntryLog::where('outside_user_id', $outsideUser->id)
                     ->whereIn('scan_type', ['entry', 'exit'])
                     ->latest('id')
@@ -543,7 +685,7 @@ class SecurityGuardController extends Controller
                     'scan_type' => $scanType,
                     'scan_at' => $entryLog->scan_at,
                     'user_type' => $userType,
-                    'inside_user' => [ 
+                    'inside_user' => [
                         'id' => $outsideUser->id,
                         'fullname' => $getUserName($outsideUser),
                         'qr_value' => $outsideUser->qr_value,
@@ -569,7 +711,7 @@ class SecurityGuardController extends Controller
         // Only show entry/exit logs in scanner history (exclude QR status toggles)
         $scans = EntryLog::where('security_guard_user_id', $guardId)
             ->whereIn('scan_type', ['entry', 'exit'])
-            ->with(['insideUser', 'outsideUser', 'quickPass'])
+            ->with(['insideUser', 'outsideUser', 'quickPass', 'eventRegistration'])
             ->orderBy('id', 'desc')
             ->limit(10)
             ->get();
@@ -580,25 +722,79 @@ class SecurityGuardController extends Controller
             $userType = 'unknown';
             $qrValue = 'N/A';
 
-            // Check for quick pass first
+            // Check for event registration first
+            if ($scan->eventRegistration) {
+                $fullname = $scan->eventRegistration->fullname;
+                $userType = 'event';
+                $qrValue = $scan->eventRegistration->qr_code;
+                
+                return [
+                    'event_registration' => [
+                        'fullname' => $fullname,
+                        'qr_code' => $qrValue,
+                    ],
+                    'scan_type' => $scan->scan_type,
+                    'scan_at' => $scan->scan_at,
+                    'user_type' => $userType,
+                ];
+            }
+            
+            // Check for quick pass
             if ($scan->quickPass) {
                 $fullname = $scan->quickPass->visitor_name . ' (Quick Pass)';
                 $userType = 'quick_pass';
                 $qrValue = $scan->quickPass->qr_value;
-            } elseif ($scan->insideUser) {
+                
+                return [
+                    'quick_pass' => [
+                        'visitor_name' => $fullname,
+                        'qr_value' => $qrValue,
+                    ],
+                    'scan_type' => $scan->scan_type,
+                    'scan_at' => $scan->scan_at,
+                    'user_type' => $userType,
+                ];
+            }
+            
+            // Check for inside user
+            if ($scan->insideUser) {
                 $fullname = $scan->insideUser->fullname ?: trim(($scan->insideUser->first_name ?? '') . ' ' . ($scan->insideUser->last_name ?? '')) ?: 'User ' . $scan->insideUser->id;
                 $userType = 'inside';
                 $qrValue = $scan->insideUser->qr_value;
-            } elseif ($scan->outsideUser) {
+                
+                return [
+                    'inside_user' => [
+                        'fullname' => $fullname,
+                        'qr_value' => $qrValue,
+                    ],
+                    'scan_type' => $scan->scan_type,
+                    'scan_at' => $scan->scan_at,
+                    'user_type' => $userType,
+                ];
+            }
+            
+            // Check for outside user
+            if ($scan->outsideUser) {
                 $fullname = $scan->outsideUser->fullname ?: trim(($scan->outsideUser->first_name ?? '') . ' ' . ($scan->outsideUser->last_name ?? '')) ?: 'User ' . $scan->outsideUser->id;
                 $userType = 'outside';
                 $qrValue = $scan->outsideUser->qr_value;
+                
+                return [
+                    'inside_user' => [
+                        'fullname' => $fullname,
+                        'qr_value' => $qrValue,
+                    ],
+                    'scan_type' => $scan->scan_type,
+                    'scan_at' => $scan->scan_at,
+                    'user_type' => $userType,
+                ];
             }
-
+            
+            // Fallback for unknown scans
             return [
                 'inside_user' => [
-                    'fullname' => $fullname,
-                    'qr_value' => $qrValue,
+                    'fullname' => 'Unknown User',
+                    'qr_value' => $scan->qr_value ?? 'N/A',
                 ],
                 'scan_type' => $scan->scan_type,
                 'scan_at' => $scan->scan_at,
@@ -616,7 +812,7 @@ class SecurityGuardController extends Controller
      */
     public function viewEntryLogs(Request $request)
     {
-        $query = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'quickPass']);
+        $query = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'quickPass', 'eventRegistration']);
 
         // Filter out QR status toggle logs (only show entry/exit)
         $query->whereNotIn('scan_type', ['qr_active', 'qr_inactive'])
@@ -652,7 +848,15 @@ class SecurityGuardController extends Controller
                 ->orWhereHas('quickPass', function($q) use ($search) {
                     $q->where('visitor_name', 'LIKE', "%{$search}%")
                       ->orWhere('vehicle_plate', 'LIKE', "%{$search}%");
-                });
+                })
+                // Or search in event registrations
+                ->orWhereHas('eventRegistration', function($q) use ($search) {
+                    $q->where('first_name', 'LIKE', "%{$search}%")
+                      ->orWhere('last_name', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
+                })
+                // Or search by QR value (for event registrations without outside_user_id)
+                ->orWhere('qr_value', 'LIKE', "%{$search}%");
             });
         }
 
@@ -669,30 +873,48 @@ class SecurityGuardController extends Controller
         $currentlyInsideCount = $totalEntriesToday - $totalExitsToday;
 
         // Get people currently inside (those whose last scan was entry)
-        // Using a more efficient subquery approach
-        $currentlyInsidePeople = EntryLog::select('inside_user_id', DB::raw('MAX(id) as latest_id'))
-            ->whereNotNull('inside_user_id')
+        // Get all users (inside, outside, event registrations) who entered but haven't exited
+        $allLogs = EntryLog::whereNotNull('qr_value')
             ->whereIn('scan_type', ['entry', 'exit'])
-            ->groupBy('inside_user_id')
-            ->get();
-        
-        // Get the actual latest log entries
-        $latestLogIds = $currentlyInsidePeople->pluck('latest_id');
-        $latestLogs = EntryLog::whereIn('id', $latestLogIds)
-            ->where('scan_type', 'entry')
-            ->with('insideUser')
+            ->orderBy('qr_value')
+            ->orderBy('id', 'desc')
             ->get()
-            ->map(function($log) {
-                return [
-                    'fullname' => $log->insideUser->fullname ?? 'Unknown',
-                    'email' => $log->insideUser->email ?? 'N/A',
-                    'qr_value' => $log->insideUser->qr_value ?? 'N/A',
-                    'role' => $log->insideUser->role ?? 'N/A',
-                    'scan_at' => $log->scan_at,
+            ->groupBy('qr_value');
+
+        $currentlyInsidePeople = collect();
+
+        foreach ($allLogs as $qrValue => $logs) {
+            $lastLog = $logs->first(); // Get the most recent log for this QR
+            if ($lastLog && $lastLog->scan_type === 'entry') {
+                // This user is currently inside
+                $person = [
+                    'fullname' => 'Unknown',
+                    'email' => 'N/A',
+                    'role' => 'N/A',
+                    'scan_at' => $lastLog->scan_at,
                 ];
-            });
-        
-        $currentlyInsidePeople = $latestLogs;
+
+                if ($lastLog->insideUser) {
+                    $person['fullname'] = $lastLog->insideUser->fullname ?? 'Unknown';
+                    $person['email'] = $lastLog->insideUser->email ?? 'N/A';
+                    $person['role'] = $lastLog->insideUser->role ?? 'N/A';
+                } elseif ($lastLog->outsideUser) {
+                    $person['fullname'] = $lastLog->outsideUser->fullname ?? 'Visitor';
+                    $person['email'] = $lastLog->outsideUser->email ?? 'N/A';
+                    $person['role'] = 'Visitor';
+                } elseif ($lastLog->eventRegistration) {
+                    $person['fullname'] = $lastLog->eventRegistration->fullname ?? 'Event Attendee';
+                    $person['email'] = $lastLog->eventRegistration->email ?? 'N/A';
+                    $person['role'] = 'Event';
+                } elseif ($lastLog->quickPass) {
+                    $person['fullname'] = $lastLog->quickPass->visitor_name ?? 'Quick Pass';
+                    $person['email'] = 'N/A';
+                    $person['role'] = 'Quick Pass';
+                }
+
+                $currentlyInsidePeople->push($person);
+            }
+        }
 
         $logs = $query->orderBy('scan_at', 'desc')->paginate(20);
 
@@ -888,7 +1110,15 @@ class SecurityGuardController extends Controller
      */
     public function showQuickPass(Request $request)
     {
-        $query = QuickPass::today()->notDeleted();
+        // Auto-expire active passes that are past their date/time before displaying
+        QuickPass::where('status', QuickPass::STATUS_ACTIVE)
+            ->where(function($q) {
+                $q->where('expires_at', '<', Carbon::now())
+                  ->orWhere('valid_date', '<', Carbon::today()->toDateString());
+            })
+            ->update(['status' => QuickPass::STATUS_EXPIRED]);
+
+        $query = QuickPass::notDeleted();
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -922,19 +1152,26 @@ class SecurityGuardController extends Controller
             'visitor_name' => 'required|string|max:150',
             'vehicle_plate' => 'nullable|string|max:20',
             'purpose' => 'required|in:Delivery,Meeting,Parent,Contractor,Other',
+            'expiry_time' => 'nullable',
         ]);
 
         // Generate unique QR code: QUICK-YYYYMMDD-RANDOM
         $qrValue = 'QUICK-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid() . rand(1000, 9999), -6));
 
-        // Create quick pass (expires tonight at 11:59 PM)
+        // Handle custom expiration time (for testing or early expiry)
+        $expiresAt = today()->endOfDay();
+        if ($request->filled('expiry_time')) {
+            $expiresAt = Carbon::parse(today()->toDateString() . ' ' . $request->expiry_time);
+        }
+
+        // Create quick pass
         $quickPass = QuickPass::create([
             'visitor_name' => $request->visitor_name,
             'vehicle_plate' => $request->vehicle_plate,
             'purpose' => $request->purpose,
             'qr_value' => $qrValue,
             'valid_date' => today(),
-            'expires_at' => today()->endOfDay(),
+            'expires_at' => $expiresAt,
             'status' => QuickPass::STATUS_ACTIVE,
             'created_by_guard_id' => Auth::guard('securityguard')->id(),
         ]);
@@ -950,6 +1187,11 @@ class SecurityGuardController extends Controller
     {
         $quickPass = QuickPass::findOrFail($id);
 
+        // Auto-expire if past expiration time or date
+        if ($quickPass->status === QuickPass::STATUS_ACTIVE && $quickPass->isExpired()) {
+            $quickPass->markAsExpired();
+        }
+
         return view('SecurityGuardUser.QuickPass.quick_pass_qr', compact('quickPass'));
     }
 
@@ -963,5 +1205,85 @@ class SecurityGuardController extends Controller
 
         return redirect()->route('security.quick-pass.list')
             ->with('success', 'Quick Pass deleted successfully!');
+    }
+
+    /**
+     * Scan event QR code
+     */
+    public function scanEventQR($qr)
+    {
+        // Find registration by QR code
+        $registration = EventRegistration::where('qr_code', $qr)->first();
+
+        if (!$registration) {
+            return view('SecurityGuardUser.event-qr-scan-result', [
+                'success' => false,
+                'message' => 'Invalid QR Code',
+                'details' => 'This QR code is not recognized in our system.',
+            ]);
+        }
+
+        // Check if event exists and is approved
+        $event = $registration->event;
+        if (!$event || $event->status !== Event::STATUS_APPROVED) {
+            return view('SecurityGuardUser.event-qr-scan-result', [
+                'success' => false,
+                'message' => 'Event Not Active',
+                'details' => 'This event is not currently active.',
+            ]);
+        }
+
+        // Check event date
+        if ($event->event_date->isPast()) {
+            return view('SecurityGuardUser.event-qr-scan-result', [
+                'success' => false,
+                'message' => 'Event Expired',
+                'details' => 'This event has already passed.',
+            ]);
+        }
+
+        // Handle check-in/check-out
+        $action = 'view';
+        $message = '';
+        
+        if ($registration->status === 'registered') {
+            // Check in
+            $registration->update([
+                'status' => 'checked_in',
+                'checked_in_at' => now(),
+            ]);
+            $action = 'checkin';
+            $message = 'Check-in successful!';
+        } elseif ($registration->status === 'checked_in') {
+            // Check out
+            $registration->update([
+                'status' => 'checked_out',
+                'checked_out_at' => now(),
+            ]);
+            $action = 'checkout';
+            $message = 'Check-out successful!';
+        } else {
+            $action = 'already';
+            $message = 'Already checked out';
+        }
+
+        // Log the scan
+        EntryLog::create([
+            'inside_user_id' => null,
+            'outside_user_id' => $registration->outside_user_id,
+            'quick_pass_id' => null,
+            'qr_value' => $qr,
+            'security_guard_user_id' => Auth::guard('securityguard')->id(),
+            'scan_at' => now()->format('Y-m-d H:i:s'),
+            'scan_type' => $registration->status === 'checked_out' ? 'exit' : 'entry',
+        ]);
+
+        return view('SecurityGuardUser.event-qr-scan-result', compact(
+            'registration',
+            'event',
+            'action',
+            'message',
+            'success'
+        ));
     }
 }

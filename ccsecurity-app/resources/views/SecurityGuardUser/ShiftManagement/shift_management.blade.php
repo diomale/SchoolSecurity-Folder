@@ -9,7 +9,7 @@
     <div>
         <!-- Header -->
         <div>
-            <h1>🕐 Shift Management</h1>
+            <h1> Shift Management</h1>
             <a href="{{ route('security.dashboard') }}">← Back to Dashboard</a>
         </div>
 
@@ -29,11 +29,11 @@
         <!-- Statistics Cards -->
         <div>
             <div>
-                <h3>📊 Shifts This Week</h3>
+                <h3> Shifts This Week</h3>
                 <p>{{ $totalShiftsThisWeek }}</p>
             </div>
             <div>
-                <h3>⏱️ Hours This Week</h3>
+                <h3> Hours This Week</h3>
                 <p>{{ number_format($totalHoursThisWeek, 1) }}</p>
             </div>
         </div>
@@ -42,19 +42,19 @@
         <div>
             @if($currentShiftLog)
             <div>
-                <h2>✅ Currently On Shift</h2>
+                <h2> Currently On Shift</h2>
                 <div>{{ $currentShiftLog->clock_in_time->format('h:i A') }}</div>
                 <div>Clocked in at {{ $currentShiftLog->clock_in_time->format('M d, Y') }}</div>
                 <div>
                     <form method="POST" action="{{ route('security.clock.out') }}">
                         @csrf
                         <button type="submit" onclick="return confirm('Clock out from your shift?')">
-                            🕐 Clock Out
+                             Clock Out
                         </button>
                     </form>
                     @if($currentShiftLog->id)
                     <button type="button" onclick="document.getElementById('handover-form').style.display='block'">
-                        📝 Add Handover Note
+                         Add Handover Note
                     </button>
                     @endif
                 </div>
@@ -62,7 +62,7 @@
 
             <!-- Handover Note Form -->
             <div id="handover-form" style="display: none;">
-                <h3>📝 Handover Note for Next Guard</h3>
+                <h3> Handover Note for Next Guard</h3>
                 <form method="POST" action="{{ route('security.submit.handover') }}">
                     @csrf
                     <input type="hidden" name="shift_log_id" value="{{ $currentShiftLog->id }}">
@@ -84,13 +84,13 @@
 
             @else
             <div>
-                <h2>⏰ Not Currently On Shift</h2>
+                <h2> Not Currently On Shift</h2>
                 <div>{{ today()->format('l, F d, Y') }}</div>
                 <div>
                     <form method="POST" action="{{ route('security.clock.in') }}">
                         @csrf
                         <button type="submit">
-                            🕐 Clock In
+                             Clock In
                         </button>
                     </form>
                 </div>
@@ -101,7 +101,7 @@
         <!-- Today's Scheduled Shift -->
         @if($todayShift)
         <div>
-            <h3>📅 Today's Scheduled Shift</h3>
+            <h3> Today's Scheduled Shift</h3>
             <div>
                 <p><strong>Date:</strong> {{ $todayShift->shift_date->format('F d, Y') }}</p>
                 <p><strong>Shift Time:</strong> {{ \Carbon\Carbon::parse($todayShift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($todayShift->end_time)->format('h:i A') }}</p>
@@ -116,7 +116,7 @@
 
         <!-- Recent Shift History -->
         <div>
-            <h3>📜 Recent Shift History</h3>
+            <h3> Recent Shift History</h3>
             @if($recentShiftLogs->count() > 0)
             <div>
                 <table>
@@ -146,15 +146,15 @@
             </div>
             @else
             <div>
-                <p>📭 No shift history available yet.</p>
+                <p> No shift history available yet.</p>
             </div>
             @endif
         </div>
 
         <!-- Navigation Links -->
         <div>
-            <a href="{{ route('security.shift.schedule') }}">📅 View Schedule</a>
-            <a href="{{ route('security.shift.history') }}">📜 Full History</a>
+            <a href="{{ route('security.shift.schedule') }}"> View Schedule</a>
+            <a href="{{ route('security.shift.history') }}"> Full History</a>
         </div>
     </div>
 </body>

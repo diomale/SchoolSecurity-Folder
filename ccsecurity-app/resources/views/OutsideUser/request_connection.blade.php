@@ -71,7 +71,7 @@
 
         @if(session('success'))
         <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 15px 0;">
-            ✓ {{ session('success') }}
+            {{ session('success') }}
         </div>
         @endif
 
@@ -89,13 +89,13 @@
         <!-- Connected Children Section -->
         @if($connectedChildren->count() > 0)
         <div class="connection-card">
-            <h2>✓ Your Connected Children</h2>
+            <h2>Your Connected Children</h2>
             <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>QR Value</th>
+                        <th>QR Status</th>
                         <th>Relationship</th>
                         <th>Connected Since</th>
                     </tr>
@@ -105,7 +105,13 @@
                     <tr>
                         <td>{{ $child->fullname }}</td>
                         <td>{{ $child->email }}</td>
-                        <td>{{ $child->qr_value }}</td>
+                        <td>
+                            @if($child->qr_status === 'active')
+                                <span style="color: #4caf50; font-weight: 600;">● ACTIVE</span>
+                            @else
+                                <span style="color: #f44336; font-weight: 600;">● INACTIVE</span>
+                            @endif
+                        </td>
                         <td>{{ $child->pivot->relationship }}</td>
                         <td>{{ \Carbon\Carbon::parse($child->pivot->approved_at)->format('M d, Y h:i A') }}</td>
                     </tr>
@@ -118,10 +124,10 @@
         <!-- Pending Requests Section -->
         @if($pendingRequests->count() > 0)
         <div class="connection-card">
-            <h2>⏳ Pending Requests</h2>
+            <h2> Pending Requests</h2>
             
             <div class="info-box">
-                <strong>ℹ️ How it works:</strong>
+                <strong>ℹ How it works:</strong>
                 <ol style="margin: 10px 0 0 20px; padding: 0;">
                     <li>After you submit a request, the student will review it</li>
                     <li>Once the student accepts, you're immediately connected!</li>
@@ -149,22 +155,22 @@
                         <td>{{ $request->relationship }}</td>
                         <td>
                             @if($request->inside_user_approval === 'accepted')
-                                <span class="status-approved">✓ Accepted</span>
+                                <span class="status-approved"> Accepted</span>
                             @elseif($request->inside_user_approval === 'rejected')
-                                <span class="status-rejected">✗ Rejected</span>
+                                <span class="status-rejected"> Rejected</span>
                             @else
-                                <span class="status-pending">⏳ Awaiting Student</span>
+                                <span class="status-pending"> Awaiting Student</span>
                             @endif
                         </td>
                         <td>
                             @if($request->status === 'approved')
-                                <span class="status-approved">✓ Connected</span>
+                                <span class="status-approved"> Connected</span>
                             @elseif($request->status === 'rejected')
-                                <span class="status-rejected">✗ Rejected</span>
+                                <span class="status-rejected"> Rejected</span>
                             @elseif($request->inside_user_approval === 'accepted')
-                                <span class="status-approved">✓ Auto-approved</span>
+                                <span class="status-approved"> Auto-approved</span>
                             @else
-                                <span class="status-pending">⏳ Pending</span>
+                                <span class="status-pending"> Pending</span>
                             @endif
                         </td>
                         <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
@@ -188,7 +194,7 @@
 
         <!-- Request Form Section -->
         <div class="connection-card">
-            <h2>📝 Request New Connection</h2>
+            <h2> Request New Connection</h2>
             <p>Search for your child by name or email to request a connection</p>
             
             <form action="{{ route('outsideuser.connections.submit') }}" method="POST">

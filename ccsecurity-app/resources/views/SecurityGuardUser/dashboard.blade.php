@@ -108,7 +108,7 @@
                     </li>
                     <li>
                         <a href="{{ route('security.quick-pass.list') }}">
-                            <strong>🎫 Quick Pass</strong> - Create temporary same-day visitor passes (for visitors in vehicles)
+                            <strong> Quick Pass</strong> - Create temporary same-day visitor passes (for visitors in vehicles)
                         </a>
                     </li>
                 </ul>
@@ -119,63 +119,56 @@
         <div id="profile" class="tab-content">
             <h2>User Profile</h2>
 
-            <div>
-                <h3>Guard Information</h3>
-                <table border="1" cellpadding="10">
-                    <tr>
-                        <th>Full Name:</th>
-                        <td>{{ $guard->fullname }}</td>
-                    </tr>
-                    <tr>
-                        <th>First Name:</th>
-                        <td>{{ $guard->first_name }}</td>
-                    </tr>
-                    <tr>
-                        <th>Last Name:</th>
-                        <td>{{ $guard->last_name }}</td>
-                    </tr>
-                    <tr>
-                        <th>Email:</th>
-                        <td>{{ $guard->email }}</td>
-                    </tr>
-                    <tr>
-                        <th>Status:</th>
-                        <td>
-                            @if($guard->status == 1)
-                                ✓ Active
-                            @else
-                                ✗ Inactive
-                            @endif
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                    <th width="200">Full Name:</th>
+                    <td>{{ $guard->fullname }}</td>
+                </tr>
+                <tr>
+                    <th>First Name:</th>
+                    <td>{{ $guard->first_name }}</td>
+                </tr>
+                <tr>
+                    <th>Last Name:</th>
+                    <td>{{ $guard->last_name }}</td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td>{{ $guard->email }}</td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td>
+                        @if($guard->status == 1)
+                             Active
+                        @else
+                             Inactive
+                        @endif
+                    </td>
+                </tr>
+            </table>
 
-            <hr>
-
-            <div>
-                <h3>My Statistics</h3>
-                <table border="1" cellpadding="10">
-                    <tr>
-                        <th>Total Scans</th>
-                        <th>Scans Today</th>
-                        <th>Entries Today</th>
-                        <th>Exits Today</th>
-                    </tr>
-                    <tr>
-                        <td>{{ $totalScans }}</td>
-                        <td>{{ $todayScans }}</td>
-                        <td>{{ $todayEntries }}</td>
-                        <td>{{ $todayExits }}</td>
-                    </tr>
-                </table>
-            </div>
+            <h3>My Statistics</h3>
+            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
+                <tr>
+                    <th>Total Scans</th>
+                    <th>Scans Today</th>
+                    <th>Entries Today</th>
+                    <th>Exits Today</th>
+                </tr>
+                <tr>
+                    <td align="center">{{ $totalScans }}</td>
+                    <td align="center">{{ $todayScans }}</td>
+                    <td align="center">{{ $todayEntries }}</td>
+                    <td align="center">{{ $todayExits }}</td>
+                </tr>
+            </table>
         </div>
 
         <!-- Notifications Tab -->
         <div id="notifications" class="tab-content">
-            <h2>Notifications - QR Status Management Activities</h2>
-            <p><em>View recent QR code activations/deactivations and scan activities by all security guards.</em></p>
+            <h2>Notifications - Recent Activities</h2>
+            <p><em>Recent QR code activations/deactivations and scan activities by all security guards.</em></p>
 
             @if(isset($recentActivities) && $recentActivities->count() > 0)
             <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
@@ -183,10 +176,9 @@
                     <tr>
                         <th>Time</th>
                         <th>User</th>
-                        <th>User Type</th>
-                        <th>Activity Type</th>
-                        <th>Details</th>
-                        <th>Guard</th>
+                        <th>Type</th>
+                        <th>Activity</th>
+                        <th>Scanned By</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -194,7 +186,9 @@
                     <tr>
                         <td>{{ \Carbon\Carbon::parse($activity->scan_at)->format('M d, Y h:i A') }}</td>
                         <td>
-                            @if($activity->insideUser)
+                            @if($activity->eventRegistration)
+                                {{ $activity->eventRegistration->fullname }} 
+                            @elseif($activity->insideUser)
                                 {{ $activity->insideUser->fullname }}
                             @elseif($activity->outsideUser)
                                 {{ $activity->outsideUser->fullname ?? ($activity->outsideUser->first_name . ' ' . $activity->outsideUser->last_name) }}
@@ -203,19 +197,14 @@
                             @endif
                         </td>
                         <td>
-                            @if($activity->insideUser)
+                            @if($activity->eventRegistration)
+                                Event
+                            @elseif($activity->insideUser)
                                 Inside User
                             @elseif($activity->outsideUser)
-                                Outside User (Visitor)
+                                Visitor
                             @else
-                                QR Status Change
-                            @endif
-                        </td>
-                        <td>
-                            @if(str_starts_with($activity->scan_type, 'qr_'))
-                                 QR Status Toggle
-                            @else
-                                 {{ strtoupper($activity->scan_type) }}
+                                QR Status
                             @endif
                         </td>
                         <td>
@@ -223,11 +212,11 @@
                                 @php
                                     $status = str_replace('qr_', '', $activity->scan_type);
                                 @endphp
-                                QR code <strong>{{ strtoupper($status) }}</strong>
+                                QR {{ strtoupper($status) }}
                             @elseif($activity->scan_type === 'entry')
-                                User entered the premises
+                                 Entry
                             @elseif($activity->scan_type === 'exit')
-                                User exited the premises
+                                 Exit
                             @else
                                 {{ $activity->scan_type }}
                             @endif
@@ -241,10 +230,10 @@
                                         $guardName = trim($activity->securityGuardUser->first_name . ' ' . $activity->securityGuardUser->last_name);
                                     }
                                     if (empty($guardName)) {
-                                        $guardName = 'Guard ID: ' . $activity->security_guard_user_id;
+                                        $guardName = 'Guard #' . $activity->security_guard_user_id;
                                     }
                                 } else {
-                                    $guardName = 'Guard ID: ' . $activity->security_guard_user_id;
+                                    $guardName = 'Guard #' . $activity->security_guard_user_id;
                                 }
                             @endphp
                             {{ $guardName }}
