@@ -107,6 +107,9 @@
                         {!! QrCode::size(150)->generate(route('public.event.register', ['code' => $event->id])) !!}
                     </div>
                     <p style="font-size: 12px; color: #666; text-align: center;">Scan to register for this event</p>
+                    <p style="font-size: 10px; color: #999; text-align: center; word-break: break-all; padding: 0 10px;">
+                        {{ route('public.event.register', ['code' => $event->id]) }}
+                    </p>
                 </div>
                 @endif
 
