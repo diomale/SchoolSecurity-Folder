@@ -28,8 +28,8 @@ Route::post('/event/register/{eventId}/submit', [InsideUserEventController::clas
 // --- SUPER ADMIN ROUTES --- //
 Route::prefix('superadmin')->group(function () {
 
-    
-    Route::middleware('guest:superadmin')->group(function () {
+
+    Route::middleware(['redirect.auth', 'guest:superadmin'])->group(function () {
         Route::get('/login', [SuperAdminAuthController::class, 'showLogin'])->name('superadmin.login');
         Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('superadmin.login.submit');
     });
@@ -57,7 +57,7 @@ Route::prefix('superadmin')->group(function () {
 Route::prefix('admin')->group(function () {
 
 
-    Route::middleware('guest:admin')->group(function(){
+    Route::middleware(['redirect.auth', 'guest:admin'])->group(function(){
         Route::get('/login', [AdminController::class, 'showAdminLogin'])->name('admin.login');
         Route::post('/login',[AdminController::class, 'login'])->name('admin.login.submit');
     });
@@ -149,7 +149,7 @@ use App\Http\Controllers\EventCreatorApprovalController;
 Route::prefix('insideuser')->group(function(){
 
 
-    Route::middleware('guest:insideuser')->group(function(){
+    Route::middleware(['redirect.auth', 'guest:insideuser'])->group(function(){
         Route::get('/login',[InsideUserController::class, 'showUserLogin'])->name('user.login.show');
         Route::post('/login',[InsideUserController::class, 'login'])->name('insideuser.login.submit');
 
@@ -201,7 +201,7 @@ Route::prefix('insideuser')->group(function(){
 Route::prefix('securityguard')->group(function(){
 
 
-    Route::middleware('guest:securityguard')->group(function(){
+    Route::middleware(['redirect.auth', 'guest:securityguard'])->group(function(){
         Route::get('/login', [SecurityGuardController::class, 'showLogin'])->name('security.login.show');
         Route::post('/login', [SecurityGuardController::class, 'login'])->name('security.login.submit');
 
@@ -257,7 +257,7 @@ use App\Http\Controllers\ParentConnectionController;
 Route::prefix('outsideuser')->group(function(){
 
 
-    Route::middleware('guest:outsideuser')->group(function(){
+    Route::middleware(['redirect.auth', 'guest:outsideuser'])->group(function(){
         Route::get('/signup', [OutsideUserController::class, 'showSignup'])->name('outsideuser.signup.show');
         Route::get('/login', [OutsideUserController::class, 'ShowLogin'])->name('outsideuser.login.show');
         Route::post('/login', [OutsideUserController::class, 'Login'])->name('outsideuser.login.submit');

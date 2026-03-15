@@ -12,7 +12,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Register custom middleware for redirecting authenticated users
+        $middleware->alias([
+            'redirect.auth' => \App\Http\Middleware\RedirectAuthenticated::class,
+        ]);
+        
+        // Redirect unauthenticated users to appropriate login pages
+        $middleware->redirectGuestsTo(function ($request) {
+            $path = $request->path();
+            
+            // Public routes stay on welcome page
+            if ($path === '/' || $path === '') {
+                return '/';
+            }
+            
+            // Default login redirect
+            return '/';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
