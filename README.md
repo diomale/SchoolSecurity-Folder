@@ -1,160 +1,137 @@
-🛡️ Campus Security Monitoring System
+# 🛡️ Campus Security Monitoring System
 
-A Laravel-based security monitoring system designed to manage:
- 
- 👤 Super Admin
- 
- 🧑‍💼 Admin
- 
- 🏫 Inside Users
- 
- 🌍 Outside Users
- 
- 🛂 Security Guards
+[![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 
-This system supports multi-authentication and dual database configuration.
+A robust, Laravel-based security monitoring system designed for comprehensive campus management. This system features multi-role authentication, QR-based access control, and a dual-database architecture for enhanced security and performance.
 
-🚀 System Requirements
+---
 
- Make sure you have the following installed:
- 
-  PHP >= 8.1
-  
-  Composer
-  
-  MySQL
-  
-  Node.js & NPM
-  
-  Laravel 10+
+## 👥 User Roles & Access Levels
 
-📦 Installation Guide
+*   **👑 Super Admin**: Full system configuration and top-level oversight.
+*   **🧑‍💼 Admin**: Departmental management and user administration.
+*   **🏫 Inside Users**: Students, faculty, or staff members.
+*   **🌍 Outside Users**: Visitors and external guests.
+*   **🛂 Security Guards**: Front-line operators for scanning and log management.
 
- 1️⃣ Clone the Repository
- git clone https://your-repository-link.git
- cd your-project-folder
- 
- 2️⃣ Install Dependencies
- composer install
- npm install
- 
- 3️⃣ Create Environment File
- cp .env.example .env
- 
- 
- 4️⃣ Configure .env File
+---
 
-Update your database configuration:
+## ✨ Key Features
 
- APP_NAME=Laravel
- APP_ENV=local
- APP_DEBUG=true
- APP_URL=http://localhost
- 
- DB_CONNECTION=mysql
- DB_HOST=
- DB_PORT=
- DB_DATABASE=ccsecurity-db
- DB_USERNAME=your_username
- DB_PASSWORD=your_password
- 
- # Secondary Database
- DB_SECOND_CONNECTION=mysql
- DB_SECOND_HOST=
- DB_SECOND_PORT=
- DB_SECOND_DATABASE=SecuritySystemDatabase
- DB_SECOND_USERNAME=your_username
- DB_SECOND_PASSWORD=your_password
+- **Multi-Auth System**: Independent dashboards and logic for all 5 user roles.
+- **QR Code Management**: Dynamic QR generation for visitors and staff with automated deactivation.
+- **Visitor Tracking**: Visit request workflows, connection history, and real-time notifications.
+- **Security Guard Tools**: Integrated QR scanner interface, entry/exit logging, and shift management.
+- **Automated Maintenance**: Scheduled cleanup for old notifications, shift logs, and expired QR codes.
+- **Dual Database Support**: Configured to handle primary application data and secondary security logs separately.
+- **reCAPTCHA Integration**: Enhanced bot protection on all authentication forms.
 
-⚠️ Replace credentials with your own database credentials.
+---
 
- 5️⃣ Generate Application Key
-      php artisan key:generate
- 
- 6️⃣ Run Migrations
-      php artisan migrate
- 
- If you are using multiple databases, make sure both databases are created in MySQL before running migrations.
- 
- 7️⃣ Start the Server
+## 🚀 Getting Started
+
+### Prerequisites
+
+- PHP >= 8.1
+- Composer
+- MySQL
+- Node.js & NPM
+- Laravel 10+
+
+### Installation Guide
+
+1.  **Clone the Repository**
+    ```bash
+    git clone https://your-repository-link.git
+    cd SchoolSecurity-Folder/ccsecurity-app
+    ```
+
+2.  **Install Dependencies**
+    ```bash
+    composer install
+    npm install
+    ```
+
+3.  **Environment Setup**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+
+4.  **Configure Databases**
+    Update your `.env` with your MySQL credentials. Note the secondary connection for security logs:
+    ```env
+    # Primary Database
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=ccsecurity_db
+    DB_USERNAME=root
+    DB_PASSWORD=
+
+    # Secondary Security Database
+    DB_SECOND_CONNECTION=mysql
+    DB_SECOND_HOST=127.0.0.1
+    DB_SECOND_PORT=3306
+    DB_SECOND_DATABASE=SecuritySystemDatabase
+    DB_SECOND_USERNAME=root
+    DB_SECOND_PASSWORD=
+    ```
+
+5.  **Run Migrations & Seeders**
+    ```bash
+    php artisan migrate
+    # If seeders are available:
+    # php artisan db:seed
+    ```
+
+6.  **Build Assets & Launch**
+    ```bash
+    npm run dev
+    # In a new terminal:
     php artisan serve
+    ```
 
-Then visit:
+---
 
-    http://localhost:8000
- 
-🔎 reCAPTCHA Configuration
+## 🛠️ Development & Maintenance
 
-This system uses Google reCAPTCHA.
+| Action | Command |
+| :--- | :--- |
+| **Clear All Caches** | `php artisan optimize:clear` |
+| **Run Scheduled Tasks** | `php artisan schedule:run` |
+| **Rebuild JS/CSS** | `npm run build` |
+| **Run Cleanup Manually**| `php artisan app:run-all-cleanup` |
 
-Add your keys in .env:
+---
 
-    RECAPTCHA_SITE_KEY=your_site_key
-    RECAPTCHA_SECRET_KEY=your_secret_key
+## 📁 Project Structure Highlights
 
-You can get keys from:
-    https://www.google.com/recaptcha
+- `app/Http/Controllers/`: Role-specific logic (Admin, Security, etc.)
+- `app/Models/`: Core entities like `QuickPass`, `EntryLog`, and `Shift`.
+- `app/Console/Commands/`: Automated cleanup routines.
+- `resources/views/`: Blade templates organized by user role.
+- `resources/css/`: Modular stylesheets for each dashboard type.
 
-🛠️ Development Commands
+---
 
- Clear cache:
- 
-     php artisan optimize:clear
- 
- Rebuild assets:
- 
-   npm run dev or composer run dev
+## 🔒 Security Best Practices
 
- 📁 Project Structure Overview
-  app/
-   ├── Http/Controllers/
-   ├── Models/
-  resources/
-   ├── views/
-  routes/
-   ├── web.php
-    🧪 Troubleshooting
-   ❌ Database Connection Error
-  
-    Check .env
-    
-    Make sure MySQL is running
-    
-    Verify database names
-  
-  ❌ Login Not Working
-  
-     Check guard configuration in config/auth.php
-     
-     Verify status column values
+- [ ] **Production Env**: Set `APP_DEBUG=false` and `APP_ENV=production`.
+- [ ] **API Protection**: Ensure `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` are configured.
+- [ ] **Secrets**: Never commit your `.env` file to version control.
+- [ ] **Caching**: Run `php artisan config:cache` in production for speed and security.
 
-🔒 Security Reminder
+---
 
-  Never commit .env file to GitHub
-  
-  Change default database passwords
-  
-  Use strong production keys
-  
-  Set APP_DEBUG=false in production
+## 👨‍💻 Development Team
 
-📌 Production Deployment Notes
+**BitStack Studio**
+- **Diomale Romero**
+- **Rushield Tan**
+- **Charlize Agsaoay**
 
-Before deploying:
-
-  APP_ENV=production
-  APP_DEBUG=false
-
-Run:
-
-    php artisan config:cache
-    php artisan route:cache
-    php artisan view:cache
-
-👨‍💻 Developed By
-1. Diomale Romero
-2. Rushield Tan
-3. Charlize Agsaoay
-
-BitStack Studio
-2026
+&copy; 2026 BitStack Studio. All rights reserved.
