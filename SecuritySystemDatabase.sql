@@ -383,12 +383,14 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`events` (
   `status` VARCHAR(50) NOT NULL DEFAULT 'pending' COMMENT 'pending, approved, rejected, cancelled, completed',
   `admin_remarks` TEXT NULL DEFAULT NULL,
   `approved_at` TIMESTAMP NULL DEFAULT NULL,
+  `show_on_welcome` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=show event on welcome page, 0=hide',
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   INDEX `fk_events_inside_user_idx` (`inside_user_id` ASC),
   INDEX `idx_events_status` (`status` ASC),
   INDEX `idx_events_date` (`event_date` ASC),
+  INDEX `idx_events_show_welcome` (`show_on_welcome` ASC),
   CONSTRAINT `fk_events_inside_user`
     FOREIGN KEY (`inside_user_id`)
     REFERENCES `securitysystemdatabase`.`inside_user` (`id`)
@@ -419,6 +421,8 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`event_registrations` (
   `status` VARCHAR(50) NOT NULL DEFAULT 'registered' COMMENT 'registered, checked_in, checked_out',
   `checked_in_at` TIMESTAMP NULL DEFAULT NULL,
   `checked_out_at` TIMESTAMP NULL DEFAULT NULL,
+  `needs_creator_approval` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=requires creator approval before QR is sent',
+  `creator_approved_at` TIMESTAMP NULL DEFAULT NULL COMMENT 'Timestamp when event creator approved the registration',
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
@@ -426,6 +430,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`event_registrations` (
   INDEX `fk_event_registrations_outside_user_idx` (`outside_user_id` ASC),
   INDEX `idx_registrations_status` (`status` ASC),
   INDEX `idx_registrations_qr_code` (`qr_code` ASC),
+  INDEX `idx_registrations_needs_approval` (`needs_creator_approval` ASC),
   CONSTRAINT `fk_event_registrations_events`
     FOREIGN KEY (`event_id`)
     REFERENCES `securitysystemdatabase`.`events` (`id`)
@@ -439,7 +444,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`event_registrations` (
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
-COMMENT = 'Stores event registrations for alien users with QR codes';
+COMMENT = 'Stores event registrations for alien users with QR codes and creator approval workflow';
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

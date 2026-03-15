@@ -9,7 +9,17 @@ use App\Http\Controllers\InsideUserEventController;
 use App\Http\Controllers\OutsideUserController;
 use App\Http\Controllers\SecurityGuardController;
 
-Route::get('/', function () {return view('welcome');})->name('welcome');
+Route::get('/', function () {
+    $publicEvents = \App\Models\Event::with(['insideUser'])
+        ->withCount('registrations')
+        ->where('show_on_welcome', true)
+        ->where('status', \App\Models\Event::STATUS_APPROVED)
+        ->where('event_date', '>=', now()->toDateString())
+        ->orderBy('event_date', 'asc')
+        ->paginate(9);
+
+    return view('welcome', compact('publicEvents'));
+})->name('welcome');
 
 // Public event registration routes (no login required)
 Route::get('/event/register/{code}', [InsideUserEventController::class, 'showPublicRegistration'])->name('public.event.register');
@@ -134,6 +144,7 @@ Route::prefix('admin')->group(function () {
 //-- INSIDE USER --//
 
 use App\Http\Controllers\InsideUserConnectionController;
+use App\Http\Controllers\EventCreatorApprovalController;
 
 Route::prefix('insideuser')->group(function(){
 
@@ -166,10 +177,21 @@ Route::prefix('insideuser')->group(function(){
         Route::put('/events/{id}/update', [InsideUserEventController::class, 'update'])->name('insideuser.events.update');
         Route::delete('/events/{id}/cancel', [InsideUserEventController::class, 'cancel'])->name('insideuser.events.cancel');
         Route::get('/events/{id}/registrations', [InsideUserEventController::class, 'registrations'])->name('insideuser.events.registrations');
-        Route::post('/events/{eventId}/register-walkin', [InsideUserEventController::class, 'registerWalkin'])->name('insideuser.events.registerWalkin');
+        Route::get('/events/{id}/pending-approvals', [EventCreatorApprovalController::class, 'pendingApprovals'])->name('insideuser.events.pending-approvals');
+        Route::post('/events/register-walkin', [InsideUserEventController::class, 'registerWalkin'])->name('insideuser.events.registerWalkin');
         Route::get('/events/registrations/{registrationId}/download-qr', [InsideUserEventController::class, 'downloadQR'])->name('insideuser.events.downloadQR');
         Route::get('/events/registrations/{registrationId}/resend-qr', [InsideUserEventController::class, 'resendQR'])->name('insideuser.events.resendQR');
         Route::get('/events/{id}/export-registrations', [InsideUserEventController::class, 'exportRegistrations'])->name('insideuser.events.exportRegistrations');
+        Route::post('/events/{id}/toggle-welcome', [InsideUserEventController::class, 'toggleWelcomeVisibility'])->name('insideuser.events.toggle-welcome');
+
+        // Event Creator Approval routes
+        Route::prefix('events/approvals')->group(function() {
+            Route::get('/{eventId}', [EventCreatorApprovalController::class, 'pendingApprovals'])->name('insideuser.events.approvals.pending');
+            Route::post('/{registrationId}/approve', [EventCreatorApprovalController::class, 'approve'])->name('insideuser.events.approvals.approve');
+            Route::post('/{registrationId}/reject', [EventCreatorApprovalController::class, 'reject'])->name('insideuser.events.approvals.reject');
+            Route::post('/{eventId}/bulk-approve', [EventCreatorApprovalController::class, 'bulkApprove'])->name('insideuser.events.approvals.bulk-approve');
+            Route::post('/{eventId}/bulk-reject', [EventCreatorApprovalController::class, 'bulkReject'])->name('insideuser.events.approvals.bulk-reject');
+        });
 
 
     });

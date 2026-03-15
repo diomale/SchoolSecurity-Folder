@@ -95,6 +95,7 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>QR Code</th>
+                        <th>Approval Status</th>
                         <th>Status</th>
                         <th>Registered</th>
                         <th>Actions</th>
@@ -109,12 +110,28 @@
                         <td>{{ $reg->phone_number ?? '-' }}</td>
                         <td><code style="font-size: 11px; background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">{{ $reg->qr_code }}</code></td>
                         <td>
+                            @if($reg->needs_creator_approval && !$reg->creator_approved_at)
+                                <span class="badge" style="background: #fff3cd; color: #856404;">Pending Approval</span>
+                            @else
+                                <span class="badge" style="background: #d4edda; color: #155724;">Approved</span>
+                                @if($reg->creator_approved_at)
+                                    <div style="font-size: 10px; color: #666; margin-top: 3px;">
+                                        {{ $reg->creator_approved_at->format('M d, g:i A') }}
+                                    </div>
+                                @endif
+                            @endif
+                        </td>
+                        <td>
                             <span class="badge badge-green">{{ ucfirst($reg->status) }}</span>
                         </td>
                         <td>{{ $reg->created_at->format('M d, Y g:i A') }}</td>
                         <td>
-                            <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" class="nav-link" title="Download QR"></a>
-                            <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" class="nav-link" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')"></a>
+                            @if($reg->creator_approved_at)
+                                <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" class="nav-link" title="Download QR">⬇</a>
+                                <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" class="nav-link" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')">✉</a>
+                            @else
+                                <span style="color: #999; font-size: 12px;">Awaiting approval</span>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

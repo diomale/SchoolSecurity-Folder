@@ -338,6 +338,34 @@ class InsideUserEventController extends Controller
     }
 
     // =========================================================================
+    // TOGGLE EVENT VISIBILITY ON WELCOME PAGE
+    // =========================================================================
+
+    public function toggleWelcomeVisibility($id)
+    {
+        $insideUser = Auth::guard('insideuser')->user();
+        $event = Event::where('id', $id)
+            ->where('inside_user_id', $insideUser->id)
+            ->firstOrFail();
+
+        // Only approved events can be shown
+        if ($event->status !== Event::STATUS_APPROVED) {
+            return redirect()->back()
+                ->with('error', 'Only approved events can be displayed publicly.');
+        }
+
+        $event->update([
+            'show_on_welcome' => !$event->show_on_welcome,
+        ]);
+
+        return redirect()->back()
+            ->with('success', $event->show_on_welcome 
+                ? 'Event is now visible on the welcome page.'
+                : 'Event is now hidden from the welcome page.'
+            );
+    }
+
+    // =========================================================================
     // PUBLIC EVENT REGISTRATION (No Login Required)
     // =========================================================================
 
@@ -393,7 +421,7 @@ class InsideUserEventController extends Controller
         // Generate unique QR code
         $qrCode = EventRegistration::generateQRCode($event->id);
 
-        // Create registration
+        // Create registration - requires creator approval before QR is sent
         $registration = EventRegistration::create([
             'event_id' => $event->id,
             'outside_user_id' => null, // Public registration, no account
@@ -403,21 +431,11 @@ class InsideUserEventController extends Controller
             'phone_number' => $request->phone_number,
             'qr_code' => $qrCode,
             'status' => EventRegistration::STATUS_REGISTERED,
+            'needs_creator_approval' => true, // Requires approval
+            'creator_approved_at' => null,
         ]);
 
-        // Send email with QR code (QR displayed on success page)
-        try {
-            Mail::to($registration->email)->send(new EventRegistrationQrMail($registration));
-            $registration->update([
-                'qr_emailed' => true,
-                'qr_emailed_at' => now(),
-            ]);
-        } catch (\Exception $e) {
-            // Email failed, but registration is successful
-            \Log::error('Failed to send QR email: ' . $e->getMessage());
-        }
-
-        // Show success page with QR code
-        return view('OutsideUser.event-registration-success', compact('registration', 'event'));
+        // Show approval pending page - QR code will be sent after approval
+        return view('OutsideUser.event-registration-pending', compact('registration', 'event'));
     }
 }

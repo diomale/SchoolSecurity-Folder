@@ -111,6 +111,46 @@
                         {{ route('public.event.register', ['code' => $event->id]) }}
                     </p>
                 </div>
+
+                <div class="card">
+                    <h2 style="margin: 0 0 15px 0; font-size: 18px;">Public Visibility</h2>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        Show this event on the welcome page for public registration
+                    </p>
+                    <form action="{{ route('insideuser.events.toggle-welcome', $event->id) }}" method="POST">
+                        @csrf
+                        @if($event->show_on_welcome)
+                            <button type="submit" class="btn btn-danger" style="width: 100%;">
+                                Hide from Welcome Page
+                            </button>
+                            <p style="font-size: 12px; color: #28a745; margin: 10px 0 0 0; text-align: center;">
+                                ✓ Currently visible on welcome page
+                            </p>
+                        @else
+                            <button type="submit" class="btn btn-success" style="width: 100%;">
+                                Show on Welcome Page
+                            </button>
+                            <p style="font-size: 12px; color: #666; margin: 10px 0 0 0; text-align: center;">
+                                Currently hidden from welcome page
+                            </p>
+                        @endif
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin: 0 0 15px 0; font-size: 18px;">Registration Approvals</h2>
+                    @php
+                        $pendingCount = $event->pendingApprovals()->count();
+                    @endphp
+                    @if($pendingCount > 0)
+                        <a href="{{ route('insideuser.events.approvals.pending', $event->id) }}" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">
+                            View Pending Approvals ({{ $pendingCount }})
+                        </a>
+                    @endif
+                    <a href="{{ route('insideuser.events.registrations', $event->id) }}" class="btn btn-success" style="width: 100%;">
+                        Manage All Registrations
+                    </a>
+                </div>
                 @endif
 
                 <div class="card">

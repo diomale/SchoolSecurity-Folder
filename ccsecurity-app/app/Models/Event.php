@@ -25,6 +25,7 @@ class Event extends Model
         'status',
         'admin_remarks',
         'approved_at',
+        'show_on_welcome',
     ];
 
     protected $casts = [
@@ -33,6 +34,7 @@ class Event extends Model
         'event_end_time' => 'datetime:H:i',
         'qr_request_deadline' => 'datetime',
         'approved_at' => 'datetime',
+        'show_on_welcome' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -61,6 +63,24 @@ class Event extends Model
     }
 
     /**
+     * Get registrations pending creator approval
+     */
+    public function pendingApprovals()
+    {
+        return $this->hasMany(EventRegistration::class, 'event_id')
+                    ->pendingApproval();
+    }
+
+    /**
+     * Get approved registrations by creator
+     */
+    public function approvedRegistrations()
+    {
+        return $this->hasMany(EventRegistration::class, 'event_id')
+                    ->creatorApproved();
+    }
+
+    /**
      * Scope for pending events
      */
     public function scopePending($query)
@@ -82,6 +102,16 @@ class Event extends Model
     public function scopeUpcoming($query)
     {
         return $query->where('event_date', '>=', now()->toDateString());
+    }
+
+    /**
+     * Scope for events shown on welcome page
+     */
+    public function scopePublicVisible($query)
+    {
+        return $query->where('show_on_welcome', true)
+                     ->where('status', self::STATUS_APPROVED)
+                     ->where('event_date', '>=', now()->toDateString());
     }
 
     /**

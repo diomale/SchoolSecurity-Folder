@@ -28,13 +28,17 @@ class EventRegistration extends Model
         'status',
         'checked_in_at',
         'checked_out_at',
+        'needs_creator_approval',
+        'creator_approved_at',
     ];
 
     protected $casts = [
         'qr_downloaded' => 'boolean',
         'qr_emailed' => 'boolean',
+        'needs_creator_approval' => 'boolean',
         'qr_downloaded_at' => 'datetime',
         'qr_emailed_at' => 'datetime',
+        'creator_approved_at' => 'datetime',
         'checked_in_at' => 'datetime',
         'checked_out_at' => 'datetime',
         'created_at' => 'datetime',
@@ -45,6 +49,11 @@ class EventRegistration extends Model
     const STATUS_REGISTERED = 'registered';
     const STATUS_CHECKED_IN = 'checked_in';
     const STATUS_CHECKED_OUT = 'checked_out';
+
+    // Approval status constants
+    const APPROVAL_PENDING = 'pending';
+    const APPROVAL_APPROVED = 'approved';
+    const APPROVAL_REJECTED = 'rejected';
 
     /**
      * Get the event this registration belongs to
@@ -92,5 +101,62 @@ class EventRegistration extends Model
     public function getFullnameAttribute()
     {
         return trim($this->first_name . ' ' . $this->last_name);
+    }
+
+    /**
+     * Scope for registrations pending creator approval
+     */
+    public function scopePendingApproval($query)
+    {
+        return $query->where('needs_creator_approval', true)
+                     ->whereNull('creator_approved_at');
+    }
+
+    /**
+     * Scope for approved registrations by creator
+     */
+    public function scopeCreatorApproved($query)
+    {
+        return $query->where('needs_creator_approval', false)
+                     ->orWhereNotNull('creator_approved_at');
+    }
+
+    /**
+     * Check if registration needs creator approval
+     */
+    public function needsApproval()
+    {
+        return $this->needs_creator_approval && !$this->creator_approved_at;
+    }
+
+    /**
+     * Check if registration is approved by creator
+     */
+    public function isApprovedByCreator()
+    {
+        return !$this->needs_creator_approval || $this->creator_approved_at !== null;
+    }
+
+    /**
+     * Mark registration as approved by creator
+     */
+    public function approveByCreator()
+    {
+        $this->update([
+            'needs_creator_approval' => false,
+            'creator_approved_at' => now(),
+        ]);
+    }
+
+    /**
+     * Mark registration as rejected by creator
+     */
+    public function rejectByCreator()
+    {
+        // Keep needs_creator_approval true but can add a rejection note field if needed
+        $this->update([
+            'needs_creator_approval' => true,
+            // Add a status field for rejection if needed
+        ]);
     }
 }
