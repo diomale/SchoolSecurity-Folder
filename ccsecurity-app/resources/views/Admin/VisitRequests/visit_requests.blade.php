@@ -7,7 +7,7 @@
 </head>
 <body>
     <div>
-        <h1>📋 Visit Requests Management</h1>
+        <h1> Visit Requests Management</h1>
         
         <p><a href="{{ route('admin.dashboard') }}">← Back to Dashboard</a></p>
 
@@ -47,11 +47,11 @@
                     <td>{{ $request->person_to_meet }}</td>
                     <td>
                         @if($request->status === 'approved')
-                            <span>✓ Approved</span>
+                            <span> Approved</span>
                         @elseif($request->status === 'rejected')
-                            <span>✗ Rejected</span>
+                            <span> Rejected</span>
                         @else
-                            <span>⏳ Pending</span>
+                            <span> Pending</span>
                         @endif
                     </td>
                     <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>

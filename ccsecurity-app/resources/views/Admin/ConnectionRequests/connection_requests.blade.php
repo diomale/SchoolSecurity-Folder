@@ -131,25 +131,25 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔗 Parent-Child Connection Requests</h1>
+            <h1> Parent-Child Connection Requests</h1>
             <a href="{{ route('admin.dashboard') }}" class="btn btn-back">← Back to Dashboard</a>
         </div>
 
         @if(session('success'))
         <div class="alert alert-success">
-            ✓ {{ session('success') }}
+             {{ session('success') }}
         </div>
         @endif
 
         @if(session('error'))
         <div class="alert alert-error">
-            ✗ {{ session('error') }}
+             {{ session('error') }}
         </div>
         @endif
 
         <!-- Info Box -->
         <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-            <strong>ℹ️ Information:</strong>
+            <strong>ℹ Information:</strong>
             <p style="margin: 10px 0 0 0;">Parent-child connections now only require <strong>student approval</strong>. Admin approval is no longer needed. When a student accepts a connection request, it's automatically approved.</p>
         </div>
 
@@ -173,7 +173,6 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Parent/Visitor</th>
                     <th>Student/Child</th>
                     <th>Relationship</th>
@@ -185,7 +184,6 @@
             <tbody>
                 @forelse($connectionRequests as $connection)
                 <tr>
-                    <td>#{{ $connection->id }}</td>
                     <td>
                         <strong>{{ $connection->outsideUser->fullname ?? 'N/A' }}</strong><br>
                         <small>{{ $connection->outsideUser->email ?? 'N/A' }}</small>
@@ -198,22 +196,22 @@
                     <td>
                         <span class="status-badge status-{{ $connection->inside_user_approval }}">
                             @if($connection->inside_user_approval === 'accepted')
-                                ✓ Accepted
+                                 Accepted
                             @elseif($connection->inside_user_approval === 'rejected')
-                                ✗ Rejected
+                                 Rejected
                             @else
-                                ⏳ Pending
+                                 Pending
                             @endif
                         </span>
                     </td>
                     <td>
                         <span class="status-badge status-{{ $connection->status }}">
                             @if($connection->status === 'approved')
-                                ✓ Approved
+                                 Approved
                             @elseif($connection->status === 'rejected')
-                                ✗ Rejected
+                                 Rejected
                             @else
-                                ⏳ Pending
+                                 Pending
                             @endif
                         </span>
                     </td>
@@ -221,7 +219,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
                         No connection requests found.
                     </td>
                 </tr>

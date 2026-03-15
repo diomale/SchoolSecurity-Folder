@@ -70,10 +70,8 @@
                         <th>
                             <input type="checkbox" class="select-all" data-target="student-checkbox">
                         </th>
-                        <th>ID</th>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>QR Value</th>
                         <th>QR Status</th>
                         <th>Actions</th>
                     </tr>
@@ -84,15 +82,13 @@
                         <td>
                             <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox student-checkbox">
                         </td>
-                        <td>{{ $user->id }}</td>
                         <td>{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>{{ $user->qr_value }}</td>
                         <td>
                             @if(in_array(strtolower($user->qr_status), ['active']))
-                                <span style="color: green;">✓ Active</span>
+                                <span style="color: green;"> Active</span>
                             @else
-                                <span style="color: gray;">✗ Inactive</span>
+                                <span style="color: gray;"> Inactive</span>
                             @endif
                         </td>
                         <td>
@@ -115,7 +111,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" style="text-align: center;">No students found.</td>
+                        <td colspan="5" style="text-align: center;">No students found.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -138,10 +134,8 @@
                         <th>
                             <input type="checkbox" class="select-all" data-target="staff-checkbox">
                         </th>
-                        <th>ID</th>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>QR Value</th>
                         <th>QR Status</th>
                         <th>Actions</th>
                     </tr>
@@ -152,15 +146,13 @@
                         <td>
                             <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox staff-checkbox">
                         </td>
-                        <td>{{ $user->id }}</td>
                         <td>{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>{{ $user->qr_value }}</td>
                         <td>
                             @if(in_array(strtolower($user->qr_status), ['active']))
-                                <span style="color: green;">✓ Active</span>
+                                <span style="color: green;"> Active</span>
                             @else
-                                <span style="color: gray;">✗ Inactive</span>
+                                <span style="color: gray;"> Inactive</span>
                             @endif
                         </td>
                         <td>
@@ -183,7 +175,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" style="text-align: center;">No staff members found.</td>
+                        <td colspan="5" style="text-align: center;">No staff members found.</td>
                     </tr>
                     @endforelse
                 </tbody>

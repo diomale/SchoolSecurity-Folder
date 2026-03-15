@@ -8,6 +8,7 @@ use App\Models\VisitRequest;
 use App\Models\Notification;
 use App\Models\ShiftLog;
 use App\Models\Shift;
+use App\Models\QuickPass;
 use App\Models\CleanupTableSetting;
 use App\Models\CleanupSetting;
 use Carbon\Carbon;
@@ -78,6 +79,13 @@ class RunAllCleanup extends Command
             return Shift::where('shift_date', '<', $cutoffDate->format('Y-m-d'))->count();
         }, function($cutoffDate) {
             return Shift::where('shift_date', '<', $cutoffDate->format('Y-m-d'))->delete();
+        }, $daysOverride);
+
+        // Cleanup Old Quick Passes
+        $this->cleanupTable('quick_passes', 'Quick Passes', function($cutoffDate) {
+            return QuickPass::where('created_at', '<=', $cutoffDate)->count();
+        }, function($cutoffDate) {
+            return QuickPass::where('created_at', '<=', $cutoffDate)->delete();
         }, $daysOverride);
 
         $this->newLine();

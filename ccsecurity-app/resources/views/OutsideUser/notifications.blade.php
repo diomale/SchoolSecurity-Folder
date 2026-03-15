@@ -108,9 +108,9 @@
                 <div class="notification-header">
                     <div class="notification-title">
                         @if($notification->type === 'visit_approved')
-                            ✓ {{ $notification->title }}
+                            [APPROVED] {{ $notification->title }}
                         @elseif($notification->type === 'visit_rejected')
-                            ✗ {{ $notification->title }}
+                            [REJECTED] {{ $notification->title }}
                         @else
                             {{ $notification->title }}
                         @endif

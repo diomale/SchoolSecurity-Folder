@@ -38,7 +38,7 @@
     <!-- Password Confirmation Modal -->
     <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
         <div style="background:white; padding:20px; border-radius:8px; max-width:400px; margin:100px auto;">
-            <h3 style="margin-top:0;">🔐 Confirm Your Identity</h3>
+            <h3 style="margin-top:0;"> Confirm Your Identity</h3>
             <p>Please enter your password to confirm deletion.</p>
             <form id="passwordConfirmForm" method="POST">
                 @csrf
@@ -59,11 +59,9 @@
         <thead>
             <tr>
                 <th><input type="checkbox" id="select-all"></th>
-                <th>ID</th>
                 <th>Full Name</th>
                 <th>Email</th>
                 <th>Phone</th>
-                <th>QR Value</th>
                 <th>QR Status</th>
                 <th>Created At</th>
                 <th>Actions</th>
@@ -73,16 +71,14 @@
             @forelse ($outside_users as $outside_user)
             <tr>
                 <td><input type="checkbox" value="{{ $outside_user->id }}" class="user-checkbox"></td>
-                <td>{{ $outside_user->id }}</td>
                 <td>{{ $outside_user->fullname ?? ($outside_user->first_name . ' ' . $outside_user->last_name) }}</td>
                 <td>{{ $outside_user->email }}</td>
                 <td>{{ $outside_user->phone_number ?? 'N/A' }}</td>
-                <td>{{ $outside_user->qr_value ?? 'N/A' }}</td>
                 <td>
                     @if($outside_user->qr_status === 'active')
-                        <span style="color: green;">Active ✓</span>
+                        <span style="color: green;">Active </span>
                     @else
-                        <span style="color: gray;">Inactive ✗</span>
+                        <span style="color: gray;">Inactive </span>
                     @endif
                 </td>
                 <td>{{ $outside_user->created_at?->format('M d, Y h:i A') ?? 'N/A' }}</td>

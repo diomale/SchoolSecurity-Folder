@@ -19,6 +19,7 @@ class EntryLog extends Model
         'inside_user_id',
         'outside_user_id',
         'quick_pass_id',
+        'event_registration_id',
         'qr_value',
         'security_guard_user_id',
         'scan_at',
@@ -52,6 +53,14 @@ class EntryLog extends Model
     public function quickPass()
     {
         return $this->belongsTo(QuickPass::class, 'quick_pass_id');
+    }
+
+    /**
+     * Get the event registration that owns the entry log
+     */
+    public function eventRegistration()
+    {
+        return $this->belongsTo(EventRegistration::class, 'event_registration_id');
     }
 
     /**
