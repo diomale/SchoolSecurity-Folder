@@ -178,7 +178,7 @@ Route::prefix('insideuser')->group(function(){
         Route::delete('/events/{id}/cancel', [InsideUserEventController::class, 'cancel'])->name('insideuser.events.cancel');
         Route::get('/events/{id}/registrations', [InsideUserEventController::class, 'registrations'])->name('insideuser.events.registrations');
         Route::get('/events/{id}/pending-approvals', [EventCreatorApprovalController::class, 'pendingApprovals'])->name('insideuser.events.pending-approvals');
-        Route::post('/events/register-walkin', [InsideUserEventController::class, 'registerWalkin'])->name('insideuser.events.registerWalkin');
+        Route::post('/events/{id}/register-walkin', [InsideUserEventController::class, 'registerWalkin'])->name('insideuser.events.registerWalkin');
         Route::get('/events/registrations/{registrationId}/download-qr', [InsideUserEventController::class, 'downloadQR'])->name('insideuser.events.downloadQR');
         Route::get('/events/registrations/{registrationId}/resend-qr', [InsideUserEventController::class, 'resendQR'])->name('insideuser.events.resendQR');
         Route::get('/events/{id}/export-registrations', [InsideUserEventController::class, 'exportRegistrations'])->name('insideuser.events.exportRegistrations');
