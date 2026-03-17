@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use App\Models\OutsideUser;
 use App\Models\EntryLog;
 use App\Models\InsideUser;
@@ -24,33 +25,49 @@ class SecurityGuardController extends Controller
     public function dashboard()
     {
         $guard = Auth::guard('securityguard')->user();
-
-        // Get recent QR status change activities from ALL guards (shared notifications)
-        $recentActivities = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'eventRegistration'])
-            ->whereNotNull('security_guard_user_id')
-            ->orderBy('id', 'desc')
-            ->limit(20)
-            ->get();
-
-        // Get statistics for current guard (only count actual entry/exit scans, not QR status toggles)
-        $totalScans = EntryLog::where('security_guard_user_id', $guard->id)
-            ->whereIn('scan_type', ['entry', 'exit'])
-            ->count();
-        $todayScans = EntryLog::where('security_guard_user_id', $guard->id)
-            ->whereIn('scan_type', ['entry', 'exit'])
-            ->whereDate('scan_at', today())
-            ->count();
-        $todayEntries = EntryLog::where('security_guard_user_id', $guard->id)
-            ->where('scan_type', 'entry')
-            ->whereDate('scan_at', today())
-            ->count();
-        $todayExits = EntryLog::where('security_guard_user_id', $guard->id)
-            ->where('scan_type', 'exit')
-            ->whereDate('scan_at', today())
-            ->count();
-
-        // Get total guards count
-        $totalGuards = securityguard::count();
+        
+        // Cache dashboard statistics for 5 minutes to reduce database load
+        // Priority 4: Query caching optimization
+        $cacheKey = 'guard_dashboard_' . $guard->id . '_' . today()->toDateString();
+        
+        $stats = Cache::remember($cacheKey, 300, function () use ($guard) {
+            return [
+                // Get recent QR status change activities from ALL guards (shared notifications)
+                'recentActivities' => EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'eventRegistration'])
+                    ->whereNotNull('security_guard_user_id')
+                    ->orderBy('id', 'desc')
+                    ->limit(20)
+                    ->get(),
+                
+                // Get statistics for current guard (only count actual entry/exit scans, not QR status toggles)
+                'totalScans' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
+                    ->count(),
+                'todayScans' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
+                    ->whereDate('scan_at', today())
+                    ->count(),
+                'todayEntries' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->where('scan_type', 'entry')
+                    ->whereDate('scan_at', today())
+                    ->count(),
+                'todayExits' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->where('scan_type', 'exit')
+                    ->whereDate('scan_at', today())
+                    ->count(),
+                
+                // Get total guards count
+                'totalGuards' => securityguard::count(),
+            ];
+        });
+        
+        // Extract cached stats
+        $recentActivities = $stats['recentActivities'];
+        $totalScans = $stats['totalScans'];
+        $todayScans = $stats['todayScans'];
+        $todayEntries = $stats['todayEntries'];
+        $todayExits = $stats['todayExits'];
+        $totalGuards = $stats['totalGuards'];
 
         return view('SecurityGuardUser.dashboard', compact(
             'guard',
