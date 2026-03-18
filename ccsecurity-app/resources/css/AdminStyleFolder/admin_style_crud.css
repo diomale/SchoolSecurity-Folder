@@ -1,0 +1,210 @@
+body {
+    font-family: Arial, Helvetica, sans-serif ;
+    background: #eef4ff;
+    color: #0a1f44;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Container */
+div {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page header */
+h1 {
+    text-align: center;
+    color: #1c3b70;
+    margin-bottom: 20px;
+}
+
+/* Add User button */
+a[href$='add.user'] {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #1c3b70;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: 0.2s ease;
+}
+
+a[href$='add.user']:hover {
+    background: #12264d;
+}
+
+/* Search form */
+form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+form input[type="text"] {
+    padding: 8px 10px;
+    border: 1px solid #c3d4f7;
+    border-radius: 6px;
+    width: 300px;
+}
+
+form button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #3a6fb0;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+form button:hover {
+    background: #2d5480;
+}
+
+/* Success/Error messages */
+div > div[style*="green"] {
+    background: #d4edda;
+    color: #155724;
+    padding: 10px 15px;
+    border-left: 4px solid #28a745;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+div > div[style*="red"] {
+    background: #fdecea;
+    color: #721c24;
+    padding: 10px 15px;
+    border-left: 4px solid #dc3545;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+/* Bulk delete button */
+#bulk-delete-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #dc3545;
+    background: #fff0f0;
+    color: #dc3545;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+#bulk-delete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#bulk-delete-btn:hover:enabled {
+    background: #dc3545;
+    color: white;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(28, 59, 112, 0.1);
+}
+
+thead {
+    background: #1c3b70;
+    color: black;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) {
+    background: #f3f6fb;
+}
+
+tbody tr:hover {
+    background: #e2ebff;
+}
+
+/* Table actions buttons */
+tbody a, tbody button {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: none;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+tbody a {
+    background: #3a6fb0;
+    color: white;
+}
+
+tbody a:hover {
+    background: #2d5480;
+}
+
+tbody button {
+    background: #dc3545;
+    color: white;
+    cursor: pointer;
+}
+
+tbody button:hover {
+    background: #a71d2a;
+}
+
+/* Pagination */
+div > nav {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+div > nav .page-link {
+    color: #1c3b70;
+}
+
+div > nav .page-link:hover {
+    background: #e2ebff;
+}
+
+/* Back link */
+a[href$='dashboard'] {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #3a6fb0;
+}
+
+a[href$='dashboard']:hover {
+    text-decoration: underline;
+}
+
+/* Password modal */
+#passwordModal {
+    display: none;
+}
+
+#passwordModal > div {
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+#passwordModal h3 {
+    margin-top: 0;
+    color: #1c3b70;
+}
+
+#passwordModal button {
+    transition: 0.2s ease;
+}
