@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`events` (
   `event_date` DATE NOT NULL,
   `event_start_time` TIME NOT NULL,
   `event_end_time` TIME NOT NULL,
-  `qr_request_deadline` TIMESTAMP NOT NULL,
+  `qr_request_deadline` DATETIME NOT NULL COMMENT 'Registration deadline - uses DATETIME to preserve exact value',
   `alien_user_limit` INT(11) NOT NULL DEFAULT 50,
   `status` VARCHAR(50) NOT NULL DEFAULT 'pending' COMMENT 'pending, approved, rejected, cancelled, completed',
   `admin_remarks` TEXT NULL DEFAULT NULL,

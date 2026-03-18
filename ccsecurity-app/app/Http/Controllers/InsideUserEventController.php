@@ -350,15 +350,16 @@ class InsideUserEventController extends Controller
 
         // Only approved events can be shown
         if ($event->status !== Event::STATUS_APPROVED) {
-            return redirect()->back()
+            return redirect()->route('insideuser.events.show', $id)
                 ->with('error', 'Only approved events can be displayed publicly.');
         }
 
-        $event->update([
-            'show_on_welcome' => !$event->show_on_welcome,
-        ]);
+        // Use direct DB update on mysql_second connection to avoid touching other fields
+        DB::connection('mysql_second')->table('events')
+            ->where('id', $id)
+            ->update(['show_on_welcome' => !$event->show_on_welcome]);
 
-        return redirect()->back()
+        return redirect()->route('insideuser.events.show', $id)
             ->with('success', $event->show_on_welcome 
                 ? 'Event is now visible on the welcome page.'
                 : 'Event is now hidden from the welcome page.'
