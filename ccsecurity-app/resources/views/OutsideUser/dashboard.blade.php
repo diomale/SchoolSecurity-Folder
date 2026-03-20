@@ -4,374 +4,447 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visitor Dashboard - School Security</title>
-    <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .tab-button.active { font-weight: bold; text-decoration: underline; }
-        .notification-badge {
-            background-color: #dc3545;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 12px;
-            margin-left: 5px;
-        }
-        
-        /* QR Code Protection Styles */
-        .qr-code-container {
-            display: inline-block;
-            position: relative;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
-        
-        .qr-code-container img {
-            display: block;
-            pointer-events: none;
-            -webkit-user-drag: none;
-            -khtml-user-drag: none;
-            -moz-user-drag: none;
-            -o-user-drag: none;
-            user-drag: none;
-        }
-        
-        .qr-code-container::after {
-            content: 'Right-click disabled';
-            position: absolute;
-            bottom: -25px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 11px;
-            color: #999;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .qr-code-container:hover::after {
-            opacity: 1;
-        }
-        
-        /* Status Styles */
-        .status-active {
-            color: #4caf50;
-            font-weight: 600;
-        }
-        
-        .status-inactive {
-            color: #f44336;
-            font-weight: 600;
-        }
-        
-        .qr-instruction {
-            color: #666;
-            font-style: italic;
-            margin-top: 10px;
-        }
-    </style>
+    <!-- Modern Font: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load our custom external CSS via Vite -->
+    @vite(['resources/css/OutsideUSerStyleFolder/outsideuser_style_dashboard.css'])
 </head>
 <body>
-    <div>
-        <!-- Header -->
-        <div>
-            <h1>Welcome, {{ auth('outsideuser')->user()->fullname }}</h1>
-            <div>
-                <a href="{{ route('outsideuser.notifications') }}">
-                    Notifications
-                    @if($unreadNotificationsCount > 0)
-                        <span class="notification-badge">{{ $unreadNotificationsCount }}</span>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">School Security</small></h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="tab-button active" onclick="switchTab('profile')">
+                    <span class="nav-icon">👤</span> User Profile
+                </button>
+                <button class="tab-button" onclick="switchTab('quick-actions')">
+                    <span class="nav-icon">📝</span> Visit Request
+                </button>
+                <button class="tab-button" onclick="switchTab('visit-history')">
+                    <span class="nav-icon">🕒</span> Visit History
+                </button>
+                <button class="tab-button" onclick="switchTab('child-connections')">
+                    <span class="nav-icon">👨‍👧</span> Child Connections
+                    @if($pendingConnectionCount > 0)
+                        <span class="notification-badge">{{ $pendingConnectionCount }}</span>
                     @endif
-                </a> |
-                <form method="POST" action="{{ route('outsideuser.logout') }}" style="display:inline;">
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form method="POST" action="{{ route('outsideuser.logout') }}">
                     @csrf
-                    <button type="submit">Logout</button>
+                    <button type="submit" class="logout-btn">
+                        <span class="nav-icon">🚪</span> Logout
+                    </button>
                 </form>
             </div>
-        </div>
+        </aside>
 
-        @if(session('success'))
-        <div>
-            <strong>Success:</strong> {{ session('success') }}
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div>
-            <strong>Error:</strong> {{ session('error') }}
-        </div>
-        @endif
-
-        <!-- Tab Navigation -->
-        <div>
-            <button class="tab-button active" onclick="switchTab('profile')">User Profile</button>
-            <button class="tab-button" onclick="switchTab('quick-actions')">Visit Request</button>
-            <button class="tab-button" onclick="switchTab('visit-history')">Visit History</button>
-            <button class="tab-button" onclick="switchTab('child-connections')">
-                Child Connections
-                @if($pendingConnectionCount > 0)
-                    <span class="notification-badge">{{ $pendingConnectionCount }}</span>
-                @endif
-            </button>
-        </div>
-
-        <hr>
-
-        <!-- User Profile Tab -->
-
-
-        <div id="profile" class="tab-content active">
-            <div>
-                <h2>User Profile</h2>
-                <h3>My QR Code Pass</h3>
-                @if(auth('outsideuser')->user()->qr_value)
-                    <div class="qr-code-container">
-                        {!! QrCode::size(200)->margin(1)->generate(auth('outsideuser')->user()->qr_value) !!}
-                    </div>
-                    <p>
-                        <strong>QR Status:</strong>
-                        @if(auth('outsideuser')->user()->qr_status === 'active')
-                            <span class="status-active">● ACTIVE</span>
-                        @else
-                            <span class="status-inactive">● INACTIVE</span>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1>Welcome back, <span class="highlight">{{ explode(' ', trim(auth('outsideuser')->user()->fullname))[0] }}</span> 👋</h1>
+                    <p class="subtitle">Here's what's happening today.</p>
+                </div>
+                
+                <div class="header-right">
+                    <a href="{{ route('outsideuser.notifications') }}" class="notification-trigger">
+                        <span class="bell-icon">🔔</span>
+                        @if($unreadNotificationsCount > 0)
+                            <span class="notification-count">{{ $unreadNotificationsCount }}</span>
                         @endif
-                    </p>
+                    </a>
+                </div>
+            </header>
 
-                    <p class="qr-instruction">
-                        <em>Present this QR code to the guard at the entrance.</em>
-                    </p>
-                @else
-                    <p>No QR code generated yet.</p>
+            @if(session('success'))
+            <div class="alert alert-success">
+                <div class="alert-icon">✓</div>
+                <div class="alert-content">
+                    <strong>Success:</strong> {{ session('success') }}
+                </div>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="alert alert-error">
+                <div class="alert-icon">!</div>
+                <div class="alert-content">
+                    <strong>Error:</strong> {{ session('error') }}
+                </div>
+            </div>
+            @endif
+
+            <div class="tabs-container">
+                <!-- User Profile Tab -->
+                <div id="profile" class="tab-content active fade-in">
+                    <div class="profile-grid">
+                        <!-- Left Column: Profile Info & Stats -->
+                        <div class="profile-left">
+                            <div class="glass-card profile-details-card">
+                                <h3>Profile Information</h3>
+                                <div class="info-group">
+                                    <label>Full Name</label>
+                                    <p>{{ auth('outsideuser')->user()->fullname }}</p>
+                                </div>
+                                <div class="info-group">
+                                    <label>Email Address</label>
+                                    <p>{{ auth('outsideuser')->user()->email }}</p>
+                                </div>
+                                <div class="info-group">
+                                    <label>Phone Number</label>
+                                    <p>{{ auth('outsideuser')->user()->phone_number }}</p>
+                                </div>
+                                <div class="card-actions">
+                                    <a href="{{ route('outsideuser.profile.show') }}" class="btn btn-outline">Edit Profile</a>
+                                </div>
+                            </div>
+                            
+                            <div class="glass-card stats-card">
+                                <h3>Visit Statistics</h3>
+                                <div class="stats-grid">
+                                    <div class="stat-box">
+                                        <span class="stat-value">{{ $visitRequests->count() }}</span>
+                                        <span class="stat-label">Total</span>
+                                    </div>
+                                    <div class="stat-box success">
+                                        <span class="stat-value">{{ $visitRequests->where('status', 'approved')->count() }}</span>
+                                        <span class="stat-label">Approved</span>
+                                    </div>
+                                    <div class="stat-box warning">
+                                        <span class="stat-value">{{ $visitRequests->where('status', 'pending')->count() }}</span>
+                                        <span class="stat-label">Pending</span>
+                                    </div>
+                                    <div class="stat-box danger">
+                                        <span class="stat-value">{{ $visitRequests->where('status', 'rejected')->count() }}</span>
+                                        <span class="stat-label">Rejected</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: QR Code -->
+                        <div class="profile-right">
+                            <div class="glass-card qr-card center-align">
+                                <h3>My Digital Pass</h3>
+                                @if(auth('outsideuser')->user()->qr_value)
+                                    <div class="qr-code-wrapper" onclick="openQrModal()" title="Click to enlarge for easier scanning" style="cursor: pointer; transition: transform 0.2s;">
+                                        <div class="qr-code-container">
+                                            {!! QrCode::size(200)->margin(1)->generate(auth('outsideuser')->user()->qr_value) !!}
+                                        </div>
+                                    </div>
+                                    <div class="qr-status-box">
+                                        <span class="status-label">Status:</span>
+                                        @if(auth('outsideuser')->user()->qr_status === 'active')
+                                            <span class="badge badge-success pulse">● ACTIVE</span>
+                                        @else
+                                            <span class="badge badge-danger">● INACTIVE</span>
+                                        @endif
+                                    </div>
+                                    <p class="qr-instruction">
+                                        <em>Present this QR code to the guard at the entrance.</em>
+                                    </p>
+                                @else
+                                    <div class="empty-state">
+                                        <div class="empty-icon">📱</div>
+                                        <p>No QR pass generated yet.</p>
+                                        <span class="suggestion">Submit a visit request to get your pass.</span>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Notifications Section in Profile Tab for visibility -->
+                            @if($notifications && $notifications->count() > 0)
+                            <div class="glass-card notifications-card">
+                                <div class="card-header">
+                                    <h3>Recent Notifications</h3>
+                                    <a href="{{ route('outsideuser.notifications') }}" class="small-link">View All</a>
+                                </div>
+                                <div class="notification-list">
+                                    @foreach($notifications->take(3) as $notification)
+                                    <div class="notification-item {{ !$notification->is_read ? 'unread' : '' }}">
+                                        <div class="noti-icon">
+                                            @if($notification->type === 'visit_approved')
+                                                ✅
+                                            @elseif($notification->type === 'visit_rejected')
+                                                ❌
+                                            @else
+                                                ℹ️
+                                            @endif
+                                        </div>
+                                        <div class="noti-content">
+                                            <div class="noti-title">
+                                                {{ $notification->title }}
+                                                @if(!$notification->is_read)
+                                                    <span class="badge badge-new">New</span>
+                                                @endif
+                                            </div>
+                                            <div class="noti-message">{{ Str::limit($notification->message, 50) }}</div>
+                                            <div class="noti-time">{{ $notification->created_at->diffForHumans() }}</div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Tab -->
+                <div id="quick-actions" class="tab-content fade-in">
+                    <div class="glass-card feature-card">
+                        <div class="feature-icon-large">📅</div>
+                        <h2>Request a Visit</h2>
+                        <p class="description">Planning to visit the school? Submit a formal request to receive a temporary QR pass for campus access.</p>
+                        <div class="feature-steps">
+                            <div class="step">
+                                <div class="step-num">1</div>
+                                <p>Fill Details</p>
+                            </div>
+                            <div class="step-divider"></div>
+                            <div class="step">
+                                <div class="step-num">2</div>
+                                <p>Admin Reviews</p>
+                            </div>
+                            <div class="step-divider"></div>
+                            <div class="step">
+                                <div class="step-num">3</div>
+                                <p>Get QR Pass</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('outsideuser.visit.request') }}" class="btn btn-primary btn-lg pulse-hover">Start New Request</a>
+                    </div>
+                </div>
+
+                <!-- Visit History Tab -->
+                <div id="visit-history" class="tab-content fade-in">
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h2>Visit History</h2>
+                            <a href="{{ route('outsideuser.visit.request') }}" class="btn btn-primary btn-sm">+ New Visit</a>
+                        </div>
+
+                        <div class="table-responsive">
+                            @if($visitRequests->count() > 0)
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Purpose</th>
+                                        <th>Meeting With</th>
+                                        <th>Status</th>
+                                        <th>Admin Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($visitRequests as $request)
+                                    <tr>
+                                        <td>
+                                            <div class="date-cell">
+                                                <span class="date">{{ $request->visit_date->format('M d, Y') }}</span>
+                                                <span class="time">{{ $request->visit_time->format('h:i A') }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="purpose-cell">{{ $request->purpose }}</td>
+                                        <td>{{ $request->person_to_meet }}</td>
+                                        <td>
+                                            @if($request->status === 'approved')
+                                                <span class="badge badge-success">Approved</span>
+                                            @elseif($request->status === 'rejected')
+                                                <span class="badge badge-danger">Rejected</span>
+                                            @else
+                                                <span class="badge badge-warning">Pending</span>
+                                            @endif
+                                        </td>
+                                        <td class="remarks-cell">
+                                            @if($request->admin_remarks)
+                                                {{ $request->admin_remarks }}
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @else
+                            <div class="empty-state">
+                                <div class="empty-icon">🗂️</div>
+                                <p>No visit requests found.</p>
+                                <a href="{{ route('outsideuser.visit.request') }}" class="btn btn-outline mt-3">Request your first visit</a>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Child Connections Tab -->
+                <div id="child-connections" class="tab-content fade-in">
+                    <div class="actions-header">
+                        <div>
+                            <h2>Child Connections</h2>
+                            <p class="subtitle">Connect with your children to track their campus entry and exit logs.</p>
+                        </div>
+                        <div class="header-buttons">
+                            <a href="{{ route('outsideuser.connections.request') }}" class="btn btn-primary">+ Request Connection</a>
+                            <a href="{{ route('outsideuser.connections.history') }}" class="btn btn-outline">View History</a>
+                        </div>
+                    </div>
+
+                    @if($pendingConnectionCount > 0)
+                    <div class="alert alert-warning">
+                        <div class="alert-icon">⏳</div>
+                        <div class="alert-content">
+                            You have <strong>{{ $pendingConnectionCount }}</strong> pending connection request(s) awaiting admin approval.
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="glass-card mb-4">
+                        <h3>Connected Children</h3>
+                        <div class="table-responsive">
+                            @if($approvedConnections->count() > 0)
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Details</th>
+                                        <th>Relationship</th>
+                                        <th>QR Status</th>
+                                        <th>Connected Since</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($approvedConnections as $connection)
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="user-avatar-small">{{ substr($connection->insideUser->fullname ?? 'U', 0, 1) }}</div>
+                                                <div>
+                                                    <div class="full-name">{{ $connection->insideUser->fullname ?? 'N/A' }}</div>
+                                                    <div class="email-sub">{{ $connection->insideUser->email ?? 'N/A' }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="relationship-badge">{{ $connection->relationship }}</span></td>
+                                        <td>
+                                            @if($connection->insideUser && $connection->insideUser->qr_status === 'active')
+                                                <span class="badge badge-success pulse">ACTIVE</span>
+                                            @else
+                                                <span class="badge badge-danger">INACTIVE</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ \Carbon\Carbon::parse($connection->approved_at)->format('M d, Y') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @else
+                            <div class="empty-state">
+                                <div class="empty-icon">👨‍👩‍👧‍👦</div>
+                                <p>You haven't connected with any children yet.</p>
+                                <a href="{{ route('outsideuser.connections.request') }}" class="btn btn-outline mt-3">Request your first connection</a>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Children Entry/Exit Logs -->
+                    @if(isset($childrenEntryLogs) && count($childrenEntryLogs) > 0)
+                    <div class="glass-card">
+                        <h3>Recent Entry/Exit Activity</h3>
+                        <p class="subtitle mb-3">Track when your children enter or exit the school bounds.</p>
+                        <div class="table-responsive">
+                            <table class="modern-table logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Scan Type</th>
+                                        <th>Date & Time</th>
+                                        <th>Scanned By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($childrenEntryLogs as $log)
+                                    <tr>
+                                        <td><strong>{{ $log->insideUser->fullname ?? 'Unknown' }}</strong></td>
+                                        <td>
+                                            @if($log->scan_type === 'entry')
+                                                <span class="scan-badge scan-entry">⬇️ ENTRY</span>
+                                            @elseif($log->scan_type === 'exit')
+                                                <span class="scan-badge scan-exit">⬆️ EXIT</span>
+                                            @else
+                                                <span class="scan-badge">{{ $log->scan_type ?? 'N/A' }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($log->scan_at)
+                                                <div class="date-cell">
+                                                    <span class="date">{{ $log->scan_at->format('M d, Y') }}</span>
+                                                    <span class="time">{{ $log->scan_at->format('h:i A') }}</span>
+                                                </div>
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="guard-badge">{{ $log->securityGuardUser->fullname ?? 'Unknown Guard' }}</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="qr-modal" onclick="closeQrModal(event)">
+        <div class="qr-modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeQrModal(event)">&times;</span>
+            <h3 style="font-size: 1.5rem; margin-bottom: 25px; color: var(--text-main);">Enlarged Digital Pass</h3>
+            <div class="qr-code-large">
+                @if(auth('outsideuser')->user() && auth('outsideuser')->user()->qr_value)
+                    {!! QrCode::size(320)->margin(2)->generate(auth('outsideuser')->user()->qr_value) !!}
                 @endif
             </div>
-
-            
-            <div>
-                <h3>Profile Information</h3>
-                <p><strong>Name:</strong> {{ auth('outsideuser')->user()->fullname }}</p>
-                <p><strong>Email:</strong> {{ auth('outsideuser')->user()->email }}</p>
-                <p><strong>Phone:</strong> {{ auth('outsideuser')->user()->phone_number }}</p>
-                <a href="{{ route('outsideuser.profile.show') }}">Edit Profile</a>
-            </div>
-
-                <hr>
-            
-
-            <div>
-                <h3>Statistics</h3>
-                <ul>
-                    <li><strong>Total Requests:</strong> {{ $visitRequests->count() }}</li>
-                    <li><strong>Approved:</strong> {{ $visitRequests->where('status', 'approved')->count() }}</li>
-                    <li><strong>Pending:</strong> {{ $visitRequests->where('status', 'pending')->count() }}</li>
-                    <li><strong>Rejected:</strong> {{ $visitRequests->where('status', 'rejected')->count() }}</li>
-                </ul>
-            </div>
+            <p style="margin-top: 20px; font-weight: 500; color: var(--text-muted); font-size: 1.1rem;">Present this directly to the scanner at the entrance.</p>
         </div>
-
-        <!-- Quick Actions Tab -->
-        <div id="quick-actions" class="tab-content">
-            <h2>Visit Request</h2>
-
-            <div>
-                <h3>Request a Visit</h3>
-                <p>Submit a visit request to activate your QR code</p>
-                <a href="{{ route('outsideuser.visit.request') }}">Request Visit</a>
-            </div>
-
-        </div>
-
-        <!-- Visit History Tab -->
-        <div id="visit-history" class="tab-content">
-            <h2>Visit History</h2>
-
-            @if($visitRequests->count() > 0)
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>Visit Date</th>
-                        <th>Time</th>
-                        <th>Purpose</th>
-                        <th>Person to Meet</th>
-                        <th>Status</th>
-                        <th>Admin Remarks</th>
-                        <th>Requested On</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($visitRequests as $request)
-                    <tr>
-                        <td>{{ $request->visit_date->format('M d, Y') }}</td>
-                        <td>{{ $request->visit_time->format('h:i A') }}</td>
-                        <td>{{ $request->purpose }}</td>
-                        <td>{{ $request->person_to_meet }}</td>
-                        <td>
-                            @if($request->status === 'approved')
-                                 Approved
-                            @elseif($request->status === 'rejected')
-                                 Rejected
-                            @else
-                                 Pending
-                            @endif
-                        </td>
-                        <td>
-                            @if($request->admin_remarks)
-                                {{ $request->admin_remarks }}
-                            @else
-                                -
-                            @endif
-                        </td>
-                        <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @else
-            <p>No visit requests found.</p>
-            <a href="{{ route('outsideuser.visit.request') }}">Request a Visit</a>
-            @endif
-        </div>
-
-        <!-- Child Connections Tab -->
-        <div id="child-connections" class="tab-content">
-            <h2> Child Connections</h2>
-            <p>Connect with your children to track their entry and exit at school</p>
-            
-            <div style="margin-bottom: 20px;">
-                <a href="{{ route('outsideuser.connections.request') }}" style="background: #4caf50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">+ Request New Connection</a>
-                <a href="{{ route('outsideuser.connections.history') }}" style="background: #2196f3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-left: 10px;">View History</a>
-            </div>
-
-            @if($approvedConnections->count() > 0)
-            <h3>Connected Children</h3>
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>QR Value</th>
-                        <th>Relationship</th>
-                        <th>Connected Since</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($approvedConnections as $connection)
-                    <tr>
-                        <td>{{ $connection->insideUser->fullname ?? 'N/A' }}</td>
-                        <td>{{ $connection->insideUser->email ?? 'N/A' }}</td>
-                        <td>
-                            @if($connection->insideUser->qr_status === 'active')
-                                <span style="color: #4caf50; font-weight: 600;">● ACTIVE</span>
-                            @else
-                                <span style="color: #f44336; font-weight: 600;">● INACTIVE</span>
-                            @endif
-                        </td>
-                        <td>{{ $connection->relationship }}</td>
-                        <td>{{ \Carbon\Carbon::parse($connection->approved_at)->format('M d, Y') }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @else
-            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-                <p style="color: #666;">You haven't connected with any children yet.</p>
-                <a href="{{ route('outsideuser.connections.request') }}">Request your first connection</a>
-            </div>
-            @endif
-
-            @if($pendingConnectionCount > 0)
-            <h3>Pending Requests</h3>
-            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
-                <p>You have <strong>{{ $pendingConnectionCount }}</strong> pending connection request(s) awaiting admin approval.</p>
-                <a href="{{ route('outsideuser.connections.history') }}">View connection history</a>
-            </div>
-            @endif
-
-            <!-- Children Entry/Exit Logs -->
-            @if(isset($childrenEntryLogs) && count($childrenEntryLogs) > 0)
-            <hr style="margin: 30px 0;">
-            <h3> Recent Entry/Exit Activity</h3>
-            <p style="color: #666; margin-bottom: 15px;">Track when your children enter or exit the school</p>
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Scan Type</th>
-                        <th>Scanned By</th>
-                        <th>Date & Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($childrenEntryLogs as $log)
-                    <tr>
-                        <td>
-                            <strong>{{ $log->insideUser->fullname ?? 'Unknown' }}</strong>
-                        </td>
-                        <td>
-                            @if($log->scan_type === 'entry')
-                                <span style="color: #4caf50; font-weight: bold;">ENTRY</span>
-                            @elseif($log->scan_type === 'exit')
-                                <span style="color: #f44336; font-weight: bold;">EXIT</span>
-                            @else
-                                {{ $log->scan_type ?? 'N/A' }}
-                            @endif
-                        </td>
-                        <td>
-                            {{ $log->securityGuardUser->fullname ?? 'Unknown Guard' }}
-                        </td>
-                        <td>
-                            @if($log->scan_at)
-                                {{ $log->scan_at->format('M d, Y h:i A') }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @endif
-        </div>
-
-        <!-- Notifications Section -->
-        @if($notifications->count() > 0)
-        <hr>
-        <div>
-            <h2>Recent Notifications</h2>
-            @foreach($notifications as $notification)
-            <div>
-                <strong>
-                    @if($notification->type === 'visit_approved')
-                        
-                    @elseif($notification->type === 'visit_rejected')
-                        
-                    @endif
-                    {{ $notification->title }}
-                    @if(!$notification->is_read)
-                        <span class="notification-badge">New</span>
-                    @endif
-                </strong>
-                <p>{{ $notification->message }}</p>
-                <small>{{ $notification->created_at->format('M d, Y h:i A') }}</small>
-                @if(!$notification->is_read)
-                <form action="{{ route('outsideuser.notifications.read', $notification->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit">Mark as Read</button>
-                </form>
-                @endif
-                <hr>
-            </div>
-            @endforeach
-            <p><a href="{{ route('outsideuser.notifications') }}">View All Notifications</a></p>
-        </div>
-        @endif
     </div>
 
     <script>
+        function openQrModal() {
+            var modal = document.getElementById('qrModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeQrModal(event) {
+            if(event) event.preventDefault();
+            var modal = document.getElementById('qrModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
         function switchTab(tabName) {
             // Hide all tab contents
             var contents = document.getElementsByClassName('tab-content');
@@ -389,7 +462,12 @@
             document.getElementById(tabName).classList.add('active');
 
             // Add active class to clicked button
-            event.target.classList.add('active');
+            var eventTarget = event.currentTarget || event.target;
+            if(eventTarget.classList.contains('tab-button')){
+                eventTarget.classList.add('active');
+            } else {
+                eventTarget.closest('.tab-button').classList.add('active');
+            }
         }
         
         // Disable right-click on QR code

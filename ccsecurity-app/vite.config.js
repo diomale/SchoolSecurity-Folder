@@ -29,6 +29,7 @@ export default defineConfig({
                 'resources/css/OutsideUSerStyleFolder/outsideruser_style_visit_history.css',
                 'resources/css/OutsideUSerStyleFolder/outsideruser_style_visit_request..css',
                 'resources/css/OutsideUSerStyleFolder/outsideuser_style_notifications.css',
+                'resources/css/InsideUserStyleFolder/insideuser_dashboard_style.css',
                 'resources/css/InsideUserStyleFolder/insideuser_style_user_profile.css',
                 'resources/css/InsideUserStyleFolder/insideuser_style_login.css',
                 'resources/css/InsideUserStyleFolder/insideuser_style_user_profile.css',
