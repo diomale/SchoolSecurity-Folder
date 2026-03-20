@@ -1,3 +1,5 @@
+
+@vite(['resources/css/AdminStyleFolder/insideuser_style_add_form.css', 'resources/js/app.js'])
 <div>
     <h1>Add User</h1>
 

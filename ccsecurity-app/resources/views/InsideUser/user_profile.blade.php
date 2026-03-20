@@ -1,3 +1,5 @@
+@vite(['resources/css/InsideUserStyleFolder/insideuser_style_user_profile.css', 'resources/js/app.js'])
+
 <div>
     <h3>User Profile</h3>
     <p><strong>Name:</strong> {{ auth('insideuser')->user()->fullname }}</p>

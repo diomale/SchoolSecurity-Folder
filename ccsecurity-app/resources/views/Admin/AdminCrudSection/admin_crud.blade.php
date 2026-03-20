@@ -1,3 +1,4 @@
+@vite(['resources/css/AdminStyleFolder/admin_style_crud.css', 'resources/js/app.js'])
 <div>
     <h1>Inside User Management</h1>
 

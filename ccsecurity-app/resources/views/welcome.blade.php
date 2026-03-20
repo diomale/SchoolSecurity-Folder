@@ -5,251 +5,237 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Columban College Security System</title>
+    <!-- Modern Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     @vite(['resources/css/welcome.css', 'resources/js/app.js'])
-    <style>
-        /* Tab Styles */
-        .tab-container { margin-top: 20px; }
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 0; }
-        .tab-button { padding: 12px 24px; border: none; background: #f0f0f0; cursor: pointer; border-radius: 8px 8px 0 0; font-size: 14px; font-weight: 600; color: #666; transition: all 0.3s; }
-        .tab-button:hover { background: #e0e0e0; }
-        .tab-button.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Events Grid - Multiple Events Support */
-        .events-container { 
-            max-height: 650px; 
-            overflow-y: auto; 
-            padding: 10px;
-            scrollbar-width: thin;
-            scrollbar-color: #667eea #f0f0f0;
-        }
-        .events-container::-webkit-scrollbar { width: 8px; }
-        .events-container::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 4px; }
-        .events-container::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
-        .events-container::-webkit-scrollbar-thumb:hover { background: #764ba2; }
-        
-        .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .event-card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s; display: flex; flex-direction: column; }
-        .event-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-        .event-card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; }
-        .event-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-        .event-date-badge { background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 4px; font-size: 12px; display: inline-block; margin-bottom: 10px; }
-        .event-title { margin: 0 0 10px 0; font-size: 18px; font-weight: bold; }
-        .event-description { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 15px; }
-        .event-info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
-        .event-info-row:last-child { border-bottom: none; }
-        .event-creator { color: #666; font-size: 12px; margin-top: 10px; }
-        .btn-register { display: inline-block; background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: 600; margin-top: auto; width: 100%; text-align: center; box-sizing: border-box; }
-        .btn-register:hover { background: #218838; }
-        .slots-info { background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 15px; font-size: 13px; }
-        .slots-available { color: #28a745; font-weight: bold; }
-        .no-events { text-align: center; padding: 60px 20px; color: #666; }
-        
-        /* Pagination */
-        .pagination-container { 
-            position: sticky; 
-            bottom: 0; 
-            background: white; 
-            padding: 15px 0; 
-            border-top: 2px solid #eee;
-            margin-top: 20px;
-        }
-        .pagination { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
-        .pagination a { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #007bff; transition: all 0.2s; }
-        .pagination a:hover { background: #f0f0f0; }
-        .pagination .active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; }
-        .pagination .disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        /* Right Panel Container */
-        .right-panel-content { padding: 20px; height: 100%; overflow-y: auto; }
-        
-        /* Events count badge */
-        .events-count { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            padding: 5px 15px; 
-            border-radius: 20px; 
-            font-size: 12px; 
-            font-weight: bold;
-            margin-left: 10px;
-        }
-    </style>
 </head>
 <body>
-    <h1>Columban College Inc, Security System</h1>
-    <hr>
-
-    <!-- MAIN FLEX CONTAINER -->
-    <div class="main-content">
-
-        <!-- LEFT PANEL: Login + Cards -->
-        <div class="left-panel">
-            <!-- Tab Buttons -->
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="switchTab('login')">Login</button>
-                <button class="tab-button" onclick="switchTab('events')">
-                    Public Events 
-                    @if(isset($publicEvents) && $publicEvents->count() > 0)
-                        <span class="events-count">{{ $publicEvents->total() }}</span>
-                    @endif
-                </button>
+    <div class="welcome-container">
+        <!-- Top Navigation / Header -->
+        <header class="welcome-header">
+            <div class="logo-area">
+                <div class="logo-circle">CCSS</div>
+                <h1 class="header-title">Columban College <span class="highlight">Security System</span></h1>
             </div>
+        </header>
 
-            <!-- Login Tab Content -->
-            <div id="login-tab" class="tab-content active">
-                <!-- Login Form -->
-                <div class="login-container">
-                    <h2>Log in to CCSS</h2>
-
-                    <form method="POST" action="{{ route('insideuser.login.submit') }}">
-                        @csrf
-
-                        <label>Email: </label>
-                        <input type="email" name="email" required placeholder="email">
-
-                        <br>
-
-                        <label>Password: </label>
-                        <input type="password" name="password" required placeholder="password">
-
-                        <br>
-                        @error('email')
-                            <p style="color:red">{{ $message }}</p>
-                        @enderror
-
-                        @if (session('success'))
-                            <p style="color:green">{{ session('success') }}</p>
+        <!-- MAIN FLEX CONTAINER -->
+        <main class="main-content fade-in">
+            <!-- LEFT PANEL: Tabs & Content -->
+            <div class="left-panel glass-panel">
+                
+                <!-- Tab Buttons -->
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="switchTab('login')">
+                        <span class="tab-icon">🔒</span> Login Area
+                    </button>
+                    <button class="tab-button" onclick="switchTab('events')">
+                        <span class="tab-icon">📅</span> Public Events 
+                        @if(isset($publicEvents) && $publicEvents->count() > 0)
+                            <span class="events-count">{{ $publicEvents->total() }}</span>
                         @endif
-
-                        <button type="submit">Login</button>
-                        <br>
-                    </form>
+                    </button>
                 </div>
 
-                <!-- Visitor + Student-Staff Cards -->
-                <div class="bottom-cards">
-                    <div class="visitors-card">
-                        <h3>Visitor Registration (Parents/Guests)</h3>
-                        <p>Register to request visits and get QR code access</p>
-                        <a href="{{ route('outsideuser.signup.show') }}">Register as Visitor</a> |
-                        <a href="{{ route('outsideuser.login.show') }}">Visitor Login</a>
-                    </div>
-
-                    <div class="student-staff-card">
-                        <p>Are you a Student or Staff? <a href="{{ route('user.login.show') }}">Login Here</a></p>
-                        <p>Are you a Visitor? <a href="{{ route('outsideuser.login.show') }}">Login Here</a></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Events Tab Content -->
-            <div id="events-tab" class="tab-content">
-                <div class="events-container">
-                    @if(isset($publicEvents) && $publicEvents->count() > 0)
-                        <div class="events-grid">
-                            @foreach($publicEvents as $event)
-                                <div class="event-card">
-                                    <div class="event-card-header">
-                                        <span class="event-date-badge">
-                                            {{ $event->event_date->format('M d, Y') }}
-                                        </span>
-                                        <h3 class="event-title">{{ $event->event_name }}</h3>
-                                    </div>
-                                    <div class="event-card-body">
-                                        <p class="event-description">
-                                            {{ Str::limit($event->event_description, 100) ?? 'No description available.' }}
-                                        </p>
-                                        
-                                        <div class="event-info-row">
-                                            <span>Time:</span>
-                                            <strong>{{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</strong>
-                                        </div>
-                                        <div class="event-info-row">
-                                            <span>Limit:</span>
-                                            <strong>{{ $event->alien_user_limit }} participants</strong>
-                                        </div>
-                                        <div class="event-info-row">
-                                            <span>Deadline:</span>
-                                            <strong>{{ $event->qr_request_deadline->format('M d, Y') }}</strong>
-                                        </div>
-
-                                        <div class="slots-info">
-                                            @php
-                                                $registeredCount = $event->registrations_count;
-                                                $availableSlots = $event->alien_user_limit - $registeredCount;
-                                            @endphp
-                                            @if($availableSlots > 0)
-                                                <span class="slots-available">{{ $availableSlots }} slots available</span>
-                                            @else
-                                                <span style="color: #dc3545; font-weight: bold;">Event Full</span>
-                                            @endif
-                                            <span>/ {{ $event->alien_user_limit }}</span>
-                                        </div>
-
-                                        @if($event->insideUser)
-                                            <p class="event-creator">
-                                                Created by: {{ $event->insideUser->fullname }}
-                                            </p>
-                                        @endif
-
-                                        @if($availableSlots > 0)
-                                            <a href="{{ route('public.event.register', $event->id) }}" class="btn-register">
-                                                Register Now
-                                            </a>
-                                        @else
-                                            <button class="btn-register" style="background: #6c757d; cursor: not-allowed;" disabled>
-                                                Event Full
-                                            </button>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
+                <!-- Login Tab Content -->
+                <div id="login-tab" class="tab-content active">
+                    
+                    <div class="login-wrapper">
+                        <div class="login-header">
+                            <h2>Welcome Back</h2>
+                            <p class="text-muted">Sign in to your account</p>
                         </div>
 
-                        <!-- Pagination -->
-                        @if($publicEvents->hasMorePages())
-                            <div class="pagination-container">
-                                <div class="pagination">
-                                    {{ $publicEvents->links() }}
+                        <form method="POST" action="{{ route('insideuser.login.submit') }}" class="login-form">
+                            @csrf
+
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" name="email" class="form-control" required placeholder="Enter your email">
+                                @error('email')
+                                    <span class="error-text">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" name="password" class="form-control" required placeholder="Enter your password">
+                            </div>
+
+                            @if (session('success'))
+                                <div class="alert alert-success">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+
+                            <button type="submit" class="btn btn-primary btn-block pulse-hover">Secure Login</button>
+                        </form>
+                    </div>
+
+                    <div class="divider"><span>OR</span></div>
+
+                    <!-- Visitor + Student-Staff Navigation Cards -->
+                    <div class="role-cards">
+                        <div class="role-card">
+                            <div class="role-icon">👤</div>
+                            <div class="role-details">
+                                <h3>Visitors & Guests</h3>
+                                <p>Request visits & get QR access</p>
+                                <div class="role-actions">
+                                    <a href="{{ route('outsideuser.login.show') }}" class="btn btn-outline btn-sm">Sign In</a>
+                                    <a href="{{ route('outsideuser.signup.show') }}" class="btn btn-ghost btn-sm">Register</a>
                                 </div>
                             </div>
-                        @endif
-                    @else
-                        <div class="no-events">
-                            <h3 style="color: #999; margin: 0 0 10px 0;">No Public Events Available</h3>
-                            <p>Check back later for upcoming events.</p>
                         </div>
-                    @endif
+
+                        <div class="role-card">
+                            <div class="role-icon">🎓</div>
+                            <div class="role-details">
+                                <h3>Students & Staff</h3>
+                                <p>Access internal portal</p>
+                                <div class="role-actions">
+                                    <a href="{{ route('user.login.show') }}" class="btn btn-secondary-outline btn-sm">Internal Login</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Events Tab Content -->
+                <div id="events-tab" class="tab-content">
+                    <div class="events-header">
+                        <h2>Upcoming Activities</h2>
+                        <p class="text-muted">Register for our public campus events</p>
+                    </div>
+                    
+                    <div class="events-container">
+                        @if(isset($publicEvents) && $publicEvents->count() > 0)
+                            <div class="events-grid">
+                                @foreach($publicEvents as $event)
+                                    <div class="event-card">
+                                        <div class="event-card-header">
+                                            <div class="event-date">
+                                                <span class="day">{{ $event->event_date->format('d') }}</span>
+                                                <span class="month">{{ $event->event_date->format('M') }}</span>
+                                            </div>
+                                            <h3 class="event-title">{{ $event->event_name }}</h3>
+                                        </div>
+                                        <div class="event-card-body">
+                                            <p class="event-description">
+                                                {{ Str::limit($event->event_description, 90) ?? 'No description available.' }}
+                                            </p>
+                                            
+                                            <div class="event-details-list">
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Time:</span>
+                                                    <span class="detail-value">{{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Deadline:</span>
+                                                    <span class="detail-value text-danger">{{ $event->qr_request_deadline->format('M d, Y') }}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="slots-progress">
+                                                @php
+                                                    $registeredCount = $event->registrations_count;
+                                                    $availableSlots = $event->alien_user_limit - $registeredCount;
+                                                    $percentFill = ($registeredCount / max($event->alien_user_limit, 1)) * 100;
+                                                @endphp
+                                                
+                                                <div class="slots-header">
+                                                    <span class="slots-text">
+                                                        @if($availableSlots > 0)
+                                                            <strong class="text-success">{{ $availableSlots }}</strong> spots left
+                                                        @else
+                                                            <strong class="text-danger">Event Full</strong>
+                                                        @endif
+                                                    </span>
+                                                    <span class="slots-total">{{ $event->alien_user_limit }} total</span>
+                                                </div>
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill {{ $availableSlots == 0 ? 'full' : '' }}" style="width: {{ $percentFill }}%"></div>
+                                                </div>
+                                            </div>
+
+                                            @if($event->insideUser)
+                                                <p class="event-creator">Organized by {{ $event->insideUser->fullname }}</p>
+                                            @endif
+                                        </div>
+                                        <div class="event-card-footer">
+                                            @if($availableSlots > 0)
+                                                <a href="{{ route('public.event.register', $event->id) }}" class="btn btn-success btn-block">Register Now</a>
+                                            @else
+                                                <button class="btn btn-disabled btn-block" disabled>Registration Closed</button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <!-- Pagination -->
+                            @if($publicEvents->hasMorePages())
+                                <div class="pagination-wrapper">
+                                    {{ $publicEvents->links() }}
+                                </div>
+                            @endif
+                        @else
+                            <div class="empty-state">
+                                <div class="empty-icon">🎉</div>
+                                <h3>No Public Events Right Now</h3>
+                                <p>Check back later for upcoming campus activities and public gatherings.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL: Promotional/Branding Area -->
+            <div class="right-panel">
+                <div class="branding-content">
+                    <h2>Welcome to<br>Columban College</h2>
+                    <p>Experience a secure and seamless entry process designed for the safety of our students, staff, and valued guests.</p>
+                    
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <span class="feature-icon">✨</span>
+                            <span>Streamlined digital pass scanning</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🛡️</span>
+                            <span>Enhanced campus security protocols</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📱</span>
+                            <span>Easy mobile-friendly access requests</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Include image if available -->
+                    <!-- <img src="{{ asset('path/to/logo.png') }}" class="hero-image" alt="Columban Logo"> -->
                 </div>
             </div>
-        </div>
 
-        <!-- RIGHT PANEL: Reserved for Image -->
-        <div class="right-panel">
-            <img src="" alt="Columban Logo">
-        </div>
-
+        </main>
     </div>
 
     <script>
         function switchTab(tabName) {
-            // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(function(content) {
                 content.classList.remove('active');
             });
             
-            // Remove active class from all buttons
             document.querySelectorAll('.tab-button').forEach(function(button) {
                 button.classList.remove('active');
             });
             
-            // Show selected tab content
             document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // Add active class to clicked button
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
         }
     </script>
 </body>
