@@ -25,6 +25,7 @@ class InsideUserEventController extends Controller
 
         // Get all events by this user
         $events = Event::where('inside_user_id', $insideUser->id)
+            ->withCount('registrations')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

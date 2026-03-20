@@ -4,252 +4,329 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Guard Dashboard</title>
-    <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .tab-button.active { font-weight: bold; text-decoration: underline; }
-    </style>
+    <!-- Modern Font: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/SecurityGuardStyleFolder/securityguard_style_dashboard.css'])
 </head>
 <body>
-    <div>
-        <!-- Header -->
-        <div>
-            <h1>Security Guard Dashboard</h1>
-            <p>Welcome, <strong>{{ $guard->fullname }}</strong></p>
-            <div>
-                <a href="{{ route('security.scanner.show') }}">QR Scanner</a> |
-                <a href="{{ route('security.entry.logs') }}">Entry/Exit Logs</a> |
-                <a href="{{ route('security.shift.management') }}">Shift Management</a> |
-                <a href="{{ route('security.qr.status.management') }}">QR Status Management</a> |
-                <a href="{{ route('security.quick-pass.list') }}">Quick Pass</a> |
-                <form method="POST" action="{{ route('security.logout') }}" style="display:inline;">
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="tab-button active" onclick="switchTab('dashboard')">
+                    <span class="nav-icon">📊</span> Overview
+                </button>
+                <button class="tab-button" onclick="switchTab('profile')">
+                    <span class="nav-icon">👤</span> My Profile
+                </button>
+                <button class="tab-button" onclick="switchTab('notifications')">
+                    <span class="nav-icon">🔔</span> Activity Logs
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
                     @csrf
-                    <button type="submit">Logout</button>
+                    <button type="submit" class="logout-btn">
+                        <span class="nav-icon">🚪</span> Logout
+                    </button>
                 </form>
             </div>
-        </div>
+        </aside>
 
-        @if(session('success'))
-        <div>
-            <strong>Success:</strong> {{ session('success') }}
-        </div>
-        @endif
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="fade-in">Security <span class="highlight">Command</span></h1>
+                    <p class="subtitle fade-in" style="animation-delay: 0.1s;">Welcome back, <strong>{{ $guard->fullname }}</strong></p>
+                </div>
+            </header>
 
-        @if(session('error'))
-        <div>
-            <strong>Error:</strong> {{ session('error') }}
-        </div>
-        @endif
-
-        <hr>
-
-        <!-- Tab Navigation -->
-        <div>
-            <button class="tab-button active" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="tab-button" onclick="switchTab('profile')">User Profile</button>
-            <button class="tab-button" onclick="switchTab('notifications')">Notifications</button>
-        </div>
-
-        <hr>
-
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
-            <h2>Dashboard Overview</h2>
-
-            <!-- Statistics -->
-            <div>
-                <h3>Today's Statistics</h3>
-                <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
-                    <tr>
-                        <th>Total Scans Today</th>
-                        <th>Entries Today</th>
-                        <th>Exits Today</th>
-                        <th>Total Scans (All Time)</th>
-                    </tr>
-                    <tr>
-                        <td>{{ $todayScans }}</td>
-                        <td>{{ $todayEntries }}</td>
-                        <td>{{ $todayExits }}</td>
-                        <td>{{ $totalScans }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <hr>
-
-            <!-- Quick Actions -->
-            <div>
-                <h3>Quick Actions</h3>
-                <ul>
-                    <li>
-                        <a href="{{ route('security.scanner.show') }}">
-                            <strong>QR Scanner</strong> - Scan QR codes to log entry and exit of users
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('security.entry.logs') }}">
-                            <strong>Entry/Exit Logs</strong> - View all people entering and exiting the premises
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('security.shift.management') }}">
-                            <strong>Shift Management</strong> - Clock in/out and view your shift schedule
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('security.qr.status.management') }}">
-                            <strong>QR Status Management</strong> - Activate or deactivate user QR codes
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('security.walkin.list') }}">
-                            <strong>Visitor Management</strong> - Create and manage walk-in visitor accounts
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('security.quick-pass.list') }}">
-                            <strong> Quick Pass</strong> - Create temporary same-day visitor passes (for visitors in vehicles)
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- User Profile Tab -->
-        <div id="profile" class="tab-content">
-            <h2>User Profile</h2>
-
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
-                <tr>
-                    <th width="200">Full Name:</th>
-                    <td>{{ $guard->fullname }}</td>
-                </tr>
-                <tr>
-                    <th>First Name:</th>
-                    <td>{{ $guard->first_name }}</td>
-                </tr>
-                <tr>
-                    <th>Last Name:</th>
-                    <td>{{ $guard->last_name }}</td>
-                </tr>
-                <tr>
-                    <th>Email:</th>
-                    <td>{{ $guard->email }}</td>
-                </tr>
-                <tr>
-                    <th>Status:</th>
-                    <td>
-                        @if($guard->status == 1)
-                             Active
-                        @else
-                             Inactive
-                        @endif
-                    </td>
-                </tr>
-            </table>
-
-            <h3>My Statistics</h3>
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
-                <tr>
-                    <th>Total Scans</th>
-                    <th>Scans Today</th>
-                    <th>Entries Today</th>
-                    <th>Exits Today</th>
-                </tr>
-                <tr>
-                    <td align="center">{{ $totalScans }}</td>
-                    <td align="center">{{ $todayScans }}</td>
-                    <td align="center">{{ $todayEntries }}</td>
-                    <td align="center">{{ $todayExits }}</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Notifications Tab -->
-        <div id="notifications" class="tab-content">
-            <h2>Notifications - Recent Activities</h2>
-            <p><em>Recent QR code activations/deactivations and scan activities by all security guards.</em></p>
-
-            @if(isset($recentActivities) && $recentActivities->count() > 0)
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>User</th>
-                        <th>Type</th>
-                        <th>Activity</th>
-                        <th>Scanned By</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($recentActivities as $activity)
-                    <tr>
-                        <td>{{ \Carbon\Carbon::parse($activity->scan_at)->format('M d, Y h:i A') }}</td>
-                        <td>
-                            @if($activity->eventRegistration)
-                                {{ $activity->eventRegistration->fullname }} 
-                            @elseif($activity->insideUser)
-                                {{ $activity->insideUser->fullname }}
-                            @elseif($activity->outsideUser)
-                                {{ $activity->outsideUser->fullname ?? ($activity->outsideUser->first_name . ' ' . $activity->outsideUser->last_name) }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                        <td>
-                            @if($activity->eventRegistration)
-                                Event
-                            @elseif($activity->insideUser)
-                                Inside User
-                            @elseif($activity->outsideUser)
-                                Visitor
-                            @else
-                                QR Status
-                            @endif
-                        </td>
-                        <td>
-                            @if(str_starts_with($activity->scan_type, 'qr_'))
-                                @php
-                                    $status = str_replace('qr_', '', $activity->scan_type);
-                                @endphp
-                                QR {{ strtoupper($status) }}
-                            @elseif($activity->scan_type === 'entry')
-                                 Entry
-                            @elseif($activity->scan_type === 'exit')
-                                 Exit
-                            @else
-                                {{ $activity->scan_type }}
-                            @endif
-                        </td>
-                        <td>
-                            @php
-                                $guardName = 'Unknown';
-                                if ($activity->securityGuardUser) {
-                                    $guardName = $activity->securityGuardUser->fullname;
-                                    if (empty($guardName)) {
-                                        $guardName = trim($activity->securityGuardUser->first_name . ' ' . $activity->securityGuardUser->last_name);
-                                    }
-                                    if (empty($guardName)) {
-                                        $guardName = 'Guard #' . $activity->security_guard_user_id;
-                                    }
-                                } else {
-                                    $guardName = 'Guard #' . $activity->security_guard_user_id;
-                                }
-                            @endphp
-                            {{ $guardName }}
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @else
-            <p>No recent activities found.</p>
+            @if(session('success'))
+                <div class="alert alert-success fade-in">
+                    <div class="alert-icon">✓</div>
+                    <div class="alert-content">{{ session('success') }}</div>
+                </div>
             @endif
-        </div>
+
+            @if(session('error'))
+                <div class="alert alert-error fade-in">
+                    <div class="alert-icon">!</div>
+                    <div class="alert-content">{{ session('error') }}</div>
+                </div>
+            @endif
+
+            <!-- Dashboard Tab (Overview) -->
+            <div id="dashboard" class="tab-content active">
+                
+                <div class="stats-grid mb-4">
+                    <div class="stat-card fade-in" style="animation-delay: 0.1s;">
+                        <div class="stat-icon bg-primary">📱</div>
+                        <div class="stat-info">
+                            <span class="stat-value">{{ $todayScans }}</span>
+                            <span class="stat-label">Total Scans Today</span>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in" style="animation-delay: 0.2s;">
+                        <div class="stat-icon bg-success">🏃</div>
+                        <div class="stat-info">
+                            <span class="stat-value text-success">{{ $todayEntries }}</span>
+                            <span class="stat-label">Entries Today</span>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in" style="animation-delay: 0.3s;">
+                        <div class="stat-icon bg-warning">🚶</div>
+                        <div class="stat-info">
+                            <span class="stat-value text-warning">{{ $todayExits }}</span>
+                            <span class="stat-label">Exits Today</span>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in" style="animation-delay: 0.4s;">
+                        <div class="stat-icon bg-info">📅</div>
+                        <div class="stat-info">
+                            <span class="stat-value text-primary">{{ $totalScans }}</span>
+                            <span class="stat-label">All-Time Scans</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card full-width fade-in" style="animation-delay: 0.5s;">
+                    <h3>Quick Actions</h3>
+                    <div class="actions-grid">
+                        <a href="{{ route('security.scanner.show') }}" class="action-card">
+                            <div class="action-icon">🔍</div>
+                            <div class="action-text">
+                                <h4>QR Scanner</h4>
+                                <p>Scan user QR codes for Entry/Exit</p>
+                            </div>
+                        </a>
+                        <a href="{{ route('security.quick-pass.list') }}" class="action-card">
+                            <div class="action-icon">🚗</div>
+                            <div class="action-text">
+                                <h4>Quick Pass</h4>
+                                <p>Temporary same-day visitor passes</p>
+                            </div>
+                        </a>
+                        <a href="{{ route('security.entry.logs') }}" class="action-card">
+                            <div class="action-icon">📜</div>
+                            <div class="action-text">
+                                <h4>Entry/Exit Logs</h4>
+                                <p>View real-time campus movement</p>
+                            </div>
+                        </a>
+                        <a href="{{ route('security.walkin.list') }}" class="action-card">
+                            <div class="action-icon">📝</div>
+                            <div class="action-text">
+                                <h4>Walk-in Visitors</h4>
+                                <p>Manage manual guest registrations</p>
+                            </div>
+                        </a>
+                        <a href="{{ route('security.shift.management') }}" class="action-card">
+                            <div class="action-icon">⏱️</div>
+                            <div class="action-text">
+                                <h4>Shift Management</h4>
+                                <p>Clock in/out or view your schedules</p>
+                            </div>
+                        </a>
+                        <a href="{{ route('security.qr.status.management') }}" class="action-card">
+                            <div class="action-icon">⚙️</div>
+                            <div class="action-text">
+                                <h4>QR Status Manager</h4>
+                                <p>Activate or block user access</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content">
+                <div class="profile-layout">
+                    
+                    <div class="glass-card fade-in">
+                        <h3>Profile Information</h3>
+                        <div class="profile-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Full Name</span>
+                                <span class="detail-value">{{ $guard->fullname }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">First Name</span>
+                                <span class="detail-value">{{ $guard->first_name }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Last Name</span>
+                                <span class="detail-value">{{ $guard->last_name }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">{{ $guard->email }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status</span>
+                                @if($guard->status == 1)
+                                    <span class="badge badge-success">Active</span>
+                                @else
+                                    <span class="badge badge-danger">Inactive</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card fade-in" style="animation-delay: 0.1s;">
+                        <h3>My Performance</h3>
+                        <div class="performance-stats">
+                            <div class="perf-stat">
+                                <div class="perf-value">{{ $todayScans }}</div>
+                                <div class="perf-label">Scans Today</div>
+                            </div>
+                            <div class="perf-stat">
+                                <div class="perf-value text-success">{{ $todayEntries }}</div>
+                                <div class="perf-label">Entries Today</div>
+                            </div>
+                            <div class="perf-stat">
+                                <div class="perf-value text-warning">{{ $todayExits }}</div>
+                                <div class="perf-label">Exits Today</div>
+                            </div>
+                            <div class="perf-stat full-row">
+                                <div class="perf-value text-primary">{{ $totalScans }}</div>
+                                <div class="perf-label">Total Lifetime Scans</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="notifications" class="tab-content">
+                <div class="glass-card fade-in">
+                    <div class="flex-between">
+                        <h3>Recent Activities</h3>
+                        <p class="text-muted" style="font-size: 0.9rem;">Global security scans & status updates</p>
+                    </div>
+
+                    @if(isset($recentActivities) && $recentActivities->count() > 0)
+                    <div class="table-responsive mt-4">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Activity</th>
+                                    <th>Scanned By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentActivities as $activity)
+                                <tr>
+                                    <td class="date-cell">
+                                        <span class="date">{{ \Carbon\Carbon::parse($activity->scan_at)->format('M d, Y') }}</span>
+                                        <span class="time">{{ \Carbon\Carbon::parse($activity->scan_at)->format('h:i A') }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="user-cell">
+                                            @php
+                                                $uName = 'N/A';
+                                                if($activity->eventRegistration) $uName = $activity->eventRegistration->fullname;
+                                                elseif($activity->insideUser) $uName = $activity->insideUser->fullname;
+                                                elseif($activity->outsideUser) $uName = $activity->outsideUser->fullname ?? ($activity->outsideUser->first_name . ' ' . $activity->outsideUser->last_name);
+                                            @endphp
+                                            <div class="user-avatar-small">{{ substr($uName, 0, 1) }}</div>
+                                            <div class="user-info">
+                                                <span class="full-name">{{ $uName }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-outline">
+                                            @if($activity->eventRegistration) Event
+                                            @elseif($activity->insideUser) Inside User
+                                            @elseif($activity->outsideUser) Visitor
+                                            @else Status @endif
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if(str_starts_with($activity->scan_type, 'qr_'))
+                                            @php $status = str_replace('qr_', '', $activity->scan_type); @endphp
+                                            <span class="badge badge-warning">QR {{ strtoupper($status) }}</span>
+                                        @elseif($activity->scan_type === 'entry')
+                                             <span class="scan-badge scan-entry">Entry</span>
+                                        @elseif($activity->scan_type === 'exit')
+                                             <span class="scan-badge scan-exit">Exit</span>
+                                        @else
+                                            <span class="badge">{{ $activity->scan_type }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @php
+                                            $guardName = 'Unknown';
+                                            if ($activity->securityGuardUser) {
+                                                $guardName = $activity->securityGuardUser->fullname;
+                                                if (empty($guardName)) {
+                                                    $guardName = trim($activity->securityGuardUser->first_name . ' ' . $activity->securityGuardUser->last_name);
+                                                }
+                                                if (empty($guardName)) {
+                                                    $guardName = 'Guard #' . $activity->security_guard_user_id;
+                                                }
+                                            } else {
+                                                $guardName = 'Guard #' . $activity->security_guard_user_id;
+                                            }
+                                        @endphp
+                                        <span class="guard-badge">{{ $guardName }}</span>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    @else
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>No recent activities found.</p>
+                        <span class="suggestion">All global scans will appear here.</span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script>
+        // Check local storage for active tab or default to 'dashboard'
+        document.addEventListener('DOMContentLoaded', function() {
+            var activeTab = localStorage.getItem('securityGuardActiveTab') || 'dashboard';
+            switchTab(activeTab);
+            
+            // Highlight the initial tab
+            var navButtons = document.querySelectorAll('.tab-button');
+            navButtons.forEach(btn => {
+                if(btn.getAttribute('onclick').includes(activeTab)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        });
+
         function switchTab(tabName) {
+            // Save to localStorage so refresh keeps tab open
+            localStorage.setItem('securityGuardActiveTab', tabName);
+
             // Hide all tab contents
             var contents = document.getElementsByClassName('tab-content');
             for (var i = 0; i < contents.length; i++) {
@@ -265,8 +342,10 @@
             // Show selected tab content
             document.getElementById(tabName).classList.add('active');
 
-            // Add active class to clicked button
-            event.target.classList.add('active');
+            // Find throwing event element OR document load element
+            if(event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
         }
     </script>
 </body>

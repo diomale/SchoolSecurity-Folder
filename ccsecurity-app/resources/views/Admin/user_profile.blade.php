@@ -1,3 +1,4 @@
+@vite(['resources/css/AdminStyleFolder/admin_style_user_profile.css', 'resources/js/app.js'])
 <div>
     <!-- I have not failed. I've just found 10,000 ways that won't work. - Thomas Edison -->
 

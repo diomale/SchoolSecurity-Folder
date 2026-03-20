@@ -4,168 +4,193 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inside User Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-        }
-        .nav-links {
-            margin-bottom: 20px;
-        }
-        .nav-links a {
-            margin-right: 15px;
-            color: #007bff;
-            text-decoration: none;
-            padding: 8px 16px;
-            background: #e3f2fd;
-            border-radius: 4px;
-        }
-        .nav-links a:hover {
-            background: #bbdefb;
-        }
-        .notification-badge {
-            background: #f44336;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 12px;
-            margin-left: 5px;
-        }
-        .info-box {
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-    </style>
+    <!-- Modern Font: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/InsideUserStyleFolder/insideuser_dashboard_style.css'])
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Welcome, {{ auth('insideuser')->user()->fullname }}</h1>
-            <form method="POST" action="{{ route('insideuser.logout') }}" style="display:inline;">
-                @csrf
-                <button type="submit" style="background: #f44336; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Logout</button>
-            </form>
-        </div>
-
-        <div class="nav-links">
-            <a href="{{ route('insideuser.profile.show') }}"> Profile</a>
-            <a href="{{ route('insideuser.connection.requests') }}">
-                 Connection Requests
-                @if($pendingConnections->count() > 0)
-                    <span class="notification-badge">{{ $pendingConnections->count() }}</span>
-                @endif
-            </a>
-            <a href="{{ route('insideuser.connected.parents') }}"> My Connected Parents</a>
-            <a href="{{ route('insideuser.events.dashboard') }}">  My Events</a>
-            <a href="#entry-logs"> Entry/Exit Logs</a>
-        </div>
-
-        @if($pendingConnections->count() > 0)
-        <div class="info-box" style="background: #fff3cd; border-left: 4px solid #ff9800;">
-            <h3> Pending Connection Requests</h3>
-            <p>You have <strong>{{ $pendingConnections->count() }}</strong> pending connection request(s) waiting for your approval.</p>
-            <a href="{{ route('insideuser.connection.requests') }}" style="color: #1976d2; font-weight: bold;">View and respond to requests →</a>
-        </div>
-        @endif
-
-        @if($connectedParents->count() > 0)
-        <div class="info-box" style="background: #d4edda; border-left: 4px solid #4caf50;">
-            <h3> Connected Parents/Guardians</h3>
-            <p>You have <strong>{{ $connectedParents->count() }}</strong> connected parent(s) who can see your entry/exit records.</p>
-            <a href="{{ route('insideuser.connected.parents') }}" style="color: #1976d2; font-weight: bold;">View connected parents →</a>
-        </div>
-        @endif
-
-        @if($pendingConnections->count() === 0 && $connectedParents->count() === 0)
-        <div class="info-box">
-            <h3>No Connection Requests</h3>
-            <p>You don't have any pending connection requests yet.</p>
-            <p>When someone (parent/guardian) requests to connect with you, you'll see it here and can accept or reject the request.</p>
-        </div>
-        @endif
-
-        {{-- My Events Section --}}
-        <div style="margin-top: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin: 0;"> My Events</h2>
-                <a href="{{ route('insideuser.events.create') }}" style="background: #4caf50; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px;">+ Create Event</a>
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
             </div>
-            <div class="info-box" style="background: #f3e5f5; border-left: 4px solid #9c27b0; margin-top: 0;">
-                <h3>Manage Your Events</h3>
-                <p>Create and manage events for alien user registration. Track registrations, approve participants, and generate QR codes.</p>
-                <a href="{{ route('insideuser.events.dashboard') }}" style="color: #7b1fa2; font-weight: bold;">View All Events →</a>
-            </div>
-        </div>
 
-        {{-- Entry/Exit Logs Section --}}
-        <div id="entry-logs" style="margin-top: 30px;">
-            <h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Entry/Exit Logs</h2>
+            <nav class="sidebar-nav">
+                <button class="tab-button active" onclick="switchTab('overview')">
+                    <span class="nav-icon">📊</span> Overview
+                </button>
+                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link">
+                    <span class="nav-icon">🎉</span> My Events
+                </a>
+                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
+                    <span class="nav-icon">🤝</span> Connection Requests
+                    @if($pendingConnections->count() > 0)
+                        <span class="notification-badge">{{ $pendingConnections->count() }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
+                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form method="POST" action="{{ route('insideuser.logout') }}" style="width: 100%;">
+                    @csrf
+                    <button type="submit" class="logout-btn">
+                        <span class="nav-icon">🚪</span> Logout
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
             
-            @if($entryLogs->count() > 0)
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
-                    <thead style="background: #1976d2; color: white;">
-                        <tr>
-                            <th style="padding: 12px; text-align: left;">#</th>
-                            <th style="padding: 12px; text-align: left;">Type</th>
-                            <th style="padding: 12px; text-align: left;">Scanned By</th>
-                            <th style="padding: 12px; text-align: left;">Date & Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($entryLogs as $index => $log)
-                        <tr style="border-bottom: 1px solid #eee; {{ $index % 2 === 1 ? 'background: #f9f9f9;' : '' }}">
-                            <td style="padding: 12px;">{{ $index + 1 }}</td>
-                            <td style="padding: 12px;">
-                                @if($log->scan_type === 'entry')
-                                    <span style="background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">ENTRY</span>
-                                @elseif($log->scan_type === 'exit')
-                                    <span style="background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">EXIT</span>
-                                @else
-                                    <span style="background: #e2e3e5; color: #383d41; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">{{ strtoupper($log->scan_type) }}</span>
-                                @endif
-                            </td>
-                            <td style="padding: 12px;">
-                                @if($log->securityGuardUser)
-                                    {{ $log->securityGuardUser->fullname ?? 'Guard #' . $log->security_guard_user_id }}
-                                @else
-                                    <em style="color: #999;">System</em>
-                                @endif
-                            </td>
-                            <td style="padding: 12px;">{{ $log->scan_at->format('M d, Y h:i A') }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="fade-in">{{ auth('insideuser')->user()->role }} <span class="highlight">Portal</span></h1>
+                    <p class="subtitle fade-in" style="animation-delay: 0.1s;">Welcome back, <strong>{{ auth('insideuser')->user()->fullname }}</strong></p>
+                </div>
+            </header>
+
+            <!-- Overview Content -->
+            <div id="overview" class="tab-content active">
+                
+                <!-- Alerts / Info Boxes -->
+                <div class="alerts-container fade-in" style="animation-delay: 0.2s;">
+                    @if($pendingConnections->count() > 0)
+                        <div class="alert alert-warning">
+                            <div class="alert-icon">!</div>
+                            <div class="alert-content">
+                                <h3>Pending Connection Requests</h3>
+                                <p>You have <strong>{{ $pendingConnections->count() }}</strong> pending connection request(s) waiting for your approval.</p>
+                                <a href="{{ route('insideuser.connection.requests') }}" class="alert-link">View and respond to requests &rarr;</a>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($connectedParents->count() > 0)
+                        <div class="alert alert-success">
+                            <div class="alert-icon">✓</div>
+                            <div class="alert-content">
+                                <h3>Connected Parents/Guardians</h3>
+                                <p>You have <strong>{{ $connectedParents->count() }}</strong> connected parent(s) who can see your entry/exit records.</p>
+                                <a href="{{ route('insideuser.connected.parents') }}" class="alert-link">View connected parents &rarr;</a>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($pendingConnections->count() === 0 && $connectedParents->count() === 0)
+                        <div class="alert alert-info">
+                            <div class="alert-icon">i</div>
+                            <div class="alert-content">
+                                <h3>No Connection Requests</h3>
+                                <p>You don't have any pending connection requests yet. When someone (parent/guardian) requests to connect with you, you'll see it here.</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="content-grid">
+                    
+                    <!-- My Events Section -->
+                    <div class="glass-card fade-in" style="animation-delay: 0.3s;">
+                        <div class="flex-between mb-4">
+                            <h3 class="section-title">My Events</h3>
+                            <a href="{{ route('insideuser.events.create') }}" class="btn btn-primary btn-sm">+ Create Event</a>
+                        </div>
+                        <div class="card-interior bg-purple-light">
+                            <div class="interior-icon text-purple">🎉</div>
+                            <div class="interior-text">
+                                <h4>Manage Your Events</h4>
+                                <p>Create and manage events for alien user registration. Track registrations, approve participants, and generate QR codes.</p>
+                                <a href="{{ route('insideuser.events.dashboard') }}" class="text-link text-purple">View All Events &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Entry/Exit Logs Section -->
+                    <div class="glass-card span-2 fade-in" style="animation-delay: 0.4s;" id="entry-logs">
+                        <h3 class="section-title mb-4">Entry / Exit Logs</h3>
+                        
+                        @if($entryLogs->count() > 0)
+                            <div class="table-responsive">
+                                <table class="modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Type</th>
+                                            <th>Scanned By</th>
+                                            <th>Date & Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($entryLogs as $index => $log)
+                                        <tr>
+                                            <td class="text-muted">{{ $index + 1 }}</td>
+                                            <td>
+                                                @if($log->scan_type === 'entry')
+                                                    <span class="scan-badge scan-entry">ENTRY</span>
+                                                @elseif($log->scan_type === 'exit')
+                                                    <span class="scan-badge scan-exit">EXIT</span>
+                                                @else
+                                                    <span class="scan-badge scan-default">{{ strtoupper($log->scan_type) }}</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($log->securityGuardUser)
+                                                    <span class="guard-badge">{{ $log->securityGuardUser->fullname ?? 'Guard #' . $log->security_guard_user_id }}</span>
+                                                @else
+                                                    <span class="guard-badge italic">System</span>
+                                                @endif
+                                            </td>
+                                            <td class="date-cell">
+                                                <span class="date">{{ $log->scan_at->format('M d, Y') }}</span>
+                                                <span class="time">{{ $log->scan_at->format('h:i A') }}</span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="table-footer-note">Showing last {{ $entryLogs->count() }} records. Total: {{ $insideUser->entryLogs()->count() }} logs</p>
+                        @else
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <h4>No Entry/Exit Records</h4>
+                                <p>You don't have any entry or exit records yet. Your logs will appear here when you scan your QR code at the security checkpoint.</p>
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
+
             </div>
-            <p style="margin-top: 15px; color: #666; font-size: 14px;">Showing last {{ $entryLogs->count() }} records. Total: {{ $insideUser->entryLogs()->count() }} logs</p>
-            @else
-            <div class="info-box" style="background: #e3f2fd; border-left: 4px solid #2196f3;">
-                <h3>No Entry/Exit Records</h3>
-                <p>You don't have any entry or exit records yet.</p>
-                <p>Your entry/exit logs will appear here when you scan your QR code at the security checkpoint.</p>
-            </div>
-            @endif
-        </div>
+
+        </main>
     </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Future-proofing script just in case more tabs load dynamically on same page.
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
 </body>
 </html>
