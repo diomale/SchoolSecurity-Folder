@@ -79,6 +79,7 @@ COMMENT = 'Individual cleanup settings for each table';
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`inside_user`
 -- -----------------------------------------------------
+-- OPTIMIZED for 2000+ students - added QR and status indexes
 CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`inside_user` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `role` VARCHAR(200) NULL DEFAULT NULL,
@@ -92,10 +93,16 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`inside_user` (
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   `qr_value` VARCHAR(200) NULL DEFAULT NULL,
   `qr_status` VARCHAR(200) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`))
+  PRIMARY KEY (`id`),
+  -- PERFORMANCE INDEXES (CRITICAL for 2000+ students)
+  INDEX `idx_inside_user_qr` (`qr_value` ASC) COMMENT 'Fast QR lookup during scanning',
+  INDEX `idx_inside_user_status` (`status` ASC) COMMENT 'Filter by active/inactive',
+  INDEX `idx_inside_user_email` (`email` ASC) COMMENT 'Login lookup'
+)
 ENGINE = InnoDB
 AUTO_INCREMENT = 21
-DEFAULT CHARACTER SET = utf8;
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Inside users (students/staff) - optimized with indexes';
 
 
 -- -----------------------------------------------------
@@ -121,6 +128,8 @@ DEFAULT CHARACTER SET = utf8;
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`entry_logs`
 -- -----------------------------------------------------
+-- OPTIMIZED for 2000+ students (4000+ daily scans)
+-- Changes: scan_at TIMESTAMP (was VARCHAR), added critical indexes
 CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `inside_user_id` INT(11) NULL DEFAULT NULL,
@@ -129,13 +138,21 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
   `event_registration_id` INT(11) NULL DEFAULT NULL,
   `qr_value` VARCHAR(100) NULL DEFAULT NULL,
   `security_guard_user_id` INT(11) NOT NULL,
-  `scan_at` VARCHAR(45) NULL DEFAULT NULL,
-  `scan_type` VARCHAR(50) NULL DEFAULT NULL,
+  `scan_at` TIMESTAMP NULL DEFAULT NULL COMMENT 'QR scan timestamp - indexed for performance',
+  `scan_type` VARCHAR(50) NULL DEFAULT NULL COMMENT 'entry or exit',
   PRIMARY KEY (`id`),
+  -- Foreign key indexes (existing)
   INDEX `fk_Entry_logs_inside_user_idx` (`inside_user_id` ASC) ,
   INDEX `fk_Entry_logs_security_guard_user1_idx` (`security_guard_user_id` ASC) ,
   INDEX `fk_Entry_logs_quick_passes_idx` (`quick_pass_id` ASC) ,
   INDEX `fk_Entry_logs_event_registrations_idx` (`event_registration_id` ASC) ,
+  -- PERFORMANCE INDEXES for 2000+ students (CRITICAL)
+  INDEX `idx_scan_at` (`scan_at` ASC) COMMENT 'Fast date range queries',
+  INDEX `idx_qr_value` (`qr_value` ASC) COMMENT 'Fast QR lookup during scanning',
+  INDEX `idx_scan_type` (`scan_type` ASC) COMMENT 'Filter entry vs exit',
+  INDEX `idx_scan_at_type` (`scan_at` ASC, `scan_type` ASC) COMMENT 'Composite for dashboard stats',
+  INDEX `idx_inside_user_id_lookup` (`inside_user_id` ASC) COMMENT 'User entry history',
+  INDEX `idx_outside_user_id_lookup` (`outside_user_id` ASC) COMMENT 'Visitor history',
   CONSTRAINT `fk_Entry_logs_inside_user`
     FOREIGN KEY (`inside_user_id`)
     REFERENCES `securitysystemdatabase`.`inside_user` (`id`)
@@ -158,7 +175,8 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
 )
 ENGINE = InnoDB
 AUTO_INCREMENT = 206
-DEFAULT CHARACTER SET = utf8;
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'QR scan logs - optimized with indexes for high-volume scanning (2000+ students)';
 
 
 -- -----------------------------------------------------
@@ -177,6 +195,7 @@ DEFAULT CHARACTER SET = utf8;
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`outside_user`
 -- -----------------------------------------------------
+-- OPTIMIZED for 2000+ students - added QR and status indexes
 CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`outside_user` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `first_name` VARCHAR(45) NULL DEFAULT NULL,
@@ -193,10 +212,16 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`outside_user` (
   `qr_status` VARCHAR(200) NULL DEFAULT 'inactive',
   `qr_expires_at` TIMESTAMP NULL DEFAULT NULL COMMENT 'QR code expiration timestamp',
   `purpose_of_visit` VARCHAR(255) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`))
+  PRIMARY KEY (`id`),
+  -- PERFORMANCE INDEXES (CRITICAL for 2000+ students)
+  INDEX `idx_outside_user_qr` (`qr_value` ASC) COMMENT 'Fast QR lookup during scanning',
+  INDEX `idx_outside_user_status` (`status` ASC) COMMENT 'Filter by approval status',
+  INDEX `idx_outside_user_email` (`email` ASC) COMMENT 'Login lookup'
+)
 ENGINE = InnoDB
 AUTO_INCREMENT = 12
-DEFAULT CHARACTER SET = utf8;
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Outside users (visitors) - optimized with indexes';
 
 
 -- -----------------------------------------------------
@@ -405,6 +430,7 @@ COMMENT = 'Stores events created by inside users for alien user registration';
 -- -----------------------------------------------------
 -- Table `securitysystemdatabase`.`event_registrations`
 -- -----------------------------------------------------
+-- OPTIMIZED for 2000+ students - QR code index already present
 CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`event_registrations` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `event_id` INT(11) NOT NULL,
@@ -426,11 +452,13 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`event_registrations` (
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
+  -- Foreign key indexes
   INDEX `fk_event_registrations_events_idx` (`event_id` ASC),
   INDEX `fk_event_registrations_outside_user_idx` (`outside_user_id` ASC),
-  INDEX `idx_registrations_status` (`status` ASC),
-  INDEX `idx_registrations_qr_code` (`qr_code` ASC),
-  INDEX `idx_registrations_needs_approval` (`needs_creator_approval` ASC),
+  -- PERFORMANCE INDEXES (CRITICAL for 2000+ students)
+  INDEX `idx_registrations_status` (`status` ASC) COMMENT 'Filter by registration status',
+  INDEX `idx_registrations_qr_code` (`qr_code` ASC) COMMENT 'Fast QR lookup during event check-in',
+  INDEX `idx_registrations_needs_approval` (`needs_creator_approval` ASC) COMMENT 'Pending approvals filter',
   CONSTRAINT `fk_event_registrations_events`
     FOREIGN KEY (`event_id`)
     REFERENCES `securitysystemdatabase`.`events` (`id`)
@@ -445,6 +473,32 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`event_registrations` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COMMENT = 'Stores event registrations for alien users with QR codes and creator approval workflow';
+
+
+-- -----------------------------------------------------
+-- Table `securitysystemdatabase`.`currently_inside`
+-- -----------------------------------------------------
+-- OPTIMIZED for real-time tracking of people currently inside campus
+-- Prevents memory crash when querying 1M+ entry logs
+-- Updated on each QR scan (entry = insert, exit = delete)
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`currently_inside` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `qr_value` VARCHAR(50) NOT NULL COMMENT 'QR code value for quick lookup',
+  `user_type` ENUM('inside', 'outside', 'event', 'quick') NOT NULL COMMENT 'Type of user',
+  `user_id` INT(11) NOT NULL COMMENT 'ID of the user (inside_user_id, outside_user_id, etc)',
+  `fullname` VARCHAR(200) NOT NULL COMMENT 'Full name for display',
+  `email` VARCHAR(150) NOT NULL COMMENT 'Email for contact',
+  `role` VARCHAR(50) NULL DEFAULT NULL COMMENT 'Role: student, staff, visitor, etc',
+  `entered_at` TIMESTAMP NOT NULL COMMENT 'Entry time',
+  `entry_log_id` INT(11) NOT NULL COMMENT 'Reference to entry_logs table',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_qr` (`qr_value`) COMMENT 'One record per QR code',
+  INDEX `idx_entered_at` (`entered_at`) COMMENT 'Sort by entry time',
+  INDEX `idx_user_type` (`user_type`) COMMENT 'Filter by user type'
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COMMENT = 'Real-time tracking of people currently inside campus - prevents memory crash with 1M+ records';
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
