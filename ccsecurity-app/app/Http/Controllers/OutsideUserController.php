@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use App\Models\OutsideUser;
 use App\Models\VisitRequest;
 use App\Models\Notification;
@@ -20,62 +21,87 @@ class OutsideUserController extends Controller
     public function dashboard()
     {
         $outsideUser = Auth::guard('outsideuser')->user();
-
+        
         // Generate QR value if missing
         if (!$outsideUser->qr_value) {
             $outsideUser->qr_value = 'OUT-' . strtoupper(uniqid() . rand(1000, 9999));
             $outsideUser->save();
         }
-
-        // Get user's visit requests
-        $visitRequests = VisitRequest::where('outside_user_id', $outsideUser->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-        // Get pending requests count
-        $pendingCount = VisitRequest::where('outside_user_id', $outsideUser->id)
-            ->where('status', 'pending')
-            ->count();
-
-        // Get unread notifications count
-        $unreadNotificationsCount = Notification::where('outside_user_id', $outsideUser->id)
-            ->where('is_read', false)
-            ->count();
-
-        // Get recent unread notifications only (hide read notifications)
-        $notifications = Notification::where('outside_user_id', $outsideUser->id)
-            ->where('is_read', false)
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-        // Get connection requests count
-        $pendingConnectionCount = ParentChildConnection::where('outside_user_id', $outsideUser->id)
-            ->where('status', ParentChildConnection::STATUS_PENDING)
-            ->count();
-
-        // Get approved connections
-        $approvedConnections = ParentChildConnection::where('outside_user_id', $outsideUser->id)
-            ->where('status', ParentChildConnection::STATUS_APPROVED)
-            ->with('insideUser')
-            ->limit(3)
-            ->get();
-
-        // Get connected children IDs
-        $connectedChildrenIds = ParentChildConnection::where('outside_user_id', $outsideUser->id)
-            ->where('status', ParentChildConnection::STATUS_APPROVED)
-            ->pluck('inside_user_id');
-
-        // Get recent entry/exit logs for connected children
-        $childrenEntryLogs = [];
-        if ($connectedChildrenIds->count() > 0) {
-            $childrenEntryLogs = \App\Models\EntryLog::whereIn('inside_user_id', $connectedChildrenIds)
-                ->with(['insideUser', 'securityGuardUser'])
-                ->orderBy('scan_at', 'desc')
-                ->limit(10)
+        
+        // Cache dashboard data for 5 minutes to reduce database load
+        // Priority 4: Query caching optimization
+        $cacheKey = 'outside_user_dashboard_' . $outsideUser->id . '_' . today()->toDateString();
+        
+        $data = Cache::remember($cacheKey, 300, function () use ($outsideUser) {
+            // Get user's visit requests
+            $visitRequests = VisitRequest::where('outside_user_id', $outsideUser->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
                 ->get();
-        }
+            
+            // Get pending requests count
+            $pendingCount = VisitRequest::where('outside_user_id', $outsideUser->id)
+                ->where('status', 'pending')
+                ->count();
+            
+            // Get unread notifications count
+            $unreadNotificationsCount = Notification::where('outside_user_id', $outsideUser->id)
+                ->where('is_read', false)
+                ->count();
+            
+            // Get recent unread notifications only (hide read notifications)
+            $notifications = Notification::where('outside_user_id', $outsideUser->id)
+                ->where('is_read', false)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+            
+            // Get connection requests count
+            $pendingConnectionCount = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+                ->where('status', ParentChildConnection::STATUS_PENDING)
+                ->count();
+            
+            // Get approved connections
+            $approvedConnections = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+                ->where('status', ParentChildConnection::STATUS_APPROVED)
+                ->with('insideUser')
+                ->limit(3)
+                ->get();
+            
+            // Get connected children IDs
+            $connectedChildrenIds = ParentChildConnection::where('outside_user_id', $outsideUser->id)
+                ->where('status', ParentChildConnection::STATUS_APPROVED)
+                ->pluck('inside_user_id');
+            
+            // Get recent entry/exit logs for connected children
+            $childrenEntryLogs = [];
+            if ($connectedChildrenIds->count() > 0) {
+                $childrenEntryLogs = \App\Models\EntryLog::whereIn('inside_user_id', $connectedChildrenIds)
+                    ->with(['insideUser', 'securityGuardUser'])
+                    ->orderBy('scan_at', 'desc')
+                    ->limit(10)
+                    ->get();
+            }
+            
+            return [
+                'visitRequests' => $visitRequests,
+                'pendingCount' => $pendingCount,
+                'unreadNotificationsCount' => $unreadNotificationsCount,
+                'notifications' => $notifications,
+                'pendingConnectionCount' => $pendingConnectionCount,
+                'approvedConnections' => $approvedConnections,
+                'childrenEntryLogs' => $childrenEntryLogs,
+            ];
+        });
+        
+        // Extract cached data
+        $visitRequests = $data['visitRequests'];
+        $pendingCount = $data['pendingCount'];
+        $unreadNotificationsCount = $data['unreadNotificationsCount'];
+        $notifications = $data['notifications'];
+        $pendingConnectionCount = $data['pendingConnectionCount'];
+        $approvedConnections = $data['approvedConnections'];
+        $childrenEntryLogs = $data['childrenEntryLogs'];
 
         return view('OutsideUser.dashboard', compact('visitRequests', 'pendingCount', 'unreadNotificationsCount', 'notifications', 'pendingConnectionCount', 'approvedConnections', 'childrenEntryLogs'));
     }
