@@ -3,257 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Quick Pass - Security Guard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .header {
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #007bff;
-        }
-        .header h1 {
-            margin: 0;
-            color: #333;
-            font-size: 24px;
-        }
-        .header p {
-            margin: 5px 0 0 0;
-            color: #666;
-            font-size: 14px;
-        }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 15px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #333;
-        }
-        .form-group label .required {
-            color: #dc3545;
-        }
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-        }
-        .form-group small {
-            display: block;
-            margin-top: 5px;
-            color: #666;
-            font-size: 12px;
-        }
-        .error-messages {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .error-messages ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .btn-primary {
-            background: #28a745;
-            color: white;
-            width: 100%;
-        }
-        .btn-primary:hover {
-            background: #218838;
-        }
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            margin-top: 10px;
-            width: 100%;
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        .info-box {
-            background: #e7f3ff;
-            border: 1px solid #b8daff;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .info-box h4 {
-            margin: 0 0 10px 0;
-            color: #004085;
-            font-size: 14px;
-        }
-        .info-box ul {
-            margin: 0;
-            padding-left: 20px;
-            color: #004085;
-            font-size: 13px;
-        }
-        .info-box ul li {
-            margin-bottom: 5px;
-        }
-    </style>
+    <title>Create Quick Pass - CCSS</title>
+    <!-- Modern Font: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/SecurityGuardStyleFolder/securityguard_style_dashboard.css', 'resources/css/SecurityGuardStyleFolder/securityguard_style_quickpass.css'])
 </head>
 <body>
-    <div class="container">
-        <!-- Back Link -->
-        <a href="{{ route('security.quick-pass.list') }}" class="back-link">← Back to Quick Pass List</a>
-
-        <!-- Header -->
-        <div class="header">
-            <h1> Create Quick Pass</h1>
-            <p>Generate a temporary QR code for same-day visitor access</p>
-        </div>
-
-        <!-- Info Box -->
-        <div class="info-box">
-            <h4> Quick Pass Benefits:</h4>
-            <ul>
-                <li> No email or phone required</li>
-                <li> QR code generated instantly</li>
-                <li> Valid until 11:59 PM today</li>
-                <li> Perfect for visitors in vehicles</li>
-            </ul>
-        </div>
-
-        <!-- Error Messages -->
-        @if ($errors->any())
-        <div class="error-messages">
-            <strong>Please fix the following errors:</strong>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-
-        <!-- Form -->
-        <form action="{{ route('security.quick-pass.store') }}" method="POST">
-            @csrf
-
-            <!-- Visitor Name -->
-            <div class="form-group">
-                <label for="visitor_name">
-                    Visitor Name
-                    <span class="required">*</span>
-                </label>
-                <input
-                    type="text"
-                    id="visitor_name"
-                    name="visitor_name"
-                    value="{{ old('visitor_name') }}"
-                    placeholder="e.g., John Doe"
-                    required
-                    autofocus
-                >
-                <small>Full name of the visitor</small>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
             </div>
-
-            <!-- Vehicle Plate -->
-            <div class="form-group">
-                <label for="vehicle_plate">
-                    Vehicle Plate Number
-                </label>
-                <input
-                    type="text"
-                    id="vehicle_plate"
-                    name="vehicle_plate"
-                    value="{{ old('vehicle_plate') }}"
-                    placeholder="e.g., ABC-123 (optional)"
-                    style="text-transform: uppercase;"
-                >
-                <small>Leave blank if visitor is on foot</small>
+            <nav class="sidebar-nav">
+                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span> Back to Command
+                </a>
+                <a href="{{ route('security.scanner.show') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">🔍</span> QR Scanner
+                </a>
+                <a href="{{ route('security.quick-pass.list') }}" class="tab-button active" style="text-decoration: none;">
+                    <span class="nav-icon">🚗</span> Quick Pass
+                </a>
+                <a href="{{ route('security.entry.logs') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">📜</span> Entry Logs
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
+                    @csrf
+                    <button type="submit" class="logout-btn">
+                        <span class="nav-icon">🚪</span> Logout
+                    </button>
+                </form>
             </div>
+        </aside>
 
-            <!-- Purpose -->
-            <div class="form-group">
-                <label for="purpose">
-                    Purpose of Visit
-                    <span class="required">*</span>
-                </label>
-                <select id="purpose" name="purpose" required>
-                    <option value="">Select Purpose</option>
-                    <option value="Delivery" {{ old('purpose') === 'Delivery' ? 'selected' : '' }}> Delivery</option>
-                    <option value="Meeting" {{ old('purpose') === 'Meeting' ? 'selected' : '' }}> Meeting</option>
-                    <option value="Parent" {{ old('purpose') === 'Parent' ? 'selected' : '' }}> Parent/Guardian</option>
-                    <option value="Contractor" {{ old('purpose') === 'Contractor' ? 'selected' : '' }}> Contractor</option>
-                    <option value="Other" {{ old('purpose') === 'Other' ? 'selected' : '' }}> Other</option>
-                </select>
-            </div>
-
-            <!-- Custom Expiry (For Testing/Special cases) -->
-            <div class="form-group">
-                <label for="expiry_time">
-                    Custom Expiration (Today)
-                </label>
-                <input
-                    type="time"
-                    id="expiry_time"
-                    name="expiry_time"
-                    value="{{ old('expiry_time') }}"
-                >
-                <small>Leave blank for default (11:59 PM today)</small>
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary">
-                 Generate Quick Pass
-            </button>
-
-            <!-- Cancel Button -->
-            <a href="{{ route('security.quick-pass.list') }}" class="btn btn-secondary">
-                Cancel
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <a href="{{ route('security.quick-pass.list') }}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); text-decoration: none; font-weight: 600; margin-bottom: 20px;">
+                &larr; Back to Quick Pass List
             </a>
-        </form>
+
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="fade-in">Create <span class="highlight">Quick Pass</span></h1>
+                    <p class="subtitle fade-in" style="animation-delay: 0.1s;">Generate a temporary QR code for same-day visitor access</p>
+                </div>
+            </header>
+
+            <div class="glass-card fade-in" style="animation-delay: 0.2s; max-width: 600px;">
+                <div class="info-box">
+                    <h4>Quick Pass Benefits:</h4>
+                    <ul>
+                        <li>No email or phone required</li>
+                        <li>QR code generated instantly</li>
+                        <li>Valid until 11:59 PM today (by default)</li>
+                        <li>Perfect for visitors in vehicles</li>
+                    </ul>
+                </div>
+
+                @if ($errors->any())
+                <div class="alert alert-error">
+                    <div class="alert-icon">!</div>
+                    <div class="alert-content">
+                        <strong>Please fix the following errors:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                <form action="{{ route('security.quick-pass.store') }}" method="POST">
+                    @csrf
+
+                    <div class="form-group">
+                        <label for="visitor_name">Visitor Name <span class="required">*</span></label>
+                        <input type="text" id="visitor_name" name="visitor_name" value="{{ old('visitor_name') }}" placeholder="e.g., John Doe" required autofocus>
+                        <small>Full name of the visitor</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vehicle_plate">Vehicle Plate Number</label>
+                        <input type="text" id="vehicle_plate" name="vehicle_plate" value="{{ old('vehicle_plate') }}" placeholder="e.g., ABC-123 (optional)" style="text-transform: uppercase;">
+                        <small>Leave blank if visitor is on foot</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purpose">Purpose of Visit <span class="required">*</span></label>
+                        <select id="purpose" name="purpose" required>
+                            <option value="">Select Purpose</option>
+                            <option value="Delivery" {{ old('purpose') === 'Delivery' ? 'selected' : '' }}>Delivery</option>
+                            <option value="Meeting" {{ old('purpose') === 'Meeting' ? 'selected' : '' }}>Meeting</option>
+                            <option value="Parent" {{ old('purpose') === 'Parent' ? 'selected' : '' }}>Parent/Guardian</option>
+                            <option value="Contractor" {{ old('purpose') === 'Contractor' ? 'selected' : '' }}>Contractor</option>
+                            <option value="Other" {{ old('purpose') === 'Other' ? 'selected' : '' }}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiry_time">Custom Expiration (Today)</label>
+                        <input type="time" id="expiry_time" name="expiry_time" value="{{ old('expiry_time') }}">
+                        <small>Leave blank for default (11:59 PM today)</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" style="flex: 1; justify-content: center;">Generate Quick Pass</button>
+                        <a href="{{ route('security.quick-pass.list') }}" class="btn-secondary" style="flex: 1; justify-content: center;">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </main>
     </div>
 
     <script>
-        // Auto-uppercase vehicle plate
         document.getElementById('vehicle_plate').addEventListener('input', function() {
             this.value = this.value.toUpperCase();
         });

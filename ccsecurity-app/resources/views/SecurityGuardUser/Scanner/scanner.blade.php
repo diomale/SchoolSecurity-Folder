@@ -3,138 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner - Security Guard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.3s ease-out;
-        }
-        #reader {
-            min-height: 400px;
-        }
-        #reader video {
-            object-fit: cover;
-            border-radius: 0.5rem;
-        }
-    </style>
+    <title>QR Scanner - CCSS</title>
+    <!-- Modern Font: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/SecurityGuardStyleFolder/securityguard_style_dashboard.css', 'resources/css/SecurityGuardStyleFolder/securityguard_style_scanner.css'])
 </head>
-<body class="bg-gray-100">
-    <div class="max-w-3xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">QR Scanner</h1>
-            <a href="{{ route('security.dashboard') }}" class="text-blue-600 hover:text-blue-800 no-underline">Back to Dashboard</a>
-        </div>
-        
-        <!-- Scanner Section -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <!-- Tabs -->
-            <div class="flex mb-4 border-b">
-                <button id="camera-tab" class="px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600" onclick="switchTab('camera')">
-                     Camera Scan
-                </button>
-                <button id="image-tab" class="px-4 py-2 font-semibold text-gray-600" onclick="switchTab('image')">
-                     Upload Image
-                </button>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
             </div>
-
-            <!-- Camera View -->
-            <div id="camera-view">
-                <div id="reader" class="w-full mb-4 rounded-lg overflow-hidden bg-black"></div>
+            <nav class="sidebar-nav">
+                <!-- Direct linking instead of SPA tabs since we are out of the dashboard -->
+                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span> Back to Command
+                </a>
+                <a href="{{ route('security.scanner.show') }}" class="tab-button active" style="text-decoration: none;">
+                    <span class="nav-icon">🔍</span> QR Scanner
+                </a>
+                <a href="{{ route('security.quick-pass.list') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">🚗</span> Quick Pass
+                </a>
+                <a href="{{ route('security.entry.logs') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">📜</span> Entry Logs
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
+                    @csrf
+                    <button type="submit" class="logout-btn">
+                        <span class="nav-icon">🚪</span> Logout
+                    </button>
+                </form>
             </div>
+        </aside>
 
-            <!-- Image Upload View -->
-            <div id="image-view" class="hidden">
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-4">
-                    <input type="file" id="qr-image-input" accept="image/*" class="hidden" onchange="scanImageFile(event)">
-                    <label for="qr-image-input" class="cursor-pointer">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-600">Click to upload QR code image</p>
-                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                    </label>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="fade-in">QR <span class="highlight">Scanner</span></h1>
+                    <p class="subtitle fade-in" style="animation-delay: 0.1s;">Scan digital passes or temporary visitor slips.</p>
                 </div>
-                <!-- Hidden container for image scanning (doesn't interfere with camera) -->
-                <div id="image-reader" class="hidden"></div>
-                <div id="image-preview" class="hidden mb-4">
-                    <img id="preview-img" class="max-w-full h-auto rounded-lg border" style="max-height: 300px;">
-                    <button onclick="clearImage()" class="mt-2 text-sm text-red-600 hover:text-red-800">Clear Image</button>
+            </header>
+
+            <div class="scanner-container fade-in" style="animation-delay: 0.2s;">
+                <!-- Left Col: Scanner Area -->
+                <div class="glass-card">
+                    <div class="scanner-tabs">
+                        <button id="camera-tab" class="scanner-tab-btn active" onclick="switchScannerTab('camera')">Camera Scan</button>
+                        <button id="image-tab" class="scanner-tab-btn" onclick="switchScannerTab('image')">Upload Image</button>
+                    </div>
+
+                    <!-- Camera View -->
+                    <div id="camera-view">
+                        <div id="reader"></div>
+                    </div>
+
+                    <!-- Image Upload View -->
+                    <div id="image-view" class="hidden">
+                        <input type="file" id="qr-image-input" accept="image/*" class="hidden" onchange="scanImageFile(event)">
+                        <label for="qr-image-input" class="upload-container" style="display: block;">
+                            <div class="upload-icon">📷</div>
+                            <p style="font-weight: 600; color: var(--text-main); margin-bottom: 5px;">Click to upload QR code image</p>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">PNG, JPG, GIF up to 10MB</p>
+                        </label>
+                        
+                        <div id="image-reader" class="hidden"></div>
+                        <div id="image-preview" class="hidden mt-4 text-center">
+                            <img id="preview-img" style="max-width: 100%; max-height: 300px; border-radius: var(--radius-md); border: 1px solid rgba(0,0,0,0.1); display: inline-block;">
+                            <button onclick="clearImage()" style="margin-top: 15px; color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Cancel Upload</button>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Box -->
+                    <div id="scan-result" class="scan-result-box hidden">
+                        <h3 style="margin-bottom: 5px; font-size: 1.1rem; color: var(--text-main);">Scanned: <span id="qr-value" style="color: var(--primary);"></span></h3>
+                        <p id="scan-message" style="color: var(--text-muted); font-weight: 500;"></p>
+                    </div>
+                </div>
+
+                <!-- Right Col: History Feed -->
+                <div class="glass-card" style="height: fit-content;">
+                    <h3 style="border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 15px; margin-bottom: 20px;">Recent Scans</h3>
+                    <div id="scan-history" class="history-feed">
+                        <!-- Loaded dynamically -->
+                    </div>
                 </div>
             </div>
-            
-            <!-- Scan Result -->
-            <div id="scan-result" class="hidden mt-4 p-4 rounded-lg">
-                <p class="text-lg font-semibold">Scanned QR Value: <span id="qr-value" class="text-blue-600"></span></p>
-                <p id="scan-message" class="mt-2"></p>
-            </div>
-            
-            <div id="scan-error" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                <p id="error-message"></p>
-            </div>
-        </div>
-
-        <!-- Scan History -->
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">Recent Scans</h2>
-            <div id="scan-history" class="space-y-3">
-                <!-- Scan history will be loaded here -->
-            </div>
-        </div>
+        </main>
     </div>
 
-    <!-- html5-qrcode library -->
+    <!-- Html5-Qrcode Library -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
     <script>
     let html5QrcodeScanner;
     let lastScanTime = null;
     let lastQrValue = null;
-    const SCAN_COOLDOWN = 3000; // 3 seconds cooldown to prevent duplicate scans
+    const SCAN_COOLDOWN = 3000; 
 
-    // Tab switching
-    function switchTab(tab) {
+    function switchScannerTab(tab) {
         const cameraTab = document.getElementById('camera-tab');
         const imageTab = document.getElementById('image-tab');
         const cameraView = document.getElementById('camera-view');
         const imageView = document.getElementById('image-view');
 
         if (tab === 'camera') {
-            cameraTab.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-            cameraTab.classList.remove('text-gray-600');
-            imageTab.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-            imageTab.classList.add('text-gray-600');
+            cameraTab.classList.add('active');
+            imageTab.classList.remove('active');
             cameraView.classList.remove('hidden');
             imageView.classList.add('hidden');
             
-            // Resume camera
-            if (!html5QrcodeScanner) {
-                initCamera();
-            }
+            if (!html5QrcodeScanner) initCamera();
         } else {
-            imageTab.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-            imageTab.classList.remove('text-gray-600');
-            cameraTab.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-            cameraTab.classList.add('text-gray-600');
+            imageTab.classList.add('active');
+            cameraTab.classList.remove('active');
             imageView.classList.remove('hidden');
             cameraView.classList.add('hidden');
-
-            // Keep camera running in background - don't pause
         }
     }
 
     function initCamera() {
         html5QrcodeScanner = new Html5Qrcode("reader");
-
-        const config = {
-            fps: 10,
-            qrbox: { width: 600, height: 600 },
-            aspectRatio: 1.0
-        };
+        const config = { fps: 10, qrbox: { width: 600, height: 600 }, aspectRatio: 1.0 };
 
         html5QrcodeScanner.start(
             { facingMode: "environment" },
@@ -144,11 +141,9 @@
         ).catch(err => {
             console.error("Failed to start scanner", err);
             document.getElementById('reader').innerHTML = `
-                <div class="text-center py-8 text-red-600">
+                <div style="text-align: center; padding: 40px; color: var(--danger);">
                     <p>Failed to start camera. Please ensure camera permissions are granted.</p>
-                    <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        Retry
-                    </button>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer;">Retry</button>
                 </div>
             `;
         });
@@ -158,26 +153,21 @@
         const file = event.target.files[0];
         if (!file) return;
 
-        // Show preview
         const preview = document.getElementById('image-preview');
         const previewImg = document.getElementById('preview-img');
         preview.classList.remove('hidden');
         previewImg.src = URL.createObjectURL(file);
 
-        // Hide previous results
         document.getElementById('scan-result').classList.add('hidden');
-        document.getElementById('scan-error').classList.add('hidden');
 
-        // Scan the image using a separate hidden container (doesn't interfere with camera)
         const html5QrCode = new Html5Qrcode("image-reader");
-
         html5QrCode.scanFile(file, true)
             .then(decodedText => {
                 processScanResult(decodedText);
-                // Clear the image reader after successful scan
                 html5QrCode.clear().catch(err => console.error('Failed to clear image reader', err));
-            })
- 
+            }).catch(err => {
+                showScanFeedback(false, 'Unknown', 'Could not read QR from image.');
+            });
     }
 
     function clearImage() {
@@ -186,50 +176,27 @@
         document.getElementById('preview-img').src = '';
     }
 
-    function onScanSuccess(decodedText, decodedResult) {
+    function onScanSuccess(decodedText) {
         const currentTime = new Date().getTime();
-        
-        // Prevent duplicate scans within cooldown period
         if (lastScanTime && (currentTime - lastScanTime) < SCAN_COOLDOWN && lastQrValue === decodedText) {
             return;
         }
-        
         lastScanTime = currentTime;
         lastQrValue = decodedText;
-
         processScanResult(decodedText);
     }
 
     function processScanResult(decodedText) {
-        // Extract QR code from URL if it's a full URL
         let qrValue = decodedText;
-        
-        // Check if it's a URL with QR code at the end
         const urlMatch = decodedText.match(/\/scan\/(.+)$/);
-        if (urlMatch && urlMatch[1]) {
-            qrValue = urlMatch[1];
-        }
+        if (urlMatch && urlMatch[1]) qrValue = urlMatch[1];
         
-        // Also check for event registration URL pattern
         const eventMatch = decodedText.match(/\/event\/scan\/(.+)$/);
-        if (eventMatch && eventMatch[1]) {
-            qrValue = eventMatch[1];
-        }
+        if (eventMatch && eventMatch[1]) qrValue = eventMatch[1];
 
-        // Visual feedback
-        const resultDiv = document.getElementById('scan-result');
-        const errorDiv = document.getElementById('scan-error');
-        const qrValueSpan = document.getElementById('qr-value');
-        const scanMessage = document.getElementById('scan-message');
+        // UI Reset
+        showScanFeedback('info', 'Scanning...', 'Please wait.');
 
-        resultDiv.classList.remove('hidden');
-        resultDiv.classList.add('bg-green-100', 'border', 'border-green-400');
-        errorDiv.classList.add('hidden');
-        // Don't show QR value for security - show "Scanning..." instead
-        qrValueSpan.textContent = 'Scanning...';
-        scanMessage.textContent = '';
-
-        // Send to server
         fetch("{{ route('security.scan.qr') }}", {
             method: 'POST',
             headers: {
@@ -241,190 +208,102 @@
         })
         .then(response => response.json())
         .then(data => {
+            let fullname = 'Unknown User';
+            if (data.inside_user && data.inside_user.fullname) fullname = data.inside_user.fullname;
+            else if (data.event_registration && data.event_registration.fullname) fullname = data.event_registration.fullname;
+            else if (data.quick_pass && data.quick_pass.visitor_name) fullname = data.quick_pass.visitor_name;
+            else if (data.outside_user && data.outside_user.first_name) fullname = data.outside_user.first_name + ' ' + data.outside_user.last_name;
+
             if (data.success) {
-                resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
-                resultDiv.classList.add('bg-blue-100', 'border', 'border-blue-400');
+                let userTypeLabel = 'Staff/Student';
+                if (data.user_type === 'quick_pass') userTypeLabel = 'Quick Pass';
+                else if (data.user_type === 'outside') userTypeLabel = 'Visitor';
+                else if (data.user_type === 'event') userTypeLabel = 'Event Attendee';
                 
-                // Get fullname based on user type
-                let fullname = 'Unknown User';
-                if (data.inside_user && data.inside_user.fullname) {
-                    fullname = data.inside_user.fullname;
-                } else if (data.event_registration && data.event_registration.fullname) {
-                    fullname = data.event_registration.fullname;
-                } else if (data.quick_pass && data.quick_pass.visitor_name) {
-                    fullname = data.quick_pass.visitor_name;
-                }
-                qrValueSpan.textContent = fullname;
-
-                // Set user type label based on user_type
-                let userTypeLabel;
-                if (data.user_type === 'quick_pass') {
-                    userTypeLabel = ' Quick Pass';
-                } else if (data.user_type === 'outside') {
-                    userTypeLabel = 'Visitor';
-                } else if (data.user_type === 'event') {
-                    userTypeLabel = ' Event Attendee';
-                } else {
-                    userTypeLabel = 'Staff/Student';
-                }
-
-                scanMessage.textContent = `${data.message} (${userTypeLabel})`;
-
-                // Add to scan history with server timestamp
+                showScanFeedback('success', fullname, `${data.message} (${userTypeLabel})`);
                 addToHistory(data);
-
-                // Hide result after 5 seconds
-                setTimeout(() => {
-                    resultDiv.classList.add('hidden');
-                }, 5000);
             } else {
-                resultDiv.classList.remove('bg-green-100', 'border', 'border-green-400');
-                resultDiv.classList.add('bg-yellow-100', 'border', 'border-yellow-400');
-                // Show user's name even on error (if available)
-                let fullname = 'Unknown User';
-                if (data.inside_user && data.inside_user.fullname) {
-                    fullname = data.inside_user.fullname;
-                } else if (data.event_registration && data.event_registration.fullname) {
-                    fullname = data.event_registration.fullname;
-                } else if (data.quick_pass && data.quick_pass.visitor_name) {
-                    fullname = data.quick_pass.visitor_name;
-                }
-                qrValueSpan.textContent = fullname;
-                scanMessage.textContent = data.message || 'User not found';
+                showScanFeedback('warning', fullname, data.message || 'User not found or access denied.');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            resultDiv.classList.add('hidden');
-            errorDiv.classList.remove('hidden');
-            document.getElementById('error-message').textContent = 'Error processing scan. Please try again.';
-
-            setTimeout(() => {
-                errorDiv.classList.add('hidden');
-            }, 5000);
+            showScanFeedback('error', 'Error', 'Failed to process scan. Server error.');
         });
     }
 
-    function onScanFailure(error) {
-        // Handle scan failure (usually just noise, don't show error)
-        console.warn(`Code scan error = ${error}`);
-    }
+    function onScanFailure(error) { /* silence scan noise */ }
 
-    // Format date/time from server timestamp
-    function formatServerDateTime(scanAt) {
-        if (!scanAt) {
-            const now = new Date();
-            return {
-                timeString: now.toLocaleTimeString(),
-                dateString: now.toLocaleDateString()
-            };
-        }
+    function showScanFeedback(type, title, message) {
+        const box = document.getElementById('scan-result');
+        box.className = 'scan-result-box'; // reset
+        if(type === 'success') box.classList.add('scan-result-success');
+        if(type === 'warning') box.classList.add('scan-result-warning');
+        if(type === 'error') box.classList.add('scan-result-error');
+        if(type === 'info') box.classList.add('scan-result-info');
         
-        const serverDate = new Date(scanAt);
-        return {
-            timeString: serverDate.toLocaleTimeString(),
-            dateString: serverDate.toLocaleDateString()
-        };
+        document.getElementById('qr-value').textContent = title;
+        document.getElementById('scan-message').textContent = message;
+        
+        // Hide after 5 sec
+        setTimeout(() => box.classList.add('hidden'), 5000);
     }
 
-    // Add scan to history display
     function addToHistory(data) {
-        if (!data || (!data.inside_user && !data.event_registration && !data.quick_pass)) return;
+        if (!data || (!data.inside_user && !data.event_registration && !data.quick_pass && !data.outside_user)) return;
 
         const historyDiv = document.getElementById('scan-history');
-        const { timeString, dateString } = formatServerDateTime(data.scan_at);
+        const d = new Date(data.scan_at || new Date());
+        const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        let fullname = 'Unknown';
+        if (data.event_registration && data.event_registration.fullname) fullname = data.event_registration.fullname;
+        else if (data.inside_user && data.inside_user.fullname) fullname = data.inside_user.fullname;
+        else if (data.quick_pass && data.quick_pass.visitor_name) fullname = data.quick_pass.visitor_name;
+        else if (data.outside_user && data.outside_user.first_name) fullname = data.outside_user.first_name + ' ' + data.outside_user.last_name;
 
-        // Get fullname based on user type
-        let fullname = 'Unknown User';
-        if (data.event_registration && data.event_registration.fullname) {
-            fullname = data.event_registration.fullname;
-        } else if (data.inside_user && data.inside_user.fullname) {
-            fullname = data.inside_user.fullname;
-        } else if (data.quick_pass && data.quick_pass.visitor_name) {
-            fullname = data.quick_pass.visitor_name;
-        }
-
-        // Handle scan types with special handling for event check-ins
-        let typeLabel, typeColor, bgColor;
-        const scanType = data.scan_type ? data.scan_type.toLowerCase() : 'unknown';
+        const sType = data.scan_type ? data.scan_type.toLowerCase() : '';
         const userType = data.user_type || '';
 
-        // Check if this is an event registration scan
+        let badgeClass = 'badge-outline';
+        let badgeText = sType.toUpperCase();
+        let boxClass = 'history-item-unknown';
+
         if (userType === 'event') {
-            if (scanType === 'entry') {
-                typeLabel = ' EVENT CHECK-IN';
-                typeColor = 'text-purple-600';
-                bgColor = 'bg-purple-50';
-            } else if (scanType === 'exit') {
-                typeLabel = ' EVENT CHECK-OUT';
-                typeColor = 'text-indigo-600';
-                bgColor = 'bg-indigo-50';
-            } else {
-                typeLabel = 'EVENT';
-                typeColor = 'text-purple-600';
-                bgColor = 'bg-purple-50';
-            }
-        } else if (scanType === 'entry') {
-            typeLabel = 'ENTRY';
-            typeColor = 'text-green-600';
-            bgColor = 'bg-green-50';
-        } else if (scanType === 'exit') {
-            typeLabel = 'EXIT';
-            typeColor = 'text-orange-600';
-            bgColor = 'bg-orange-50';
-        } else {
-            typeLabel = scanType.toUpperCase();
-            typeColor = 'text-gray-600';
-            bgColor = 'bg-gray-50';
+            boxClass = 'history-item-event';
+            badgeClass = 'badge-blue';
+            badgeText = sType === 'entry' ? 'IN' : 'OUT';
+        } else if (sType === 'entry') {
+            boxClass = 'history-item-entry';
+            badgeClass = 'badge-success';
+        } else if (sType === 'exit') {
+            boxClass = 'history-item-exit';
+            badgeClass = 'badge-warning';
         }
 
-        const historyItem = `
-            <div class="${bgColor} border rounded-lg p-3 animate-fade-in mb-3">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="font-semibold text-gray-800">${fullname}</p>
-                        <p class="text-sm text-gray-500">${dateString} ${timeString}</p>
-                    </div>
-                    <span class="${typeColor} font-bold px-3 py-1 rounded-full bg-white border text-xs">${typeLabel}</span>
+        const itemHTML = `
+            <div class="history-item ${boxClass}">
+                <div class="history-details">
+                    <p style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">${fullname}</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">${timeStr} • ${userType.toUpperCase()}</p>
                 </div>
+                <span class="badge ${badgeClass}">${badgeText}</span>
             </div>
         `;
-
-        historyDiv.insertAdjacentHTML('afterbegin', historyItem);
-
-        // Keep only last 10 scans
-        while (historyDiv.children.length > 10) {
-            historyDiv.removeChild(historyDiv.lastChild);
-        }
+        
+        historyDiv.insertAdjacentHTML('afterbegin', itemHTML);
+        while (historyDiv.children.length > 10) { historyDiv.removeChild(historyDiv.lastChild); }
     }
 
-    // Initialize camera on page load
     initCamera();
 
-    // Load recent scans on page load
-    fetch("{{ route('security.scan.history') }}", {
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
+    fetch("{{ route('security.scan.history') }}", { headers: {'Accept': 'application/json'} })
+    .then(r => r.json())
     .then(data => {
-        const historyDiv = document.getElementById('scan-history');
         if (data.scans && data.scans.length > 0) {
-            // Reverse the array so oldest is added first, then newer ones on top
-            data.scans.reverse().forEach(scan => {
-                addToHistory({
-                    event_registration: scan.event_registration || null,
-                    inside_user: scan.inside_user,
-                    quick_pass: scan.quick_pass,
-                    scan_type: scan.scan_type,
-                    scan_at: scan.scan_at,
-                    user_type: scan.user_type
-                });
-            });
+            data.scans.reverse().forEach(scan => addToHistory(scan));
         }
-    })
-    .catch(error => console.error('Error loading history:', error));
+    }).catch(e => console.error(e));
     </script>
 </body>
 </html>
