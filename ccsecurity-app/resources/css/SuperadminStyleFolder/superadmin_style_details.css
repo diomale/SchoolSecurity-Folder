@@ -1,64 +1,67 @@
-/* Page Background */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1e1e1e;
-    color: #e0e0e0;
+/* resources/css/SuperadminStyleFolder/superadmin_style_details.css */
+.details-glass-container {
+    background: var(--bg-glass-strong);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-soft);
+    max-width: 600px;
+    margin: 0 auto;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.details-header {
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
+    gap: 20px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 25px;
 }
 
-/* Main Container (page wrapper) */
-.admin-details-container {
-    width: 400px;
-    max-width: 90%;
-    text-align: center;
+.big-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
 }
 
-/* Title */
-.admin-details-container h1 {
-    color: #ffffff;
-    margin-bottom: 20px;
-}
-
-/* Card / Details Container */
-.details-box {
-    background-color: #2a2a2a; /* dark card */
-    padding: 25px 20px;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* visible shadow */
-    margin-bottom: 20px; /* space before back button */
-}
-
-/* List Styling */
-.details-box ul {
+.details-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.details-box li {
-    padding: 10px 0;
-    word-break: break-word;
+.details-list li {
+    background: rgba(0,0,0,0.02);
+    padding: 20px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.details-box strong {
-    color: #cfcfcf;
+.details-list strong {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Back Button */
-.admin-details-container a {
-    display: block;
-    padding: 10px;
-    background-color: #3a3f5c;
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: 0.2s ease;
-}
-
-.admin-details-container a:hover {
-    background-color: #565f7a;
+.details-list span {
+    color: var(--text-main);
+    font-size: 1.1rem;
+    font-weight: 500;
 }
