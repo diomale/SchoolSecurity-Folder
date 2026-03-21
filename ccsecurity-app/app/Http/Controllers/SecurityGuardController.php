@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use App\Models\OutsideUser;
 use App\Models\EntryLog;
 use App\Models\InsideUser;
@@ -15,6 +16,7 @@ use App\Models\ShiftLog;
 use App\Models\QuickPass;
 use App\Models\EventRegistration;
 use App\Models\Event;
+use App\Models\CurrentlyInside;
 use Carbon\Carbon;
 
 class SecurityGuardController extends Controller
@@ -23,33 +25,49 @@ class SecurityGuardController extends Controller
     public function dashboard()
     {
         $guard = Auth::guard('securityguard')->user();
-
-        // Get recent QR status change activities from ALL guards (shared notifications)
-        $recentActivities = EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'eventRegistration'])
-            ->whereNotNull('security_guard_user_id')
-            ->orderBy('id', 'desc')
-            ->limit(20)
-            ->get();
-
-        // Get statistics for current guard (only count actual entry/exit scans, not QR status toggles)
-        $totalScans = EntryLog::where('security_guard_user_id', $guard->id)
-            ->whereIn('scan_type', ['entry', 'exit'])
-            ->count();
-        $todayScans = EntryLog::where('security_guard_user_id', $guard->id)
-            ->whereIn('scan_type', ['entry', 'exit'])
-            ->whereDate('scan_at', today())
-            ->count();
-        $todayEntries = EntryLog::where('security_guard_user_id', $guard->id)
-            ->where('scan_type', 'entry')
-            ->whereDate('scan_at', today())
-            ->count();
-        $todayExits = EntryLog::where('security_guard_user_id', $guard->id)
-            ->where('scan_type', 'exit')
-            ->whereDate('scan_at', today())
-            ->count();
-
-        // Get total guards count
-        $totalGuards = securityguard::count();
+        
+        // Cache dashboard statistics for 5 minutes to reduce database load
+        // Priority 4: Query caching optimization
+        $cacheKey = 'guard_dashboard_' . $guard->id . '_' . today()->toDateString();
+        
+        $stats = Cache::remember($cacheKey, 300, function () use ($guard) {
+            return [
+                // Get recent QR status change activities from ALL guards (shared notifications)
+                'recentActivities' => EntryLog::with(['insideUser', 'outsideUser', 'securityGuardUser', 'eventRegistration'])
+                    ->whereNotNull('security_guard_user_id')
+                    ->orderBy('id', 'desc')
+                    ->limit(20)
+                    ->get(),
+                
+                // Get statistics for current guard (only count actual entry/exit scans, not QR status toggles)
+                'totalScans' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
+                    ->count(),
+                'todayScans' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->whereIn('scan_type', ['entry', 'exit'])
+                    ->whereDate('scan_at', today())
+                    ->count(),
+                'todayEntries' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->where('scan_type', 'entry')
+                    ->whereDate('scan_at', today())
+                    ->count(),
+                'todayExits' => EntryLog::where('security_guard_user_id', $guard->id)
+                    ->where('scan_type', 'exit')
+                    ->whereDate('scan_at', today())
+                    ->count(),
+                
+                // Get total guards count
+                'totalGuards' => securityguard::count(),
+            ];
+        });
+        
+        // Extract cached stats
+        $recentActivities = $stats['recentActivities'];
+        $totalScans = $stats['totalScans'];
+        $todayScans = $stats['todayScans'];
+        $todayEntries = $stats['todayEntries'];
+        $todayExits = $stats['todayExits'];
+        $totalGuards = $stats['totalGuards'];
 
         return view('SecurityGuardUser.dashboard', compact(
             'guard',
@@ -426,6 +444,26 @@ class SecurityGuardController extends Controller
                     'scan_type' => $scanType,
                 ]);
 
+                // Update currently_inside tracking table (Priority 3 optimization)
+                if ($scanType === 'entry') {
+                    // Add to currently_inside
+                    CurrentlyInside::trackEntry(
+                        ['qr_value' => $quickPass->qr_value],
+                        [
+                            'user_type' => 'quick',
+                            'user_id' => $quickPass->id,
+                            'fullname' => $quickPass->visitor_name,
+                            'email' => 'N/A',
+                            'role' => 'Quick Pass',
+                            'entered_at' => Carbon::now(),
+                            'entry_log_id' => $entryLog->id,
+                        ]
+                    );
+                } else {
+                    // Remove from currently_inside (on exit)
+                    CurrentlyInside::trackExit($quickPass->qr_value);
+                }
+
                 // Don't mark as used - allow multiple entries/exits until expired
                 // Quick Pass is valid for unlimited scans until 11:59 PM
 
@@ -583,7 +621,7 @@ class SecurityGuardController extends Controller
                 }
 
                 // Log the scan for event registration
-                EntryLog::create([
+                $entryLog = EntryLog::create([
                     'inside_user_id' => null,
                     'outside_user_id' => $eventRegistration->outside_user_id,
                     'event_registration_id' => $eventRegistration->id,
@@ -593,6 +631,26 @@ class SecurityGuardController extends Controller
                     'scan_at' => Carbon::now()->toDateTimeString(),
                     'scan_type' => $scanType,
                 ]);
+
+                // Update currently_inside tracking table (Priority 3 optimization)
+                if ($scanType === 'entry') {
+                    // Add to currently_inside
+                    CurrentlyInside::trackEntry(
+                        ['qr_value' => $eventRegistration->qr_code],
+                        [
+                            'user_type' => 'event',
+                            'user_id' => $eventRegistration->id,
+                            'fullname' => $eventRegistration->fullname,
+                            'email' => $eventRegistration->email,
+                            'role' => 'Event Attendee',
+                            'entered_at' => Carbon::now(),
+                            'entry_log_id' => $entryLog->id,
+                        ]
+                    );
+                } else {
+                    // Remove from currently_inside (on exit)
+                    CurrentlyInside::trackExit($eventRegistration->qr_code);
+                }
 
                 return response()->json([
                     'success' => true,
@@ -640,6 +698,26 @@ class SecurityGuardController extends Controller
                     'scan_type' => $scanType,
                 ]);
 
+                // Update currently_inside tracking table (Priority 3 optimization)
+                if ($scanType === 'entry') {
+                    // Add to currently_inside
+                    CurrentlyInside::trackEntry(
+                        ['qr_value' => $insideUser->qr_value],
+                        [
+                            'user_type' => 'inside',
+                            'user_id' => $insideUser->id,
+                            'fullname' => $insideUser->fullname,
+                            'email' => $insideUser->email ?? 'N/A',
+                            'role' => $insideUser->role ?? 'N/A',
+                            'entered_at' => Carbon::now(),
+                            'entry_log_id' => $entryLog->id,
+                        ]
+                    );
+                } else {
+                    // Remove from currently_inside (on exit)
+                    CurrentlyInside::trackExit($insideUser->qr_value);
+                }
+
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -678,6 +756,26 @@ class SecurityGuardController extends Controller
                     'scan_at' => Carbon::now()->toDateTimeString(),
                     'scan_type' => $scanType,
                 ]);
+
+                // Update currently_inside tracking table (Priority 3 optimization)
+                if ($scanType === 'entry') {
+                    // Add to currently_inside
+                    CurrentlyInside::trackEntry(
+                        ['qr_value' => $outsideUser->qr_value],
+                        [
+                            'user_type' => 'outside',
+                            'user_id' => $outsideUser->id,
+                            'fullname' => $outsideUser->fullname,
+                            'email' => $outsideUser->email ?? 'N/A',
+                            'role' => 'Visitor',
+                            'entered_at' => Carbon::now(),
+                            'entry_log_id' => $entryLog->id,
+                        ]
+                    );
+                } else {
+                    // Remove from currently_inside (on exit)
+                    CurrentlyInside::trackExit($outsideUser->qr_value);
+                }
 
                 return response()->json([
                     'success' => true,
@@ -870,51 +968,28 @@ class SecurityGuardController extends Controller
             ->whereDate('scan_at', $today)
             ->count();
 
-        $currentlyInsideCount = $totalEntriesToday - $totalExitsToday;
+        // Get count from currently_inside table (instant query)
+        $currentlyInsideCount = CurrentlyInside::count();
 
-        // Get people currently inside (those whose last scan was entry)
-        // Get all users (inside, outside, event registrations) who entered but haven't exited
-        $allLogs = EntryLog::whereNotNull('qr_value')
-            ->whereIn('scan_type', ['entry', 'exit'])
-            ->orderBy('qr_value')
-            ->orderBy('id', 'desc')
-            ->get()
-            ->groupBy('qr_value');
-
-        $currentlyInsidePeople = collect();
-
-        foreach ($allLogs as $qrValue => $logs) {
-            $lastLog = $logs->first(); // Get the most recent log for this QR
-            if ($lastLog && $lastLog->scan_type === 'entry') {
-                // This user is currently inside
-                $person = [
-                    'fullname' => 'Unknown',
-                    'email' => 'N/A',
-                    'role' => 'N/A',
-                    'scan_at' => $lastLog->scan_at,
+        // Get people currently inside from tracking table (Priority 3 optimization)
+        // OLD CODE (loads ALL entry logs - CRASHES with 1M+ records):
+        // $allLogs = EntryLog::whereNotNull('qr_value')
+        //     ->whereIn('scan_type', ['entry', 'exit'])
+        //     ->orderBy('qr_value')
+        //     ->orderBy('id', 'desc')
+        //     ->get()
+        //     ->groupBy('qr_value');
+        
+        // NEW CODE (instant query from currently_inside table):
+        $currentlyInsidePeople = CurrentlyInside::getAllInside()
+            ->map(function($person) {
+                return [
+                    'fullname' => $person->fullname,
+                    'email' => $person->email,
+                    'role' => $person->role ?? 'N/A',
+                    'scan_at' => $person->entered_at,
                 ];
-
-                if ($lastLog->insideUser) {
-                    $person['fullname'] = $lastLog->insideUser->fullname ?? 'Unknown';
-                    $person['email'] = $lastLog->insideUser->email ?? 'N/A';
-                    $person['role'] = $lastLog->insideUser->role ?? 'N/A';
-                } elseif ($lastLog->outsideUser) {
-                    $person['fullname'] = $lastLog->outsideUser->fullname ?? 'Visitor';
-                    $person['email'] = $lastLog->outsideUser->email ?? 'N/A';
-                    $person['role'] = 'Visitor';
-                } elseif ($lastLog->eventRegistration) {
-                    $person['fullname'] = $lastLog->eventRegistration->fullname ?? 'Event Attendee';
-                    $person['email'] = $lastLog->eventRegistration->email ?? 'N/A';
-                    $person['role'] = 'Event';
-                } elseif ($lastLog->quickPass) {
-                    $person['fullname'] = $lastLog->quickPass->visitor_name ?? 'Quick Pass';
-                    $person['email'] = 'N/A';
-                    $person['role'] = 'Quick Pass';
-                }
-
-                $currentlyInsidePeople->push($person);
-            }
-        }
+            });
 
         $logs = $query->orderBy('scan_at', 'desc')->paginate(20);
 
