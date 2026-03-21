@@ -3,159 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shift Management - Security Guard</title>
+    <title>Shift Management - CCSS</title>
+    <!-- Modern Font: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/SecurityGuardStyleFolder/securityguard_style_dashboard.css', 'resources/css/SecurityGuardStyleFolder/securityguard_style_shift_management.css'])
 </head>
 <body>
-    <div>
-        <!-- Header -->
-        <div>
-            <h1> Shift Management</h1>
-            <a href="{{ route('security.dashboard') }}">← Back to Dashboard</a>
-        </div>
-
-        <!-- Alert Messages -->
-        @if(session('success'))
-        <div>
-            {{ session('success') }}
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div>
-            {{ session('error') }}
-        </div>
-        @endif
-
-        <!-- Statistics Cards -->
-        <div>
-            <div>
-                <h3> Shifts This Week</h3>
-                <p>{{ $totalShiftsThisWeek }}</p>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
             </div>
-            <div>
-                <h3> Hours This Week</h3>
-                <p>{{ number_format($totalHoursThisWeek, 1) }}</p>
-            </div>
-        </div>
-
-        <!-- Current Shift Status -->
-        <div>
-            @if($currentShiftLog)
-            <div>
-                <h2> Currently On Shift</h2>
-                <div>{{ $currentShiftLog->clock_in_time->format('h:i A') }}</div>
-                <div>Clocked in at {{ $currentShiftLog->clock_in_time->format('M d, Y') }}</div>
-                <div>
-                    <form method="POST" action="{{ route('security.clock.out') }}">
-                        @csrf
-                        <button type="submit" onclick="return confirm('Clock out from your shift?')">
-                             Clock Out
-                        </button>
-                    </form>
-                    @if($currentShiftLog->id)
-                    <button type="button" onclick="document.getElementById('handover-form').style.display='block'">
-                         Add Handover Note
-                    </button>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Handover Note Form -->
-            <div id="handover-form" style="display: none;">
-                <h3> Handover Note for Next Guard</h3>
-                <form method="POST" action="{{ route('security.submit.handover') }}">
+            <nav class="sidebar-nav">
+                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span> Back to Command
+                </a>
+                <a href="{{ route('security.shift.management') }}" class="tab-button active" style="text-decoration: none;">
+                    <span class="nav-icon">⏱️</span> Shift Management
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
                     @csrf
-                    <input type="hidden" name="shift_log_id" value="{{ $currentShiftLog->id }}">
-                    <textarea 
-                        name="handover_note" 
-                        placeholder="Write any important information for the next guard..."
-                        required
-                    ></textarea>
-                    <div>
-                        <button type="button" onclick="document.getElementById('handover-form').style.display='none'">
-                            Cancel
-                        </button>
-                        <button type="submit">
-                            Submit Handover
-                        </button>
-                    </div>
+                    <button type="submit" class="logout-btn">
+                        <span class="nav-icon">🚪</span> Logout
+                    </button>
                 </form>
             </div>
+        </aside>
 
-            @else
-            <div>
-                <h2> Not Currently On Shift</h2>
-                <div>{{ today()->format('l, F d, Y') }}</div>
-                <div>
-                    <form method="POST" action="{{ route('security.clock.in') }}">
-                        @csrf
-                        <button type="submit">
-                             Clock In
-                        </button>
-                    </form>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="fade-in">Shift <span class="highlight">Management</span></h1>
+                    <p class="subtitle fade-in" style="animation-delay: 0.1s;">Track your hours, clock in/out, and view schedules.</p>
+                </div>
+            </header>
+
+            @if(session('success'))
+                <div class="alert alert-success fade-in">
+                    <div class="alert-icon">✓</div>
+                    <div class="alert-content">{{ session('success') }}</div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-error fade-in">
+                    <div class="alert-icon">!</div>
+                    <div class="alert-content">{{ session('error') }}</div>
+                </div>
+            @endif
+
+            <div class="stats-grid fade-in" style="animation-delay: 0.2s;">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">📅</div>
+                    <div class="stat-info">
+                        <h3>Shifts This Week</h3>
+                        <p>{{ $totalShiftsThisWeek }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">⏳</div>
+                    <div class="stat-info">
+                        <h3>Hours This Week</h3>
+                        <p>{{ number_format($totalHoursThisWeek, 1) }}</p>
+                    </div>
                 </div>
             </div>
-            @endif
-        </div>
 
-        <!-- Today's Scheduled Shift -->
-        @if($todayShift)
-        <div>
-            <h3> Today's Scheduled Shift</h3>
-            <div>
-                <p><strong>Date:</strong> {{ $todayShift->shift_date->format('F d, Y') }}</p>
-                <p><strong>Shift Time:</strong> {{ \Carbon\Carbon::parse($todayShift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($todayShift->end_time)->format('h:i A') }}</p>
-                <p><strong>Status:</strong> 
-                    <span>
-                        {{ ucfirst($todayShift->status) }}
-                    </span>
-                </p>
-            </div>
-        </div>
-        @endif
+            <!-- Current Shift Status -->
+            <div class="shift-status-container {{ $currentShiftLog ? 'shift-active' : 'shift-inactive' }} fade-in" style="animation-delay: 0.3s;">
+                @if($currentShiftLog)
+                    <h2 style="color: var(--primary-dark); margin-bottom: 5px;">✅ Currently On Shift</h2>
+                    <div class="shift-time-display">
+                        {{ \Carbon\Carbon::now()->format('h:i') }} <span style="font-size: 1.5rem; color: var(--text-muted);">{{ \Carbon\Carbon::now()->format('A') }}</span>
+                    </div>
+                    <div class="shift-date-display">
+                        Clocked in at <strong>{{ $currentShiftLog->clock_in_time->format('h:i A') }}</strong> on {{ $currentShiftLog->clock_in_time->format('M d, Y') }}
+                    </div>
+                    
+                    <div class="actions-row">
+                        @if($currentShiftLog->id)
+                        <button type="button" class="btn-outline" onclick="document.getElementById('handover-form').style.display='block'">
+                            📝 Add Handover Note
+                        </button>
+                        @endif
+                        <form method="POST" action="{{ route('security.clock.out') }}">
+                            @csrf
+                            <button type="submit" class="btn-clock btn-clock-out" onclick="return confirm('Clock out from your shift?')">
+                                🛑 Clock Out
+                            </button>
+                        </form>
+                    </div>
 
-        <!-- Recent Shift History -->
-        <div>
-            <h3> Recent Shift History</h3>
-            @if($recentShiftLogs->count() > 0)
-            <div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Clock In</th>
-                            <th>Clock Out</th>
-                            <th>Duration</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($recentShiftLogs as $log)
-                        <tr>
-                            <td>{{ $log->clock_in_time->format('M d, Y') }}</td>
-                            <td>{{ $log->clock_in_time->format('h:i A') }}</td>
-                            <td>{{ $log->clock_out_time->format('h:i A') }}</td>
-                            <td>{{ $log->clock_in_time->diffInHours($log->clock_out_time) }} hrs</td>
-                            <td>
-                                <span>Completed</span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                    <!-- Handover Note Form -->
+                    <div id="handover-form" class="handover-modal">
+                        <h3 style="margin-bottom: 15px; color: var(--primary-dark);">Handover Note for Next Guard</h3>
+                        <form method="POST" action="{{ route('security.submit.handover') }}">
+                            @csrf
+                            <input type="hidden" name="shift_log_id" value="{{ $currentShiftLog->id }}">
+                            <textarea 
+                                name="handover_note" 
+                                placeholder="Write any important information for the next guard (e.g., specific instructions, incidents during your shift)..."
+                                required
+                            ></textarea>
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                <button type="button" class="btn-outline" style="padding: 10px 20px;" onclick="document.getElementById('handover-form').style.display='none'">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn-clock btn-clock-in" style="padding: 10px 20px;">
+                                    Submit Handover
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                @else
+                    <h2 style="color: var(--warning); margin-bottom: 5px;">⏸️ Not Currently On Shift</h2>
+                    <div class="shift-time-display">
+                        {{ \Carbon\Carbon::now()->format('h:i') }} <span style="font-size: 1.5rem; color: var(--text-muted);">{{ \Carbon\Carbon::now()->format('A') }}</span>
+                    </div>
+                    <div class="shift-date-display">
+                        Today is <strong>{{ today()->format('l, F d, Y') }}</strong>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <form method="POST" action="{{ route('security.clock.in') }}">
+                            @csrf
+                            <button type="submit" class="btn-clock btn-clock-in">
+                                ▶️ Clock In Now
+                            </button>
+                        </form>
+                    </div>
+                @endif
             </div>
-            @else
-            <div>
-                <p> No shift history available yet.</p>
-            </div>
-            @endif
-        </div>
 
-        <!-- Navigation Links -->
-        <div>
-            <a href="{{ route('security.shift.schedule') }}"> View Schedule</a>
-            <a href="{{ route('security.shift.history') }}"> Full History</a>
-        </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: stretch;">
+                
+                <!-- Today's Scheduled Shift -->
+                <div class="glass-card fade-in" style="animation-delay: 0.4s; height: 100%;">
+                    <h3 style="margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">📅 Today's Schedule</h3>
+                    @if($todayShift)
+                        <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.05);">
+                            <p style="margin-bottom: 10px;"><strong>Date:</strong> <span style="color: var(--text-muted);">{{ $todayShift->shift_date->format('F d, Y') }}</span></p>
+                            <p style="margin-bottom: 10px;"><strong>Shift Time:</strong> <span style="font-weight: 600; color: var(--primary);">{{ \Carbon\Carbon::parse($todayShift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($todayShift->end_time)->format('h:i A') }}</span></p>
+                            <p style="margin-bottom: 0;"><strong>Status:</strong> 
+                                <span class="badge badge-{{ $todayShift->status }}">
+                                    {{ ucfirst($todayShift->status) }}
+                                </span>
+                            </p>
+                        </div>
+                    @else
+                        <div class="empty-state" style="padding: 20px;">
+                            <p>No shift scheduled for today.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="nav-cards fade-in" style="animation-delay: 0.5s;">
+                    <a href="{{ route('security.shift.schedule') }}" class="nav-card">
+                        <div class="nav-card-icon">🗓️</div>
+                        <div>
+                            <h4 style="margin: 0 0 5px; font-size: 1.1rem; color: var(--primary-dark);">View Schedule</h4>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Check upcoming shifts</p>
+                        </div>
+                    </a>
+                    <a href="{{ route('security.shift.history') }}" class="nav-card">
+                        <div class="nav-card-icon">📜</div>
+                        <div>
+                            <h4 style="margin: 0 0 5px; font-size: 1.1rem; color: var(--primary-dark);">Full History</h4>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Review past hours</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Shift History -->
+            <div class="glass-card fade-in" style="margin-top: 30px; animation-delay: 0.6s;">
+                <h3 style="margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">📜 Recent Activity</h3>
+                @if($recentShiftLogs->count() > 0)
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Clock In</th>
+                                <th>Clock Out</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recentShiftLogs as $log)
+                            <tr>
+                                <td style="font-weight: 600;">{{ $log->clock_in_time->format('M d, Y') }}</td>
+                                <td><span style="color: var(--success); font-weight: 500;">{{ $log->clock_in_time->format('h:i A') }}</span></td>
+                                <td><span style="color: var(--danger); font-weight: 500;">{{ $log->clock_out_time ? $log->clock_out_time->format('h:i A') : '—' }}</span></td>
+                                <td>{{ $log->clock_out_time ? $log->clock_in_time->diffInHours($log->clock_out_time) . ' hrs' : '—' }}</td>
+                                <td>
+                                    <span class="badge {{ $log->clock_out_time ? 'badge-completed' : 'badge-active' }}" style="{{ $log->clock_out_time ? 'background: #d1ecf1; color: #0c5460;' : 'background: var(--success-light); color: var(--success);' }}">
+                                        {{ $log->clock_out_time ? 'Completed' : 'Active' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="empty-state" style="padding: 30px;">
+                    <div class="empty-icon">📂</div>
+                    <p>No shift history available yet.</p>
+                </div>
+                @endif
+            </div>
+
+        </main>
     </div>
 </body>
 </html>

@@ -27,6 +27,8 @@ export default defineConfig({
                 'resources/css/SecurityGuardStyleFolder/securityguard_style_shift_history.css',
                 'resources/css/SecurityGuardStyleFolder/securityguard_style_shift_management.css',
                 'resources/css/SecurityGuardStyleFolder/securityguard_style_shift_schedule.css',
+                'resources/css/SecurityGuardStyleFolder/securityguard_style_walkin.css',
+                'resources/css/SecurityGuardStyleFolder/securityguard_style_quickpass.css',
 
                 // Visitor / Outside User Portal
                 'resources/css/OutsideUSerStyleFolder/outsideuser_style_dashboard.css',
