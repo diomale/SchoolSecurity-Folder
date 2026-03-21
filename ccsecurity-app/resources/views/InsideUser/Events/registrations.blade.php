@@ -3,172 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Registrations</title>
+    <title>Event Registrations - CCSS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/InsideUserStyleFolder/insideuser_dashboard_style.css', 'resources/css/InsideUserStyleFolder/insideuser_style_events.css'])
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; }
-        .btn { padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; cursor: pointer; border: none; font-size: 14px; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .badge-green { background: #d4edda; color: #155724; }
-        .badge-blue { background: #d1ecf1; color: #0c5460; }
-        .nav-link { color: #007bff; text-decoration: none; }
-        
-        /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal.show { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: white; margin: auto; padding: 30px; border-radius: 8px; width: 100%; max-width: 450px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease-out; }
-        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-        .modal-header h2 { margin: 0; font-size: 20px; color: #333; }
-        .close-modal { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; border: none; background: none; padding: 0; width: 30px; height: 30px; }
-        .close-modal:hover { color: #000; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
-        .form-group input:focus { outline: none; border-color: #007bff; }
-        .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
-        .modal-footer .btn { flex: 1; }
-        .alert { padding: 15px; border-radius: 4px; margin-bottom: 20px; }
-        .alert-success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
-        .alert-error { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+        .custom-modal.active { display: flex; }
+        .custom-modal-content { background: white; padding: 30px; border-radius: var(--radius-xl); width: 100%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .custom-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 15px; }
+        .custom-modal-header h2 { font-size: 1.4rem; color: var(--text-main); margin: 0; }
+        .close-modal { background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; line-height: 1; }
+        .close-modal:hover { color: var(--danger); }
+        .table-action-icons a { font-size: 1.2rem; margin-right: 10px; text-decoration: none; transition: var(--transition); display:inline-block; }
+        .table-action-icons a:hover { transform: scale(1.2); }
     </style>
 </head>
 <body>
-    <div class="container">
-        @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ route('insideuser.dashboard') }}" class="nav-link">
+                    <span class="nav-icon">📊</span> Overview
+                </a>
+                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link active">
+                    <span class="nav-icon">🎉</span> My Events
+                </a>
+                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
+                    <span class="nav-icon">🤝</span> Connection Requests
+                </a>
+                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
+                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
+                </a>
+            </nav>
+        </aside>
 
-        @if(session('error'))
-        <div class="alert alert-error">{{ session('error') }}</div>
-        @endif
-
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div>
-                    <a href="{{ route('insideuser.events.show', $event->id) }}" class="nav-link" style="font-size: 12px;">← Back to Event</a>
-                    <h1 style="margin: 5px 0 0 0; font-size: 24px;">Event Registrations</h1>
-                    <p style="margin: 5px 0 0 0; color: #666;">{{ $event->event_name }}</p>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <header class="top-header" style="margin-bottom: 30px;">
+                <div class="header-left">
+                    <a href="{{ route('insideuser.events.show', $event->id) }}" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.95rem; display: inline-block; margin-bottom: 15px;">&larr; Back to {{ $event->event_name }}</a>
+                    <h1 class="fade-in">Event <span class="highlight">Registrations</span></h1>
+                    <p class="subtitle fade-in" style="animation-delay: 0.1s;">Manage and export registrations for your event.</p>
                 </div>
-                <div>
+                <div class="header-right fade-in" style="animation-delay: 0.1s; display: flex; gap: 10px;">
                     <button onclick="openModal()" class="btn btn-primary">+ Register Walk-in</button>
-                    <a href="{{ route('insideuser.events.exportRegistrations', $event->id) }}" class="btn btn-success"> Export CSV</a>
+                    <a href="{{ route('insideuser.events.exportRegistrations', $event->id) }}" class="btn btn-success" style="background: var(--success);">Export CSV</a>
+                </div>
+            </header>
+
+            <div class="fade-in" style="animation-delay: 0.2s;">
+                @if(session('success'))
+                    <div class="alert-info-box" style="background: var(--success-light); border-left-color: var(--success);">
+                        <strong style="color: var(--success);">Success!</strong> <span style="color: var(--success);">{{ session('success') }}</span>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert-info-box" style="background: var(--danger-light); border-left-color: var(--danger);">
+                        <strong style="color: var(--danger);">Error!</strong> <span style="color: var(--danger);">{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 style="margin-bottom: 5px;">Total Registered</h3>
+                        <div class="value" style="color: var(--primary);">{{ $registrations->total() }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="margin-bottom: 5px;">Checked In</h3>
+                        <div class="value" style="color: var(--info);">{{ $registrations->where('status', 'checked_in')->count() }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="margin-bottom: 5px;">Available Slots</h3>
+                        <div class="value" style="color: var(--success);">{{ $event->alien_user_limit - $registrations->total() }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="margin-bottom: 5px;">Capacity</h3>
+                        <div class="value" style="color: var(--purple);">{{ $event->alien_user_limit }}</div>
+                    </div>
+                </div>
+
+                <!-- Registrations Table -->
+                <div class="glass-card">
+                    @if($registrations->count() > 0)
+                    <div class="table-responsive">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>QR Code</th>
+                                    <th>Approval Status</th>
+                                    <th>Status</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($registrations as $index => $reg)
+                                <tr>
+                                    <td class="text-muted">{{ $registrations->firstItem() + $index }}</td>
+                                    <td><strong>{{ $reg->fullname }}</strong></td>
+                                    <td>{{ $reg->email }}</td>
+                                    <td>{{ $reg->phone_number ?? '-' }}</td>
+                                    <td><code style="font-size: 0.8rem; background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 4px;">{{ $reg->qr_code }}</code></td>
+                                    <td>
+                                        @if($reg->needs_creator_approval && !$reg->creator_approved_at)
+                                            <span class="badge badge-yellow">Pending</span>
+                                        @else
+                                            <span class="badge badge-green">Approved</span>
+                                            @if($reg->creator_approved_at)
+                                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                                                    {{ $reg->creator_approved_at->format('M d, g:i A') }}
+                                                </div>
+                                            @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-green">{{ ucfirst($reg->status) }}</span>
+                                    </td>
+                                    <td style="font-size: 0.85rem; color: var(--text-muted);">{{ $reg->created_at->format('M d, Y g:i A') }}</td>
+                                    <td class="table-action-icons">
+                                        @if($reg->creator_approved_at)
+                                            <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" title="Download QR">⬇️</a>
+                                            <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')">✉️</a>
+                                        @else
+                                            <span style="color: var(--text-light); font-size: 0.8rem;">Awaiting</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 20px;">{{ $registrations->links() }}</div>
+                    @else
+                    <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 20px;">📭</div>
+                        <h4 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 10px;">No registrations yet..</h4>
+                        <p style="color: var(--text-muted);">As participants register, they will appear here.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div style="font-size: 12px; color: #666;">Total Registered</div>
-                <div style="font-size: 28px; font-weight: bold;">{{ $registrations->total() }}</div>
-            </div>
-            <div class="stat-card">
-                <div style="font-size: 12px; color: #666;">Checked In</div>
-                <div style="font-size: 28px; font-weight: bold; color: #007bff;">{{ $registrations->where('status', 'checked_in')->count() }}</div>
-            </div>
-            <div class="stat-card">
-                <div style="font-size: 12px; color: #666;">Available Slots</div>
-                <div style="font-size: 28px; font-weight: bold; color: #28a745;">{{ $event->alien_user_limit - $registrations->total() }}</div>
-            </div>
-            <div class="stat-card">
-                <div style="font-size: 12px; color: #666;">Capacity</div>
-                <div style="font-size: 28px; font-weight: bold; color: #6f42c1;">{{ $event->alien_user_limit }}</div>
-            </div>
-        </div>
-
-        <div class="card">
-            @if($registrations->count() > 0)
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>QR Code</th>
-                        <th>Approval Status</th>
-                        <th>Status</th>
-                        <th>Registered</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($registrations as $index => $reg)
-                    <tr>
-                        <td>{{ $registrations->firstItem() + $index }}</td>
-                        <td>{{ $reg->fullname }}</td>
-                        <td>{{ $reg->email }}</td>
-                        <td>{{ $reg->phone_number ?? '-' }}</td>
-                        <td><code style="font-size: 11px; background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">{{ $reg->qr_code }}</code></td>
-                        <td>
-                            @if($reg->needs_creator_approval && !$reg->creator_approved_at)
-                                <span class="badge" style="background: #fff3cd; color: #856404;">Pending Approval</span>
-                            @else
-                                <span class="badge" style="background: #d4edda; color: #155724;">Approved</span>
-                                @if($reg->creator_approved_at)
-                                    <div style="font-size: 10px; color: #666; margin-top: 3px;">
-                                        {{ $reg->creator_approved_at->format('M d, g:i A') }}
-                                    </div>
-                                @endif
-                            @endif
-                        </td>
-                        <td>
-                            <span class="badge badge-green">{{ ucfirst($reg->status) }}</span>
-                        </td>
-                        <td>{{ $reg->created_at->format('M d, Y g:i A') }}</td>
-                        <td>
-                            @if($reg->creator_approved_at)
-                                <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" class="nav-link" title="Download QR">⬇</a>
-                                <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" class="nav-link" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')">✉</a>
-                            @else
-                                <span style="color: #999; font-size: 12px;">Awaiting approval</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div style="padding: 20px;">{{ $registrations->links() }}</div>
-            @else
-            <div style="text-align: center; padding: 60px 20px;">
-                <p style="color: #666;">No registrations yet.</p>
-            </div>
-            @endif
-        </div>
+        </main>
     </div>
 
     <!-- Walk-in Registration Modal -->
-    <div id="walkinModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div id="walkinModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
                 <h2>Register Walk-in Participant</h2>
                 <button class="close-modal" onclick="closeModal()">×</button>
             </div>
             
             <form action="{{ route('insideuser.events.registerWalkin', $event->id) }}" method="POST">
                 @csrf
-                
                 <div class="form-group">
-                    <label for="first_name">First Name <span style="color: #dc3545;">*</span></label>
+                    <label for="first_name">First Name <span style="color: var(--danger);">*</span></label>
                     <input type="text" id="first_name" name="first_name" required placeholder="Enter first name">
                 </div>
 
                 <div class="form-group">
-                    <label for="last_name">Last Name <span style="color: #dc3545;">*</span></label>
+                    <label for="last_name">Last Name <span style="color: var(--danger);">*</span></label>
                     <input type="text" id="last_name" name="last_name" required placeholder="Enter last name">
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email <span style="color: #dc3545;">*</span></label>
+                    <label for="email">Email <span style="color: var(--danger);">*</span></label>
                     <input type="email" id="email" name="email" required placeholder="Enter email address">
                 </div>
 
@@ -177,9 +193,9 @@
                     <input type="text" id="phone_number" name="phone_number" placeholder="Enter phone number (optional)">
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Register Participant</button>
+                <div class="form-actions" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); gap: 15px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Register Participant</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">Cancel</button>
                 </div>
             </form>
         </div>
@@ -187,19 +203,20 @@
 
     <script>
         function openModal() {
-            document.getElementById('walkinModal').classList.add('show');
+            document.getElementById('walkinModal').classList.add('active');
         }
 
         function closeModal() {
-            document.getElementById('walkinModal').classList.remove('show');
+            document.getElementById('walkinModal').classList.remove('active');
         }
 
         // Close modal when clicking outside
-        document.getElementById('walkinModal').addEventListener('click', function(e) {
-            if (e.target === this) {
+        window.onclick = function(e) {
+            let modal = document.getElementById('walkinModal');
+            if (e.target === modal) {
                 closeModal();
             }
-        });
+        };
 
         // Close modal on Escape key
         document.addEventListener('keydown', function(e) {
