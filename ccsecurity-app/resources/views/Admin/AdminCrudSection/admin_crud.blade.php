@@ -3,34 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inside User Management - CCSS</title>
-    <!-- Modern Font: Outfit -->
+    <title>Inside User Management - CCSS Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/AdminStyleFolder/admin_style_crud.css', 'resources/js/app.js'])
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div class="bg-animation">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+<div class="dashboard-container">
 
-    <div class="dashboard-container">
-        <header class="dashboard-header glass-panel">
-            <div class="header-left">
-                <div class="logo-circle">CCSS</div>
-                <h1>Inside User Management</h1>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle">CCSS</div>
+            <div class="sidebar-brand">
+                <strong>Columban College</strong>
+                <span>Admin Portal</span>
             </div>
-            <div class="header-right">
-                <a href="{{ route('admin.dashboard') }}" class="btn-secondary">Dashboard</a>
-            </div>
-        </header>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+            <a href="{{ route('admin.show.crudSection') }}" class="nav-link active"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
+            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
+            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
+            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
+            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
+            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
+            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
+            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
+            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
+            </form>
+        </div>
+    </aside>
+    
 
-        <main class="dashboard-content glass-panel">
+    <main class="main-content">
+        <div class="top-header fade-in">
+            <div>
+                <h1>Inside User <span class="highlight">Management</span></h1>
+                <p class="subtitle">Manage students, teachers, and internal staff records</p>
+            </div>
+            <a href="{{ route('admin.add.user') }}" class="btn-primary">+ Add User</a>
+        </div>
+
+        <div class="glass-card fade-in" style="animation-delay:0.1s; padding:0; overflow:hidden;">
             <!-- Toolbar -->
-            <div class="toolbar">
+            <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div class="toolbar-left">
                     <a href="{{ route('admin.add.user') }}" class="btn-primary">Add User+</a>
                     <button type="button" onclick="openPasswordModal('bulk-delete-form')" id="bulk-delete-btn" class="btn-danger" disabled>Bulk Delete</button>
@@ -116,14 +139,17 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
+            </div><!-- table-container -->
 
             <!-- Pagination -->
-            <div class="pagination-container">
-                {{ $inside_users->appends(request()->query())->links() }}
+            <div style="padding: 16px 24px;">
+                <div class="pagination-container">
+                    {{ $inside_users->appends(request()->query())->links() }}
+                </div>
             </div>
-        </main>
-    </div>
+        </div><!-- glass-card -->
+    </main>
+</div><!-- dashboard-container -->
 
     <!-- Hidden Bulk Delete Form -->
     <form id="bulk-delete-form" action="{{ route('admin.user.bulk-delete') }}" method="POST" style="display:none;">
