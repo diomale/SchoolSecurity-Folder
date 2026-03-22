@@ -77,6 +77,7 @@ class InsideUserEventController extends Controller
             'event_end_time' => $request->event_end_time,
             'qr_request_deadline' => $request->qr_request_deadline,
             'alien_user_limit' => $request->alien_user_limit,
+            'show_on_welcome' => $request->has('show_on_welcome'),
             'status' => Event::STATUS_PENDING,
         ]);
 
@@ -149,6 +150,7 @@ class InsideUserEventController extends Controller
             'event_end_time' => $request->event_end_time,
             'qr_request_deadline' => $request->qr_request_deadline,
             'alien_user_limit' => $request->alien_user_limit,
+            'show_on_welcome' => $request->has('show_on_welcome'),
         ]);
 
         return redirect()->route('insideuser.events.show', $id)
@@ -355,13 +357,16 @@ class InsideUserEventController extends Controller
                 ->with('error', 'Only approved events can be displayed publicly.');
         }
 
+        // Toggle visibility
+        $newStatus = !$event->show_on_welcome;
+
         // Use direct DB update on mysql_second connection to avoid touching other fields
         DB::connection('mysql_second')->table('events')
             ->where('id', $id)
-            ->update(['show_on_welcome' => !$event->show_on_welcome]);
+            ->update(['show_on_welcome' => $newStatus]);
 
         return redirect()->route('insideuser.events.show', $id)
-            ->with('success', $event->show_on_welcome 
+            ->with('success', $newStatus 
                 ? 'Event is now visible on the welcome page.'
                 : 'Event is now hidden from the welcome page.'
             );
