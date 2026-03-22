@@ -3,232 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $guard->first_name }} {{ $guard->last_name }} - Shifts</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #007bff;
-        }
-        .header h1 {
-            color: #333;
-            margin: 0;
-        }
-        .back-link {
-            color: #007bff;
-            text-decoration: none;
-            padding: 8px 16px;
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-        .back-link:hover {
-            background: #007bff;
-            color: white;
-        }
-        .guard-info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-        .guard-info h2 {
-            margin: 0 0 10px 0;
-        }
-        .guard-info p {
-            margin: 5px 0;
-            opacity: 0.9;
-        }
-        .shift-card {
-            background: white;
-            border-left: 5px solid #007bff;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .shift-card.today {
-            border-left-color: #28a745;
-            background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%);
-        }
-        .shift-card.past {
-            border-left-color: #6c757d;
-            opacity: 0.8;
-        }
-        .shift-info h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-        .shift-info p {
-            margin: 5px 0;
-            color: #666;
-            font-size: 14px;
-        }
-        .shift-info .date {
-            font-size: 18px;
-            font-weight: 600;
-            color: #007bff;
-        }
-        .shift-info .time {
-            font-size: 16px;
-            color: #28a745;
-            font-weight: 500;
-        }
-        .shift-status {
-            text-align: right;
-        }
-        .badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .badge-scheduled {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .badge-completed {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-        .badge-cancelled {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .no-shifts {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        .pagination a,
-        .pagination span {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #007bff;
-            transition: all 0.3s;
-        }
-        .pagination a:hover {
-            background: #007bff;
-            color: white;
-        }
-        .pagination .active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-    </style>
+    <title>{{ $guard->first_name }}'s Schedule - CCSS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1> Guard Shift Schedule</h1>
-            <a href="{{ $backUrl }}" class="back-link">← Back</a>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle">CCSS</div>
+            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
+            <a href="{{ route('security.user.table.section') }}" class="nav-link active"><span class="nav-icon">👮</span><span>Security Guards</span></a>
+            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
+            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
+            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
+            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
+            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
+            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
+            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('admin.logout') }}">@csrf
+                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-header fade-in">
+            <div>
+                <h1>Guard <span class="highlight">Schedule</span></h1>
+                <p class="subtitle">Individual shift listing for security personnel</p>
+            </div>
+            <a href="{{ $backUrl }}" class="btn-secondary">← Back</a>
         </div>
 
-        <!-- Guard Info -->
-        <div class="guard-info">
-            <h2>{{ $guard->first_name }} {{ $guard->last_name }}</h2>
-            <p> {{ $guard->email }}</p>
-            <p> ID: {{ $guard->id }}</p>
+        <!-- Guard Profile Header -->
+        <div class="glass-card fade-in" style="animation-delay:0.05s; padding:24px 30px; border-left:4px solid var(--primary);">
+            <div style="display:flex; align-items:center; gap:20px;">
+                <div class="avatar-placeholder" style="width:64px; height:64px; font-size:1.8rem; margin:0;">
+                    {{ substr($guard->first_name, 0, 1) }}
+                </div>
+                <div>
+                    <h2 style="margin:0; border:0; padding:0; font-size:1.6rem;">{{ $guard->first_name }} {{ $guard->last_name }}</h2>
+                    <p style="color:var(--text-muted); margin:4px 0 0 0;">{{ $guard->email }} | <span style="font-weight:600; color:var(--text-main);">ID: #{{ $guard->id }}</span></p>
+                </div>
+            </div>
         </div>
 
-        <!-- Shifts List -->
-        @if($shifts->count() > 0)
-            @foreach($shifts as $shift)
-            <div class="shift-card {{ $shift->shift_date->isToday() ? 'today' : ($shift->shift_date->isPast() ? 'past' : '') }}">
-                <div class="shift-info">
-                    <p class="date">
-                         {{ $shift->shift_date->format('l, F d, Y') }}
-                        @if($shift->shift_date->isToday())
-                            <span class="badge badge-scheduled">Today</span>
-                        @endif
-                    </p>
-                    <p class="time">
-                         {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
-                    </p>
-                    <p>
-                         Duration: {{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours
-                    </p>
-                </div>
-                <div class="shift-status">
-                    <span class="badge badge-{{ $shift->status }}">
-                        {{ ucfirst($shift->status) }}
-                    </span>
-                    <br>
-                    <form method="POST" action="{{ route('admin.shift.delete', $shift->id) }}" style="display: inline;" onsubmit="return confirm('Delete this shift?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Delete Shift</button>
-                    </form>
-                </div>
-            </div>
-            @endforeach
+        <div class="fade-in" style="animation-delay:0.1s;">
+            <h3 style="margin-bottom:20px; font-size:1.1rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                🗓️ Detailed Shift Listing ({{ $shifts->total() }})
+            </h3>
 
-            <!-- Pagination -->
-            @if($shifts->hasPages())
-            <div class="pagination">
-                {{ $shifts->links() }}
-            </div>
+            @if($shifts->count() > 0)
+                <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap:16px; margin-bottom:24px;">
+                    @foreach($shifts as $shift)
+                    @php
+                        $isToday = $shift->shift_date->isToday();
+                        $isPast = $shift->shift_date->isPast();
+                        $cardBorder = $isToday ? 'var(--success)' : ($isPast ? 'var(--text-light)' : 'var(--primary)');
+                        $cardBg = $isToday ? 'rgba(16, 185, 129, 0.03)' : 'var(--bg-glass-strong)';
+                    @endphp
+                    <div class="glass-card" style="margin:0; padding:20px; border-left:4px solid {{ $cardBorder }}; background:{{ $cardBg }};">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+                            <div>
+                                <div style="font-size:1.1rem; font-weight:700; color:var(--text-main);">{{ $shift->shift_date->format('l, F d, Y') }}</div>
+                                @if($isToday)
+                                    <span class="badge status-active" style="margin-top:4px;">Today</span>
+                                @endif
+                            </div>
+                            @if(strtolower($shift->status) === 'scheduled')
+                                <span class="badge status-pending">Scheduled</span>
+                            @elseif(strtolower($shift->status) === 'completed')
+                                <span class="badge status-approved">Completed</span>
+                            @else
+                                <span class="badge status-inactive">{{ ucfirst($shift->status) }}</span>
+                            @endif
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:8px; background:var(--bg-main); padding:14px; border-radius:var(--radius-sm);">
+                            <div style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:1rem;">
+                                <span style="font-size:1.2rem;">🕒</span>
+                                {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} – {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:0.9rem;">
+                                <span>⚖️</span>
+                                Duration: <strong>{{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours</strong>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:16px; display:flex; justify-content:flex-end;">
+                            <form method="POST" action="{{ route('admin.shift.delete', $shift->id) }}" onsubmit="return confirm('Delete this shift?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-danger btn-sm">🗑 Delete Shift</button>
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                @if($shifts->hasPages())
+                <div class="pagination-container fade-in" style="margin-top:0;">
+                    {{ $shifts->links() }}
+                </div>
+                @endif
+            @else
+                <div class="glass-card">
+                    <div class="empty-state" style="padding:40px 20px;">
+                        <div class="empty-icon">📂</div>
+                        <h3>No Shifts Assigned</h3>
+                        <p>This guard doesn't have any scheduled shifts yet.</p>
+                        <a href="{{ route('admin.shift.management') }}" class="btn-primary" style="margin-top:16px;">Assign a Shift</a>
+                    </div>
+                </div>
             @endif
-        @else
-            <div class="no-shifts">
-                <h3> No Shifts Assigned</h3>
-                <p>This guard doesn't have any scheduled shifts yet.</p>
-            </div>
-        @endif
-    </div>
+        </div>
+    </main>
+</div>
 </body>
 </html>
