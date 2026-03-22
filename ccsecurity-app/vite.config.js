@@ -40,6 +40,9 @@ export default defineConfig({
                 'resources/css/OutsideUSerStyleFolder/outsideuser_style_visit_request.css',
                 'resources/css/OutsideUSerStyleFolder/outside_user_connections_history.css',
                 'resources/css/OutsideUSerStyleFolder/outside_user_request_connection.css',
+                'resources/css/OutsideUSerStyleFolder/event_registration.css',
+                'resources/css/OutsideUSerStyleFolder/event_registration_pending.css',
+                'resources/css/OutsideUSerStyleFolder/event_registration_success.css',
 
                 // Inside User Portal
                 'resources/css/InsideUserStyleFolder/insideuser_style_dashboard.css',
