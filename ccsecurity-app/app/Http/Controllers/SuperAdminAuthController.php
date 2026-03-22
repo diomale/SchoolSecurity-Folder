@@ -14,8 +14,20 @@ class SuperAdminAuthController extends Controller
     {
         
         $admins = Admin::all(); 
+        
+        // Overview Statistics
+        $totalAdmins = Admin::count();
+        $totalGuards = \App\Models\securityguard::count();
+        $totalInsideUsers = \App\Models\InsideUser::count();
+        $totalOutsideUsers = \App\Models\outsideuser::count();
 
-        return view('superadmin.dashboard', compact('admins'));
+        return view('superadmin.dashboard', compact(
+            'admins', 
+            'totalAdmins', 
+            'totalGuards', 
+            'totalInsideUsers', 
+            'totalOutsideUsers'
+        ));
     }
 
     // Create, Read, Update, Delete,

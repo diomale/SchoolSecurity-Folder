@@ -3,121 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Events Management</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; }
-        .btn { padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; cursor: pointer; border: none; font-size: 14px; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .badge-yellow { background: #fff3cd; color: #856404; }
-        .badge-green { background: #d4edda; color: #155724; }
-        .badge-red { background: #f8d7da; color: #721c24; }
-        .badge-gray { background: #e2e3e5; color: #383d41; }
-        .badge-blue { background: #d1ecf1; color: #0c5460; }
-        .nav-link { color: #007bff; text-decoration: none; }
-        .filter-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px; }
-        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-    </style>
+    <title>All Events - CCSS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1 style="margin: 0; font-size: 24px;">All Events Management</h1>
-                    <p style="margin: 5px 0 0 0; color: #666;">View and manage all system events</p>
-                </div>
-                <div>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
-                    <a href="{{ route('admin.events.pending') }}" class="btn btn-primary">Pending Approvals</a>
-                </div>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle">CCSS</div>
+            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
+            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
+            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
+            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
+            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
+            <a href="{{ route('admin.events.pending') }}" class="nav-link active"><span class="nav-icon">🎉</span><span>Events</span></a>
+            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
+            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
+            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('admin.logout') }}">@csrf
+                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- Header -->
+        <div class="top-header fade-in">
+            <div>
+                <h1>All <span class="highlight">Events</span></h1>
+                <p class="subtitle">View and manage all system events</p>
+            </div>
+            <a href="{{ route('admin.events.pending') }}" class="btn-warning">⏳ Pending Approvals</a>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:14px; margin-bottom:24px;" class="fade-in">
+            <div class="glass-card" style="margin:0; padding:16px 20px; text-align:center; border-top:3px solid var(--text-muted);">
+                <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">Total</div>
+                <div style="font-size:2rem; font-weight:800; margin-top:4px;">{{ $statistics['total'] }}</div>
+            </div>
+            <div class="glass-card" style="margin:0; padding:16px 20px; text-align:center; border-top:3px solid var(--warning);">
+                <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">Pending</div>
+                <div style="font-size:2rem; font-weight:800; margin-top:4px; color:var(--warning);">{{ $statistics['pending'] }}</div>
+            </div>
+            <div class="glass-card" style="margin:0; padding:16px 20px; text-align:center; border-top:3px solid var(--success);">
+                <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">Approved</div>
+                <div style="font-size:2rem; font-weight:800; margin-top:4px; color:var(--success);">{{ $statistics['approved'] }}</div>
+            </div>
+            <div class="glass-card" style="margin:0; padding:16px 20px; text-align:center; border-top:3px solid var(--danger);">
+                <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">Rejected</div>
+                <div style="font-size:2rem; font-weight:800; margin-top:4px; color:var(--danger);">{{ $statistics['rejected'] }}</div>
+            </div>
+            <div class="glass-card" style="margin:0; padding:16px 20px; text-align:center; border-top:3px solid var(--info);">
+                <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">Completed</div>
+                <div style="font-size:2rem; font-weight:800; margin-top:4px; color:var(--info);">{{ $statistics['completed'] }}</div>
             </div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card"><div style="font-size: 12px; color: #666;">Total</div><div style="font-size: 24px; font-weight: bold;">{{ $statistics['total'] }}</div></div>
-            <div class="stat-card"><div style="font-size: 12px; color: #666;">Pending</div><div style="font-size: 24px; font-weight: bold; color: #ffc107;">{{ $statistics['pending'] }}</div></div>
-            <div class="stat-card"><div style="font-size: 12px; color: #666;">Approved</div><div style="font-size: 24px; font-weight: bold; color: #28a745;">{{ $statistics['approved'] }}</div></div>
-            <div class="stat-card"><div style="font-size: 12px; color: #666;">Rejected</div><div style="font-size: 24px; font-weight: bold; color: #dc3545;">{{ $statistics['rejected'] }}</div></div>
-            <div class="stat-card"><div style="font-size: 12px; color: #666;">Completed</div><div style="font-size: 24px; font-weight: bold; color: #007bff;">{{ $statistics['completed'] }}</div></div>
-        </div>
-
-        <div class="card">
-            <form action="{{ route('admin.events.all') }}" method="GET" class="filter-form">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search events or organizers...">
-                <select name="status">
+        <!-- Filter -->
+        <div class="glass-card fade-in" style="animation-delay:0.05s; padding:16px 24px; margin-bottom:20px;">
+            <form action="{{ route('admin.events.all') }}" method="GET" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                <div class="search-input-wrapper" style="flex:2; min-width:220px;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" name="search" class="search-input" style="width:100%;" placeholder="Search events or organizers..." value="{{ request('search') }}">
+                </div>
+                <select name="status" class="form-select" style="flex:1; min-width:160px;">
                     <option value="">All Statuses</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                    <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
+                    <option value="pending"   {{ request('status') === 'pending'    ? 'selected' : '' }}>Pending</option>
+                    <option value="approved"  {{ request('status') === 'approved'   ? 'selected' : '' }}>Approved</option>
+                    <option value="rejected"  {{ request('status') === 'rejected'   ? 'selected' : '' }}>Rejected</option>
+                    <option value="cancelled" {{ request('status') === 'cancelled'  ? 'selected' : '' }}>Cancelled</option>
+                    <option value="completed" {{ request('status') === 'completed'  ? 'selected' : '' }}>Completed</option>
                 </select>
-                <input type="date" name="date_from" value="{{ request('date_from') }}">
-                <button type="submit" class="btn btn-primary"> Filter</button>
+                <input type="date" name="date_from" class="form-input" style="flex:1; min-width:160px;" value="{{ request('date_from') }}">
+                <button type="submit" class="btn-primary">Filter</button>
+                @if(request('search') || request('status') || request('date_from'))
+                    <a href="{{ route('admin.events.all') }}" class="btn-clear">✖ Clear</a>
+                @endif
             </form>
         </div>
 
-        <div class="card">
-            <h2 style="margin: 0 0 15px 0;">Events List</h2>
+        <!-- Table -->
+        <div class="glass-card fade-in" style="animation-delay:0.1s; padding:0; overflow:hidden;">
+            <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05);">
+                <h3 style="margin:0; border:none; padding:0;">🎉 Events List</h3>
+            </div>
             @if($events->count() > 0)
-            <table>
-                <thead>
-                    <tr><th>Event</th><th>Organizer</th><th>Date</th><th>Registrations</th><th>Status</th><th>Actions</th></tr>
-                </thead>
-                <tbody>
-                    @foreach($events as $event)
-                    <tr>
-                        <td>
-                            <div style="font-weight: 600;">{{ $event->event_name }}</div>
-                            <div style="font-size: 12px; color: #666;">{{ Str::limit($event->event_description, 50) }}</div>
-                        </td>
-                        <td>
-                            <div>{{ $event->insideUser->fullname ?? 'N/A' }}</div>
-                            <div style="font-size: 12px; color: #666;">ID: {{ $event->inside_user_id }}</div>
-                        </td>
-                        <td>
-                            <div>{{ $event->event_date->format('M d, Y') }}</div>
-                            <div style="font-size: 12px; color: #666;">{{ $event->event_start_time->format('g:i A') }}</div>
-                        </td>
-                        <td>{{ $event->registrations_count }} / {{ $event->alien_user_limit }}</td>
-                        <td>
-                            @if($event->status === 'pending')<span class="badge badge-yellow">Pending</span>
-                            @elseif($event->status === 'approved')<span class="badge badge-green">Approved</span>
-                            @elseif($event->status === 'rejected')<span class="badge badge-red">Rejected</span>
-                            @elseif($event->status === 'cancelled')<span class="badge badge-gray">Cancelled</span>
-                            @elseif($event->status === 'completed')<span class="badge badge-blue">Completed</span>
-                            @endif
-                        </td>
-                        <td>
-                            <a href="{{ route('admin.events.show', $event->id) }}" class="nav-link">View</a>
-                            @if($event->status === 'approved')
-                                <form action="{{ route('admin.events.mark-completed', $event->id) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;" onclick="return confirm('Mark as completed?')"> Complete</button>
-                                </form>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div style="padding: 20px;">{{ $events->links() }}</div>
+            <div class="table-container" style="border-radius:0; border:none;">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Organizer</th>
+                            <th>Date & Time</th>
+                            <th>Registrations</th>
+                            <th>Status</th>
+                            <th class="actions-cell">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($events as $event)
+                        <tr>
+                            <td>
+                                <div style="font-weight:600;">{{ $event->event_name }}</div>
+                                <div style="font-size:0.82rem; color:var(--text-muted);">{{ Str::limit($event->event_description, 50) }}</div>
+                            </td>
+                            <td>
+                                <div class="user-name">
+                                    <div class="avatar-placeholder" style="background:linear-gradient(135deg, var(--purple), #a78bfa);">
+                                        {{ substr($event->insideUser->fullname ?? '?', 0, 1) }}
+                                    </div>
+                                    {{ $event->insideUser->fullname ?? 'N/A' }}
+                                </div>
+                            </td>
+                            <td class="date-cell">
+                                {{ $event->event_date->format('M d, Y') }}<br>
+                                <small>{{ $event->event_start_time->format('g:i A') }}</small>
+                            </td>
+                            <td>
+                                <span style="font-weight:600;">{{ $event->registrations_count }}</span>
+                                <span style="color:var(--text-muted);">/ {{ $event->alien_user_limit }}</span>
+                            </td>
+                            <td>
+                                @if($event->status === 'pending')   <span class="badge status-pending">Pending</span>
+                                @elseif($event->status === 'approved')  <span class="badge status-approved">Approved</span>
+                                @elseif($event->status === 'rejected')  <span class="badge status-rejected">Rejected</span>
+                                @elseif($event->status === 'cancelled') <span class="badge" style="background:rgba(0,0,0,0.06);color:var(--text-muted);">Cancelled</span>
+                                @elseif($event->status === 'completed') <span class="badge" style="background:var(--info-light);color:var(--info);">Completed</span>
+                                @endif
+                            </td>
+                            <td class="actions-cell">
+                                <div class="action-buttons">
+                                    <a href="{{ route('admin.events.show', $event->id) }}" class="btn-icon btn-view" title="View">👁</a>
+                                    @if($event->status === 'approved')
+                                        <form action="{{ route('admin.events.mark-completed', $event->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Mark as completed?')">
+                                            @csrf
+                                            <button type="submit" class="btn-icon btn-success" title="Mark Complete">✓</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding:16px 24px;">
+                <div class="pagination-container">{{ $events->links() }}</div>
+            </div>
             @else
-            <div style="text-align: center; padding: 60px 20px;">
-                <p style="color: #666;">No events found.</p>
+            <div class="empty-state">
+                <div class="empty-icon">🎉</div>
+                <h3>No Events Found</h3>
+                <p>No events match your current filters.</p>
             </div>
             @endif
         </div>
-    </div>
+    </main>
+</div>
 </body>
 </html>

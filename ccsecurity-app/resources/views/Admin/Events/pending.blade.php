@@ -3,93 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Event Approvals</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; }
-        .btn { padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; cursor: pointer; border: none; font-size: 14px; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .badge-yellow { background: #fff3cd; color: #856404; }
-        .nav-link { color: #007bff; text-decoration: none; }
-        .filter-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px; }
-        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-    </style>
+    <title>Pending Events - CCSS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div>
-                    <h1 style="margin: 0; font-size: 24px;">Pending Event Approvals</h1>
-                    <p style="margin: 5px 0 0 0; color: #666;">Review and approve event requests</p>
-                </div>
-                <div>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
-                    <a href="{{ route('admin.events.all') }}" class="btn btn-primary">All Events</a>
-                </div>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle">CCSS</div>
+            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
+            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
+            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
+            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
+            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
+            <a href="{{ route('admin.events.pending') }}" class="nav-link active"><span class="nav-icon">🎉</span><span>Events</span></a>
+            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
+            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
+            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('admin.logout') }}">@csrf
+                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-header fade-in">
+            <div>
+                <h1>Pending <span class="highlight">Event Approvals</span></h1>
+                <p class="subtitle">Review and approve incoming event requests ({{ $events->total() }} pending)</p>
             </div>
+            <a href="{{ route('admin.events.all') }}" class="btn-secondary">📋 All Events</a>
         </div>
 
-        <div class="card">
-            <form action="{{ route('admin.events.pending') }}" method="GET" class="filter-form">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search events...">
-                <input type="date" name="date_from" value="{{ request('date_from') }}">
-                <input type="date" name="date_to" value="{{ request('date_to') }}">
-                <button type="submit" class="btn btn-primary"> Filter</button>
+        <!-- Filter -->
+        <div class="glass-card fade-in" style="animation-delay:0.05s; padding:16px 24px; margin-bottom:20px;">
+            <form action="{{ route('admin.events.pending') }}" method="GET" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                <div class="search-input-wrapper" style="flex:2; min-width:200px;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" name="search" class="search-input" style="width:100%;" placeholder="Search events..." value="{{ request('search') }}">
+                </div>
+                <input type="date" name="date_from" class="form-input" style="flex:1; min-width:150px;" value="{{ request('date_from') }}" placeholder="From date">
+                <input type="date" name="date_to" class="form-input" style="flex:1; min-width:150px;" value="{{ request('date_to') }}" placeholder="To date">
+                <button type="submit" class="btn-primary">Filter</button>
+                @if(request('search') || request('date_from') || request('date_to'))
+                    <a href="{{ route('admin.events.pending') }}" class="btn-clear">✖ Clear</a>
+                @endif
             </form>
         </div>
 
-        <div class="card">
-            <h2 style="margin: 0 0 15px 0;">Events Pending ({{ $events->total() }})</h2>
+        <!-- Table -->
+        <div class="glass-card fade-in" style="animation-delay:0.1s; padding:0; overflow:hidden;">
+            <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:10px;">
+                <h3 style="margin:0; border:none; padding:0;">⏳ Pending Events</h3>
+                @if($events->total() > 0)
+                    <span class="badge status-pending">{{ $events->total() }}</span>
+                @endif
+            </div>
+
             @if($events->count() > 0)
-            <table>
-                <thead>
-                    <tr>
-                        <th>Event</th>
-                        <th>Organizer</th>
-                        <th>Date & Time</th>
-                        <th>Limit</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($events as $event)
-                    <tr>
-                        <td>
-                            <div style="font-weight: 600;">{{ $event->event_name }}</div>
-                            <div style="font-size: 12px; color: #666;">{{ Str::limit($event->event_description, 60) }}</div>
-                        </td>
-                        <td>
-                            <div>{{ $event->insideUser->fullname ?? 'N/A' }}</div>
-                            <div style="font-size: 12px; color: #666;">{{ $event->insideUser->email ?? '' }}</div>
-                        </td>
-                        <td>
-                            <div>{{ $event->event_date->format('M d, Y') }}</div>
-                            <div style="font-size: 12px; color: #666;">{{ $event->event_start_time->format('g:i A') }}</div>
-                        </td>
-                        <td>Max: {{ $event->alien_user_limit }}</td>
-                        <td>{{ $event->created_at->diffForHumans() }}</td>
-                        <td>
-                            <a href="{{ route('admin.events.show', $event->id) }}" class="nav-link">Review →</a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div style="padding: 20px;">{{ $events->links() }}</div>
+            <div class="table-container" style="border-radius:0; border:none;">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Organizer</th>
+                            <th>Date & Time</th>
+                            <th>Capacity</th>
+                            <th>Submitted</th>
+                            <th class="actions-cell">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($events as $event)
+                        <tr>
+                            <td>
+                                <div style="font-weight:600;">{{ $event->event_name }}</div>
+                                <div style="font-size:0.82rem; color:var(--text-muted);">{{ Str::limit($event->event_description, 60) }}</div>
+                            </td>
+                            <td>
+                                <div class="user-name">
+                                    <div class="avatar-placeholder" style="background:linear-gradient(135deg, var(--purple), #a78bfa);">
+                                        {{ substr($event->insideUser->fullname ?? '?', 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;">{{ $event->insideUser->fullname ?? 'N/A' }}</div>
+                                        <div style="font-size:0.82rem; color:var(--text-muted);">{{ $event->insideUser->email ?? '' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="date-cell">
+                                {{ $event->event_date->format('M d, Y') }}<br>
+                                <small>{{ $event->event_start_time->format('g:i A') }}</small>
+                            </td>
+                            <td>Max: <strong>{{ $event->alien_user_limit }}</strong></td>
+                            <td class="date-cell">{{ $event->created_at->diffForHumans() }}</td>
+                            <td class="actions-cell">
+                                <a href="{{ route('admin.events.show', $event->id) }}" class="btn-primary btn-sm">Review →</a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding:16px 24px;">
+                <div class="pagination-container">{{ $events->links() }}</div>
+            </div>
             @else
-            <div style="text-align: center; padding: 60px 20px;">
-                <p style="color: #666;">No pending events to review.</p>
+            <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <h3>All Clear!</h3>
+                <p>No pending events to review at this time.</p>
             </div>
             @endif
         </div>
-    </div>
+    </main>
+</div>
 </body>
 </html>

@@ -3,89 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visit Requests - Admin</title>
+    <title>Visit Requests - CCSS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div>
-        <h1> Visit Requests Management</h1>
-        
-        <p><a href="{{ route('admin.dashboard') }}">← Back to Dashboard</a></p>
+<div class="dashboard-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle">CCSS</div>
+            <div class="sidebar-brand">
+                <strong>Columban College</strong>
+                <span>Admin Portal</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
+            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
+            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
+            <a href="{{ route('admin.visit.requests') }}" class="nav-link active"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
+            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
+            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
+            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
+            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
+            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="top-header fade-in">
+            <div>
+                <h1>Visit <span class="highlight">Requests</span></h1>
+                <p class="subtitle">Review and approve pending campus visit requests</p>
+            </div>
+        </div>
 
         @if(session('success'))
-        <div>
-            {{ session('success') }}
+            <div class="alert alert-success fade-in">✓ {{ session('success') }}</div>
+        @endif
+
+        <div class="glass-card fade-in" style="animation-delay: 0.1s; padding:0; overflow:hidden;">
+            <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05);">
+                <h3 style="margin:0; border:none; padding:0;">📅 Incoming Visit Requests</h3>
+            </div>
+
+            @if($visitRequests->count() > 0)
+                <div class="table-container" style="border-radius:0; border:none;">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Visitor</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Visit Date & Time</th>
+                                <th>Purpose</th>
+                                <th>Person to Meet</th>
+                                <th>Status</th>
+                                <th>Requested On</th>
+                                <th class="actions-cell">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($visitRequests as $request)
+                            <tr>
+                                <td>
+                                    <div class="user-name">
+                                        <div class="avatar-placeholder">{{ substr($request->outsideUser->fullname ?? '?', 0, 1) }}</div>
+                                        {{ $request->outsideUser->fullname ?? 'N/A' }}
+                                    </div>
+                                </td>
+                                <td>{{ $request->outsideUser->email ?? 'N/A' }}</td>
+                                <td>{{ $request->outsideUser->phone_number ?? 'N/A' }}</td>
+                                <td class="date-cell">
+                                    {{ $request->visit_date->format('M d, Y') }}<br>
+                                    <small>{{ $request->visit_time->format('h:i A') }}</small>
+                                </td>
+                                <td>{{ $request->purpose }}</td>
+                                <td>{{ $request->person_to_meet }}</td>
+                                <td>
+                                    @if($request->status === 'approved')
+                                        <span class="badge status-approved">Approved</span>
+                                    @elseif($request->status === 'rejected')
+                                        <span class="badge status-rejected">Rejected</span>
+                                    @else
+                                        <span class="badge status-pending">Pending</span>
+                                    @endif
+                                </td>
+                                <td class="date-cell">{{ $request->created_at->format('M d, Y') }}</td>
+                                <td class="actions-cell">
+                                    @if($request->status === 'pending')
+                                        <div class="action-buttons">
+                                            <form action="{{ route('admin.visit.approve', $request->id) }}" method="POST" style="display:inline;">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" class="btn-icon btn-view" title="Approve">✓</button>
+                                            </form>
+                                            <form action="{{ route('admin.visit.reject', $request->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Reject this visit request?')">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" class="btn-icon btn-delete" title="Reject">✗</button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <span style="color:var(--text-muted); font-size:0.9rem;">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($visitRequests->hasPages())
+                    <div style="padding: 16px 24px;">
+                        <div class="pagination-container">
+                            {{ $visitRequests->links() }}
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+                    <h3>No Visit Requests</h3>
+                    <p>There are no visit requests to review at this time.</p>
+                </div>
+            @endif
         </div>
-        @endif
-
-        @if($visitRequests->count() > 0)
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Visitor Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Visit Date</th>
-                    <th>Visit Time</th>
-                    <th>Purpose</th>
-                    <th>Person to Meet</th>
-                    <th>Status</th>
-                    <th>Requested On</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($visitRequests as $request)
-                <tr>
-                    <td>#{{ $request->id }}</td>
-                    <td>{{ $request->outsideUser->fullname ?? 'N/A' }}</td>
-                    <td>{{ $request->outsideUser->email ?? 'N/A' }}</td>
-                    <td>{{ $request->outsideUser->phone_number ?? 'N/A' }}</td>
-                    <td>{{ $request->visit_date->format('M d, Y') }}</td>
-                    <td>{{ $request->visit_time->format('h:i A') }}</td>
-                    <td>{{ $request->purpose }}</td>
-                    <td>{{ $request->person_to_meet }}</td>
-                    <td>
-                        @if($request->status === 'approved')
-                            <span> Approved</span>
-                        @elseif($request->status === 'rejected')
-                            <span> Rejected</span>
-                        @else
-                            <span> Pending</span>
-                        @endif
-                    </td>
-                    <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
-                    <td>
-                        @if($request->status === 'pending')
-                            <form action="{{ route('admin.visit.approve', $request->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit">Approve</button>
-                            </form>
-                            
-                            <form action="{{ route('admin.visit.reject', $request->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Reject this visit request?')">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit">Reject</button>
-                            </form>
-                        @else
-                            -
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        @if($visitRequests->hasPages())
-        <div>
-            {{ $visitRequests->links() }}
-        </div>
-        @endif
-
-        @else
-        <p>No visit requests found.</p>
-        @endif
-    </div>
+    </main>
+</div>
 </body>
 </html>

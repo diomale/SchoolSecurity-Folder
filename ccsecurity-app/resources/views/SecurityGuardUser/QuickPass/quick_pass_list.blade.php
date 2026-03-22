@@ -3,286 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Pass Management - Security Guard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #007bff;
-        }
-        .header h1 {
-            margin: 0;
-            color: #333;
-        }
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        .search-form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .search-form input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .search-form button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .message {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        table th, table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-        }
-        table tr:hover {
-            background: #f8f9fa;
-        }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge-active {
-            background: #d4edda;
-            color: #155724;
-        }
-        .badge-used {
-            background: #e2e3e5;
-            color: #383d41;
-        }
-        .badge-expired {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .purpose-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            color: white;
-            font-weight: 600;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-        }
-        .pagination a, .pagination span {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #007bff;
-        }
-        .pagination .active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-    </style>
+    <title>Quick Pass Management - CCSS</title>
+    <!-- Modern Font: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/SecurityGuardStyleFolder/securityguard_style_dashboard.css', 'resources/css/SecurityGuardStyleFolder/securityguard_style_quickpass.css'])
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div>
-                <h1> Quick Pass Management</h1>
-                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
-                    History and Status of Temporary Visitor Passes
-                </p>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-circle">CCSS</div>
+                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <a href="{{ route('security.dashboard') }}" class="btn btn-sm" style="background: #6c757d; color: white;">← Back to Dashboard</a>
-                <a href="{{ route('security.quick-pass.create') }}" class="btn btn-primary">+ New Quick Pass</a>
-                <a href="{{ route('security.quick-pass.list') }}" class="btn btn-sm" style="background: #17a2b8; color: white;" title="Refresh to check expiration">↻ Refresh</a>
+            <nav class="sidebar-nav">
+                <!-- Direct linking since we are out of the dashboard SPA flow -->
+                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span> Back to Command
+                </a>
+                <a href="{{ route('security.scanner.show') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">🔍</span> QR Scanner
+                </a>
+                <a href="{{ route('security.quick-pass.list') }}" class="tab-button active" style="text-decoration: none;">
+                    <span class="nav-icon">🚗</span> Quick Pass
+                </a>
+                <a href="{{ route('security.entry.logs') }}" class="tab-button" style="text-decoration: none;">
+                    <span class="nav-icon">📜</span> Entry Logs
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
+                    @csrf
+                    <button type="submit" class="logout-btn">
+                        <span class="nav-icon">🚪</span> Logout
+                    </button>
+                </form>
             </div>
-        </div>
+        </aside>
 
-        <!-- Messages -->
-        @if(session('success'))
-        <div class="message success">
-             {{ session('success') }}
-        </div>
-        @endif
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="fade-in">Quick <span class="highlight">Pass</span> Management</h1>
+                    <p class="subtitle fade-in" style="animation-delay: 0.1s;">History and Status of Temporary Visitor Passes</p>
+                </div>
+                <div class="header-right quickpass-header-actions fade-in" style="animation-delay: 0.2s;">
+                    <a href="{{ route('security.quick-pass.list') }}" class="btn-secondary" title="Refresh to check expiration">↻ Refresh</a>
+                    <a href="{{ route('security.quick-pass.create') }}" class="btn-primary">+ New Quick Pass</a>
+                </div>
+            </header>
 
-        @if(session('error'))
-        <div class="message error">
-             {{ session('error') }}
-        </div>
-        @endif
-
-        <!-- Search Form -->
-        <form action="{{ route('security.quick-pass.list') }}" method="GET" class="search-form">
-            <input type="text" name="search" placeholder="Search by visitor name, vehicle, purpose, or QR..." value="{{ request('search') }}">
-            <button type="submit">Search</button>
-            @if(request('search'))
-            <a href="{{ route('security.quick-pass.list') }}" class="btn btn-sm" style="background: #6c757d; color: white; align-self: center;">Clear</a>
+            @if(session('success'))
+                <div class="alert alert-success fade-in">
+                    <div class="alert-icon">✓</div>
+                    <div class="alert-content">{{ session('success') }}</div>
+                </div>
             @endif
-        </form>
 
-        <!-- Current Time Info -->
-        <div style="background: #e7f3ff; border: 1px solid #b8daff; border-radius: 6px; padding: 10px 15px; margin-bottom: 15px; font-size: 13px; color: #004085;">
-            <strong> Current Server Time:</strong> {{ \Carbon\Carbon::now()->format('l, F j, Y h:i:s A') }} ({{ config('app.timezone') }} timezone)
-        </div>
+            @if(session('error'))
+                <div class="alert alert-error fade-in">
+                    <div class="alert-icon">!</div>
+                    <div class="alert-content">{{ session('error') }}</div>
+                </div>
+            @endif
 
-        <!-- Quick Passes Table -->
-        @if($quickPasses->count() > 0)
-        <table>
-            <thead>
-                <tr>
-                    <th>Visitor Name</th>
-                    <th>Vehicle Plate</th>
-                    <th>Purpose</th>
-                    <th>Created</th>
-                    <th>Status</th>
-                    <th>Expires</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($quickPasses as $pass)
-                <tr style="{{ $pass->isExpired() && $pass->status !== 'expired' ? 'opacity: 0.6;' : '' }}">
-                    <td><strong>{{ $pass->visitor_name }}</strong></td>
-                    <td>{{ $pass->vehicle_plate ?? '—' }}</td>
-                    <td>
-                        <span class="purpose-badge" style="background: {{ $pass->purpose_color }};">
-                            {{ $pass->purpose }}
-                        </span>
-                    </td>
-                    <td>{{ $pass->created_at?->format('h:i A') ?? 'N/A' }}</td>
-                    <td>
-                        @if($pass->status === 'active')
-                            @if($pass->isExpired())
-                                <span class="badge badge-expired">Expired</span>
-                            @else
-                                <span class="badge badge-active">Active</span>
-                            @endif
-                        @elseif($pass->status === 'used')
-                            <span class="badge badge-used">Used</span>
-                        @else
-                            <span class="badge badge-expired">Expired</span>
-                        @endif
-                        @if($pass->isExpired() && $pass->status !== 'expired')
-                            <br><small style="color: #dc3545; font-size: 10px;">(Past expiration)</small>
-                        @endif
-                    </td>
-                    <td>
-                        <small style="color: {{ $pass->isExpired() ? '#dc3545' : '#28a745' }};">
-                            {{ $pass->expires_at->format('h:i A') }}
-                        </small>
-                    </td>
-                    <td>
-                        <div style="display: flex; gap: 5px;">
-                            <a href="{{ route('security.quick-pass.qr', $pass->id) }}" class="btn btn-sm btn-primary">View QR</a>
-                            <form action="{{ route('security.quick-pass.delete', $pass->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this Quick Pass?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            <form action="{{ route('security.quick-pass.list') }}" method="GET" class="search-glass-form fade-in" style="animation-delay: 0.3s;">
+                <input type="text" name="search" class="search-input" placeholder="Search by visitor name, vehicle, purpose, or QR..." value="{{ request('search') }}">
+                <button type="submit" class="btn-primary">Search</button>
+                @if(request('search'))
+                    <a href="{{ route('security.quick-pass.list') }}" class="btn-secondary">Clear</a>
+                @endif
+            </form>
 
-        <!-- Pagination -->
-        @if($quickPasses->hasPages())
-        <div class="pagination">
-            {{ $quickPasses->appends(request()->query())->links() }}
-        </div>
-        @endif
+            <div class="glass-card full-width fade-in" style="animation-delay: 0.4s;">
+                <div style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--info); border-radius: 6px; padding: 12px 16px; margin-bottom: 24px; font-size: 0.95rem; color: var(--primary-dark);">
+                    <strong>Current Server Time:</strong> {{ \Carbon\Carbon::now()->format('l, F j, Y h:i:s A') }} ({{ config('app.timezone') }} timezone)
+                </div>
 
-        @else
-        <div class="empty-state">
-            <h2 style="margin-bottom: 10px;"> No Quick Passes Found</h2>
-            <p>No temporary visitor passes have been created yet.</p>
-            <a href="{{ route('security.quick-pass.create') }}" class="btn btn-primary" style="margin-top: 15px;">
-                + Create Your First Quick Pass
-            </a>
-        </div>
-        @endif
+                @if($quickPasses->count() > 0)
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Visitor Name</th>
+                                <th>Vehicle Plate</th>
+                                <th>Purpose</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th>Expires</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($quickPasses as $pass)
+                            <tr class="{{ $pass->isExpired() && $pass->status !== 'expired' ? 'status-expired' : '' }}">
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-avatar-small bg-primary">{{ substr($pass->visitor_name, 0, 1) }}</div>
+                                        <span class="full-name">{{ $pass->visitor_name }}</span>
+                                    </div>
+                                </td>
+                                <td><span style="font-family: monospace; font-weight: 500;">{{ $pass->vehicle_plate ?? '—' }}</span></td>
+                                <td>
+                                    <span class="purpose-badge" style="background: {{ $pass->purpose_color }};">
+                                        {{ $pass->purpose }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="color: var(--text-muted); font-size: 0.95rem;">
+                                        {{ $pass->created_at?->format('h:i A') ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    @if($pass->status === 'active')
+                                        @if($pass->isExpired())
+                                            <span class="badge badge-danger">Expired</span>
+                                        @else
+                                            <span class="badge badge-success">Active</span>
+                                        @endif
+                                    @elseif($pass->status === 'used')
+                                        <span class="badge badge-outline">Used</span>
+                                    @else
+                                        <span class="badge badge-danger">Expired</span>
+                                    @endif
+                                    
+                                    @if($pass->isExpired() && $pass->status !== 'expired')
+                                        <br><small style="color: var(--danger); font-size: 0.75rem; font-weight: 600;">(Past expiration)</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span style="color: {{ $pass->isExpired() ? 'var(--danger)' : 'var(--success)' }}; font-weight: 600; font-size: 0.95rem;">
+                                        {{ $pass->expires_at->format('h:i A') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="{{ route('security.quick-pass.qr', $pass->id) }}" class="btn-primary btn-sm">View QR</a>
+                                        <form action="{{ route('security.quick-pass.delete', $pass->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this Quick Pass?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($quickPasses->hasPages())
+                <div style="margin-top: 30px;">
+                    {{ $quickPasses->appends(request()->query())->links() }}
+                </div>
+                @endif
+                
+                @else
+                <div class="empty-state">
+                    <div class="empty-icon">🚗</div>
+                    <p>No Quick Passes Found</p>
+                    <span class="suggestion">No temporary visitor passes have been created yet.</span>
+                    <br>
+                    <a href="{{ route('security.quick-pass.create') }}" class="btn-primary" style="margin-top: 20px;">+ Create Your First Quick Pass</a>
+                </div>
+                @endif
+            </div>
+
+        </main>
     </div>
 </body>
 </html>

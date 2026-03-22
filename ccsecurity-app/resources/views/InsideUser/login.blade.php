@@ -3,34 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    @vite(['resources/css/InsideUserStyleFolder/insideuser_style_login.css','resources/js/app.js'])
-    <title>Login</title>
+    <title>Student Staff Login - CCSS</title>
+    @vite(['resources/css/InsideUserStyleFolder/insideuser_style_login.css'])
 </head>
 <body>
-    <div class="wrapper">
-        <h1>Login as a Authorized User</h1>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
 
-        <div class="login-container">
-            <!-- Act only according to that maxim whereby you can, at the same time, will that it should become a universal law. - Immanuel Kant -->
+    <div class="login-wrapper">
+        <div class="login-glass-card">
+            <div class="brand-header">
+                <div class="logo-circle">CCSS</div>
+                <h1>Student Staff Login</h1>
+                <p>Login to your account</p>
+            </div>
 
             <form method="POST" action="{{ route('insideuser.login.submit') }}">
                 @csrf
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" required placeholder="Enter your email" autofocus>
+                    @error('email')
+                        <p class="error-msg">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required placeholder="Enter your password">
+                    @error('password')
+                        <p class="error-msg">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                <label>Email: </label>
-                <input type="email" name="email" required placeholder="email">
-                <br>
-                <label>Password: </label>
-                <input type="password" name="password" required placeholder="password">
-                <br>
-                @error('email')
-                    <p style="color:red">{{ $message }}</p>
-                @enderror
-                <button type="submit">Login</button>
+                <button type="submit" class="btn-login">Sign In</button>
             </form>
 
-            <a href="{{ route('user.login.show') }}"></a>
-            <a href="{{ route('welcome') }}">Back</a>
+            <a href="{{ route('welcome') }}" class="back-link">&larr; Back to Home</a>
         </div>
     </div>
 </body>

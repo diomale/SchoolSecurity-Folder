@@ -3,250 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Status Management - Admin</title>
+    <title>QR Status Management - CCSS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div>
-        <!-- Header -->
-        <div>
-            <h1>QR Status Management</h1>
-            <a href="{{ route('admin.dashboard') }}">← Back to Dashboard</a>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle">CCSS</div>
+            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
+            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
+            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
+            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
+            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
+            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
+            <a href="{{ route('admin.qr.status.management') }}" class="nav-link active"><span class="nav-icon">📱</span><span>QR Management</span></a>
+            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
+            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('admin.logout') }}">@csrf
+                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-header fade-in">
+            <div>
+                <h1>QR <span class="highlight">Status Management</span></h1>
+                <p class="subtitle">Activate or deactivate QR codes for students and staff</p>
+            </div>
         </div>
 
-        <!-- Success Message -->
         @if(session('success'))
-        <div style="color: green; margin: 10px 0;">
-            {{ session('success') }}
-        </div>
+            <div class="alert alert-success fade-in">✓ {{ session('success') }}</div>
         @endif
 
-        <!-- Search and Bulk Actions -->
-        <div style="margin-bottom: 20px;">
-            <form method="GET" action="{{ route('admin.qr.status.management') }}">
-                <input 
-                    type="text" 
-                    name="search" 
-                    placeholder="Search by ID, Name, Email, or QR Value..." 
-                    value="{{ request('search') }}"
-                    style="width: 300px;"
-                >
-                <button type="submit">Search</button>
-                @if(request('search'))
-                <a href="{{ route('admin.qr.status.management') }}">Clear</a>
-                @endif
-            </form>
+        <!-- Bulk Actions Bar -->
+        <div class="glass-card fade-in" style="animation-delay:0.05s; padding:16px 24px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <!-- Search -->
+                <form method="GET" action="{{ route('admin.qr.status.management') }}" class="search-form">
+                    <div class="search-input-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" name="search" class="search-input" placeholder="Search by name, email, or QR value..." value="{{ request('search') }}">
+                    </div>
+                    <button type="submit" class="btn-secondary btn-sm">Search</button>
+                    @if(request('search'))
+                        <a href="{{ route('admin.qr.status.management') }}" class="btn-clear btn-sm">✖ Clear</a>
+                    @endif
+                </form>
+
+                <!-- Bulk toggle -->
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <form id="bulk-toggle-form" method="POST" action="{{ route('admin.qr.status.bulk.toggle') }}" style="display:flex; gap:8px; align-items:center;">
+                        @csrf
+                        <select name="new_status" class="form-select" style="width:140px; padding:9px 12px;">
+                            <option value="active">Activate</option>
+                            <option value="inactive">Deactivate</option>
+                        </select>
+                        <button type="button" onclick="submitBulkAction('bulk-toggle-form')" id="bulk-toggle-btn" class="btn-info btn-sm" disabled>Apply to Selected</button>
+                    </form>
+                    <form id="bulk-delete-form" method="POST" action="{{ route('admin.inside-user.bulk-delete') }}">
+                        @csrf @method('DELETE')
+                        <button type="button" onclick="submitBulkAction('bulk-delete-form', true)" id="bulk-delete-btn" class="btn-danger btn-sm" disabled>🗑 Bulk Delete</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <div style="display: flex; gap: 20px; margin-bottom: 10px;">
-            <!-- Bulk Toggle Status Actions -->
-            <form id="bulk-toggle-form" method="POST" action="{{ route('admin.qr.status.bulk.toggle') }}">
-                @csrf
-                <label>Bulk Status:</label>
-                <select name="new_status">
-                    <option value="active">Activate</option>
-                    <option value="inactive">Deactivate</option>
-                </select>
-                <button type="button" onclick="submitBulkAction('bulk-toggle-form')" class="bulk-btn" disabled>
-                    Apply to Selected
-                </button>
-            </form>
-
-            <!-- Bulk Delete Action -->
-            <form id="bulk-delete-form" method="POST" action="{{ route('admin.inside-user.bulk-delete') }}">
-                @csrf
-                @method('DELETE')
-                <button type="button" onclick="submitBulkAction('bulk-delete-form', true)" class="bulk-btn" style="background-color: #fff0f0; color: #dc3545; border: 1px solid #dc3545;" disabled>
-                    Bulk Delete Selected
-                </button>
-            </form>
+        <!-- Stats Row -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:14px; margin-bottom:20px;" class="fade-in">
+            <div class="glass-card" style="margin:0; padding:16px 20px; display:flex; align-items:center; gap:12px; border-left:4px solid var(--primary);">
+                <div style="font-size:1.8rem;">🎓</div>
+                <div><div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Total Students</div>
+                <div style="font-size:1.6rem; font-weight:800;">{{ $students->total() }}</div></div>
+            </div>
+            <div class="glass-card" style="margin:0; padding:16px 20px; display:flex; align-items:center; gap:12px; border-left:4px solid var(--info);">
+                <div style="font-size:1.8rem;">👔</div>
+                <div><div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Total Staff</div>
+                <div style="font-size:1.6rem; font-weight:800;">{{ $staff->total() }}</div></div>
+            </div>
         </div>
 
         <!-- Students Table -->
-        <div style="margin-top: 30px;">
-            <h2>Students</h2>
-            <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background-color: #f8f9fa;">
-                        <th>
-                            <input type="checkbox" class="select-all" data-target="student-checkbox">
-                        </th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>QR Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($students as $user)
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox student-checkbox">
-                        </td>
-                        <td>{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>
-                            @if(in_array(strtolower($user->qr_status), ['active']))
-                                <span style="color: green;"> Active</span>
-                            @else
-                                <span style="color: gray;"> Inactive</span>
-                            @endif
-                        </td>
-                        <td>
-                            <div style="display: flex; gap: 5px;">
-                                <form action="{{ route('admin.qr.status.toggle', $user->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    @if(in_array(strtolower($user->qr_status), ['active']))
-                                        <button type="submit" onclick="return confirm('Deactivate QR for {{ $user->fullname }}?')">
-                                            Deactivate
-                                        </button>
+        <div class="glass-card fade-in" style="animation-delay:0.1s; padding:0; overflow:hidden; margin-bottom:24px;">
+            <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05);">
+                <h3 style="margin:0; border:none; padding:0;">🎓 Students ({{ $students->total() }})</h3>
+            </div>
+            <div class="table-container" style="border-radius:0; border:none;">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell"><input type="checkbox" class="select-all custom-checkbox" data-target="student-checkbox"></th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>QR Status</th>
+                            <th class="actions-cell">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($students as $user)
+                        <tr>
+                            <td class="checkbox-cell">
+                                <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox student-checkbox custom-checkbox">
+                            </td>
+                            <td class="user-name">
+                                <div class="avatar-placeholder">{{ substr($user->fullname ?? $user->first_name, 0, 1) }}</div>
+                                {{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}
+                            </td>
+                            <td>{{ $user->email }}</td>
+                            <td>
+                                @if(strtolower($user->qr_status) === 'active')
+                                    <span class="badge status-active">Active</span>
+                                @else
+                                    <span class="badge status-inactive">Inactive</span>
+                                @endif
+                            </td>
+                            <td class="actions-cell">
+                                <form action="{{ route('admin.qr.status.toggle', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf @method('PATCH')
+                                    @if(strtolower($user->qr_status) === 'active')
+                                        <button type="submit" class="btn-warning btn-sm" onclick="return confirm('Deactivate QR for {{ $user->fullname ?? $user->first_name }}?')">Deactivate</button>
                                     @else
-                                        <button type="submit" onclick="return confirm('Activate QR for {{ $user->fullname }}?')">
-                                            Activate
-                                        </button>
+                                        <button type="submit" class="btn-success btn-sm" onclick="return confirm('Activate QR for {{ $user->fullname ?? $user->first_name }}?')">Activate</button>
                                     @endif
                                 </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" style="text-align: center;">No students found.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-
-            <!-- Pagination for Students -->
-            @if($students->hasPages())
-            <div style="margin-top: 20px;">
-                {{ $students->appends(request()->query())->links() }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🎓</div><h3>No students found</h3></div></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
+            @if($students->hasPages())
+                <div style="padding:16px 24px;"><div class="pagination-container">{{ $students->appends(request()->query())->links() }}</div></div>
             @endif
         </div>
 
         <!-- Staff Table -->
-        <div style="margin-top: 50px;">
-            <h2>Staff</h2>
-            <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background-color: #f8f9fa;">
-                        <th>
-                            <input type="checkbox" class="select-all" data-target="staff-checkbox">
-                        </th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>QR Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($staff as $user)
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox staff-checkbox">
-                        </td>
-                        <td>{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>
-                            @if(in_array(strtolower($user->qr_status), ['active']))
-                                <span style="color: green;"> Active</span>
-                            @else
-                                <span style="color: gray;"> Inactive</span>
-                            @endif
-                        </td>
-                        <td>
-                            <div style="display: flex; gap: 5px;">
-                                <form action="{{ route('admin.qr.status.toggle', $user->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    @if(in_array(strtolower($user->qr_status), ['active']))
-                                        <button type="submit" onclick="return confirm('Deactivate QR for {{ $user->fullname }}?')">
-                                            Deactivate
-                                        </button>
+        <div class="glass-card fade-in" style="animation-delay:0.15s; padding:0; overflow:hidden;">
+            <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05);">
+                <h3 style="margin:0; border:none; padding:0;">👔 Staff ({{ $staff->total() }})</h3>
+            </div>
+            <div class="table-container" style="border-radius:0; border:none;">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell"><input type="checkbox" class="select-all custom-checkbox" data-target="staff-checkbox"></th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>QR Status</th>
+                            <th class="actions-cell">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($staff as $user)
+                        <tr>
+                            <td class="checkbox-cell">
+                                <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox staff-checkbox custom-checkbox">
+                            </td>
+                            <td class="user-name">
+                                <div class="avatar-placeholder" style="background:linear-gradient(135deg, var(--info), #60a5fa);">{{ substr($user->fullname ?? $user->first_name, 0, 1) }}</div>
+                                {{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}
+                            </td>
+                            <td>{{ $user->email }}</td>
+                            <td>
+                                @if(strtolower($user->qr_status) === 'active')
+                                    <span class="badge status-active">Active</span>
+                                @else
+                                    <span class="badge status-inactive">Inactive</span>
+                                @endif
+                            </td>
+                            <td class="actions-cell">
+                                <form action="{{ route('admin.qr.status.toggle', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf @method('PATCH')
+                                    @if(strtolower($user->qr_status) === 'active')
+                                        <button type="submit" class="btn-warning btn-sm" onclick="return confirm('Deactivate QR for {{ $user->fullname ?? $user->first_name }}?')">Deactivate</button>
                                     @else
-                                        <button type="submit" onclick="return confirm('Activate QR for {{ $user->fullname }}?')">
-                                            Activate
-                                        </button>
+                                        <button type="submit" class="btn-success btn-sm" onclick="return confirm('Activate QR for {{ $user->fullname ?? $user->first_name }}?')">Activate</button>
                                     @endif
                                 </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" style="text-align: center;">No staff members found.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-
-            <!-- Pagination for Staff -->
-            @if($staff->hasPages())
-            <div style="margin-top: 20px;">
-                {{ $staff->appends(request()->query())->links() }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👔</div><h3>No staff found</h3></div></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
+            @if($staff->hasPages())
+                <div style="padding:16px 24px;"><div class="pagination-container">{{ $staff->appends(request()->query())->links() }}</div></div>
             @endif
         </div>
+    </main>
+</div>
 
-        <!-- Stats Summary -->
-        <div style="margin-top: 30px; display: flex; gap: 40px;">
-            <div>
-                <strong>Total Students:</strong> {{ $students->total() }}
-            </div>
-            <div>
-                <strong>Total Staff:</strong> {{ $staff->total() }}
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Select all checkbox functionality
-        document.querySelectorAll('.select-all').forEach(selectAll => {
-            selectAll.addEventListener('change', function() {
-                const targetClass = this.getAttribute('data-target');
-                const checkboxes = document.querySelectorAll('.' + targetClass);
-                checkboxes.forEach(cb => cb.checked = this.checked);
-                toggleBulkButtons();
-            });
+<script>
+    document.querySelectorAll('.select-all').forEach(selectAll => {
+        selectAll.addEventListener('change', function() {
+            const targetClass = this.getAttribute('data-target');
+            document.querySelectorAll('.' + targetClass).forEach(cb => cb.checked = this.checked);
+            toggleBulkButtons();
         });
-
-        // Individual checkbox functionality
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('user-checkbox')) {
-                toggleBulkButtons();
-            }
-        });
-
-        function toggleBulkButtons() {
-            const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
-            document.querySelectorAll('.bulk-btn').forEach(btn => {
-                btn.disabled = checkedCount === 0;
-            });
-        }
-
-        function submitBulkAction(formId, isDelete = false) {
-            const checkedIds = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
-            const form = document.getElementById(formId);
-            
-            if (isDelete) {
-                if (!confirm(`Are you sure you want to delete ${checkedIds.length} selected users?`)) return;
-            }
-
-            // Clear existing hidden inputs for user_ids
-            form.querySelectorAll('input[name="user_ids[]"]').forEach(el => el.remove());
-
-            // Add selected IDs as hidden inputs to the form
-            checkedIds.forEach(id => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'user_ids[]';
-                input.value = id;
-                form.appendChild(input);
-            });
-
-            form.submit();
-        }
-    </script>
+    });
+    document.addEventListener('change', e => { if (e.target.classList.contains('user-checkbox')) toggleBulkButtons(); });
+    function toggleBulkButtons() {
+        const count = document.querySelectorAll('.user-checkbox:checked').length;
+        document.querySelectorAll('[id^="bulk-"]').forEach(btn => btn.disabled = count === 0);
+    }
+    function submitBulkAction(formId, isDelete = false) {
+        const ids = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
+        if (isDelete && !confirm(`Delete ${ids.length} selected users?`)) return;
+        const form = document.getElementById(formId);
+        form.querySelectorAll('input[name="user_ids[]"]').forEach(el => el.remove());
+        ids.forEach(id => { const inp = document.createElement('input'); inp.type='hidden'; inp.name='user_ids[]'; inp.value=id; form.appendChild(inp); });
+        form.submit();
+    }
+</script>
 </body>
 </html>
