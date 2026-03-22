@@ -47,10 +47,15 @@ export default defineConfig({
                 'resources/css/InsideUserStyleFolder/insideuser_style_events.css',
 
                 // Admin Portal
+                'resources/css/AdminStyleFolder/admin_style_crud.css',
                 'resources/css/AdminStyleFolder/admin_style_dashboard.css',
                 'resources/css/AdminStyleFolder/admin_style_login.css',
                 'resources/css/AdminStyleFolder/admin_style_qrstatus_management.css',
                 'resources/css/AdminStyleFolder/admin_style_user_profile.css',
+                'resources/css/AdminStyleFolder/admin_style_user_details.css',
+                'resources/css/AdminStyleFolder/admin_style_inside_user_add_form.css',
+                'resources/css/AdminStyleFolder/admin_style_outside_user_edit.css',
+                'resources/css/AdminStyleFolder/admin_style_outside_user_style_list.css',
             ],
             refresh: true,
         }),

@@ -1,3 +1,5 @@
+
+
 <div>
     <!-- Very little is needed to make a happy life. - Marcus Aurelius -->
     <h1>User Details</h1>
@@ -13,3 +15,4 @@
 
     <a href="{{ $backUrl }}">Back</a>
 </div>
+
