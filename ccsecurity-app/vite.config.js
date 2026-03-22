@@ -33,11 +33,13 @@ export default defineConfig({
                 // Visitor / Outside User Portal
                 'resources/css/OutsideUSerStyleFolder/outsideuser_style_dashboard.css',
                 'resources/css/OutsideUSerStyleFolder/outsideuser_style_login.css',
-                'resources/css/OutsideUSerStyleFolder/outsideuser_style_notifications.css',
+                'resources/css/OutsideUSerStyleFolder/outside_user_notifications.css',
                 'resources/css/OutsideUSerStyleFolder/outsideuser_style_signup.css',
-                'resources/css/OutsideUSerStyleFolder/outsideruser_style_profile.css',
-                'resources/css/OutsideUSerStyleFolder/outsideruser_style_visit_history.css',
-                'resources/css/OutsideUSerStyleFolder/outsideruser_style_visit_request..css',
+                'resources/css/OutsideUSerStyleFolder/outsideuser_style_profile.css',
+                'resources/css/OutsideUSerStyleFolder/outsideuser_style_visit_history.css',
+                'resources/css/OutsideUSerStyleFolder/outsideuser_style_visit_request.css',
+                'resources/css/OutsideUSerStyleFolder/outside_user_connections_history.css',
+                'resources/css/OutsideUSerStyleFolder/outside_user_request_connection.css',
 
                 // Inside User Portal
                 'resources/css/InsideUserStyleFolder/insideuser_style_dashboard.css',

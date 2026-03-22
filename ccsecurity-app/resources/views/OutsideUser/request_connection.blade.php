@@ -4,233 +4,227 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Connection - School Security</title>
-    <style>
-        .search-results {
-            position: absolute;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            max-height: 300px;
-            overflow-y: auto;
-            width: 100%;
-            z-index: 1000;
-            display: none;
-        }
-        .search-result-item {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-        .search-result-item:hover {
-            background-color: #f5f5f5f5;
-        }
-        .search-result-item.selected {
-            background-color: #e3f2fd;
-        }
-        .connection-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #fff;
-        }
-        .status-pending {
-            color: #ff9800;
-            font-weight: bold;
-        }
-        .status-approved {
-            color: #4caf50;
-            font-weight: bold;
-        }
-        .status-rejected {
-            color: #f44336;
-            font-weight: bold;
-        }
-        .status-accepted {
-            color: #2196f3;
-            font-weight: bold;
-        }
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-    </style>
+    @vite(['resources/css/OutsideUSerStyleFolder/outside_user_request_connection.css'])
 </head>
 <body>
-    <div>
+    <div class="request-container">
+        
         <!-- Header -->
-        <div>
-            <h1>Request Child Connection</h1>
-            <p>Connect with your child to track their entry and exit at school</p>
-            <a href="{{ route('outsider.dashboard') }}">← Back to Dashboard</a> | 
-            <a href="{{ route('outsideuser.connections.history') }}">View Connection History</a>
+        <div class="page-header">
+            <div class="header-title">
+                <h1>Request Child Connection</h1>
+                <p>Connect with your child to track their entry and exit at school</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ route('outsider.dashboard') }}" class="btn btn-outline">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.5rem;"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Dashboard
+                </a>
+                <a href="{{ route('outsideuser.connections.history') }}" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.5rem;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Connection History
+                </a>
+            </div>
         </div>
 
         @if(session('success'))
-        <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 15px 0;">
+        <div class="alert alert-success">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             {{ session('success') }}
         </div>
         @endif
 
         @if($errors->any())
-        <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin: 15px 0;">
-            <strong>Errors:</strong>
-            <ul>
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="alert alert-error">
+            <div style="display:flex; flex-direction:column;">
+                <strong style="display:flex; align-items:center; gap:0.5rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    Please fix the following errors:
+                </strong>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         </div>
         @endif
 
         <!-- Connected Children Section -->
         @if($connectedChildren->count() > 0)
-        <div class="connection-card">
-            <h2>Your Connected Children</h2>
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>QR Status</th>
-                        <th>Relationship</th>
-                        <th>Connected Since</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($connectedChildren as $child)
-                    <tr>
-                        <td>{{ $child->fullname }}</td>
-                        <td>{{ $child->email }}</td>
-                        <td>
-                            @if($child->qr_status === 'active')
-                                <span style="color: #4caf50; font-weight: 600;">● ACTIVE</span>
-                            @else
-                                <span style="color: #f44336; font-weight: 600;">● INACTIVE</span>
-                            @endif
-                        </td>
-                        <td>{{ $child->pivot->relationship }}</td>
-                        <td>{{ \Carbon\Carbon::parse($child->pivot->approved_at)->format('M d, Y h:i A') }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="glass-card">
+            <div class="section-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Your Connected Children
+            </div>
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name & Email</th>
+                            <th>Relationship</th>
+                            <th>QR Status</th>
+                            <th>Connected Since</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($connectedChildren as $child)
+                        <tr>
+                            <td>
+                                <div>
+                                    <span style="display:block; font-weight:600; color:var(--text-main);">{{ $child->fullname }}</span>
+                                    <span style="font-size:0.85rem; color:var(--text-muted);">{{ $child->email }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="relationship-tag">{{ $child->pivot->relationship }}</span>
+                            </td>
+                            <td>
+                                @if($child->qr_status === 'active')
+                                    <span class="status-badge status-active">ACTIVE</span>
+                                @else
+                                    <span class="status-badge status-inactive">INACTIVE</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span style="color: var(--text-muted); font-size: 0.9rem;">
+                                    {{ \Carbon\Carbon::parse($child->pivot->approved_at)->format('M d, Y') }}<br>
+                                    <small>{{ \Carbon\Carbon::parse($child->pivot->approved_at)->format('h:i A') }}</small>
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
         @endif
 
         <!-- Pending Requests Section -->
         @if($pendingRequests->count() > 0)
-        <div class="connection-card">
-            <h2> Pending Requests</h2>
+        <div class="glass-card">
+            <div class="section-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--warning);"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Pending Requests
+            </div>
             
             <div class="info-box">
-                <strong>ℹ How it works:</strong>
-                <ol style="margin: 10px 0 0 20px; padding: 0;">
+                <strong><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> How it works:</strong>
+                <ol>
                     <li>After you submit a request, the student will review it</li>
                     <li>Once the student accepts, you're immediately connected!</li>
                     <li>You can then view their entry/exit records in your dashboard</li>
                 </ol>
             </div>
             
-            <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Email</th>
-                        <th>Relationship</th>
-                        <th>Student Approval</th>
-                        <th>Status</th>
-                        <th>Requested On</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($pendingRequests as $request)
-                    <tr>
-                        <td>{{ $request->insideUser->fullname }}</td>
-                        <td>{{ $request->insideUser->email }}</td>
-                        <td>{{ $request->relationship }}</td>
-                        <td>
-                            @if($request->inside_user_approval === 'accepted')
-                                <span class="status-approved"> Accepted</span>
-                            @elseif($request->inside_user_approval === 'rejected')
-                                <span class="status-rejected"> Rejected</span>
-                            @else
-                                <span class="status-pending"> Awaiting Student</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($request->status === 'approved')
-                                <span class="status-approved"> Connected</span>
-                            @elseif($request->status === 'rejected')
-                                <span class="status-rejected"> Rejected</span>
-                            @elseif($request->inside_user_approval === 'accepted')
-                                <span class="status-approved"> Auto-approved</span>
-                            @else
-                                <span class="status-pending"> Pending</span>
-                            @endif
-                        </td>
-                        <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>
-                        <td>
-                            @if($request->inside_user_approval === 'pending')
-                                <form action="{{ route('outsideuser.connections.cancel', $request->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
-                                </form>
-                            @else
-                                <span style="color: #999; font-size: 12px;">-</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Relationship</th>
+                            <th>Student Approval</th>
+                            <th>Status</th>
+                            <th>Requested On</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pendingRequests as $request)
+                        <tr>
+                            <td>
+                                <div>
+                                    <span style="display:block; font-weight:600; color:var(--text-main);">{{ $request->insideUser->fullname ?? 'N/A' }}</span>
+                                    <span style="font-size:0.85rem; color:var(--text-muted);">{{ $request->insideUser->email ?? 'N/A' }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="relationship-tag">{{ $request->relationship }}</span>
+                            </td>
+                            <td>
+                                @if($request->inside_user_approval === 'accepted')
+                                    <span class="status-badge status-approved">Accepted</span>
+                                @elseif($request->inside_user_approval === 'rejected')
+                                    <span class="status-badge status-rejected">Rejected</span>
+                                @else
+                                    <span class="status-badge status-pending">Awaiting Student</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($request->status === 'approved')
+                                    <span class="status-badge status-approved">Connected</span>
+                                @elseif($request->status === 'rejected')
+                                    <span class="status-badge status-rejected">Rejected</span>
+                                @elseif($request->inside_user_approval === 'accepted')
+                                    <span class="status-badge status-approved">Auto-approved</span>
+                                @else
+                                    <span class="status-badge status-pending">Pending</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span style="color: var(--text-muted); font-size: 0.9rem;">
+                                    {{ $request->created_at->format('M d, Y') }}<br>
+                                    <small>{{ $request->created_at->format('h:i A') }}</small>
+                                </span>
+                            </td>
+                            <td>
+                                @if($request->inside_user_approval === 'pending')
+                                    <form action="{{ route('outsideuser.connections.cancel', $request->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-action-danger">Cancel</button>
+                                    </form>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
         @endif
 
         <!-- Request Form Section -->
-        <div class="connection-card">
-            <h2> Request New Connection</h2>
-            <p>Search for your child by name or email to request a connection</p>
+        <div class="glass-card">
+            <div class="section-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+                Request New Connection
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Search for your child by name or email to request a connection</p>
             
             <form action="{{ route('outsideuser.connections.submit') }}" method="POST">
                 @csrf
                 
-                <div style="margin-bottom: 15px; position: relative;">
-                    <label for="search_student"><strong>Search Student:</strong></label>
+                <div class="search-container">
+                    <label for="search_student" class="form-label">Search Student</label>
                     <input 
                         type="text" 
                         id="search_student" 
                         name="search_student" 
                         placeholder="Type student name or email..." 
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                        class="form-control"
                         autocomplete="off"
                     >
                     <div id="search_results" class="search-results"></div>
                     <input type="hidden" id="inside_user_id" name="inside_user_id">
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label for="selected_student"><strong>Selected Student:</strong></label>
-                    <div id="selected_student_display" style="padding: 10px; background: #e3f2fd; border-radius: 4px; display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="form-label">Selected Student</label>
+                    <div id="selected_student_display" class="selected-display">
                         <span id="selected_student_name"></span>
-                        <button type="button" onclick="clearSelection()" style="float: right; background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">×</button>
+                        <button type="button" onclick="clearSelection()" class="btn-icon-cancel">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
                     </div>
-                    <div id="no_selection" style="padding: 10px; background: #f5f5f5; border-radius: 4px; color: #666;">No student selected</div>
+                    <div id="no_selection" class="no-selection">No student selected</div>
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label for="relationship"><strong>Your Relationship to Student:</strong></label>
-                    <select 
-                        id="relationship" 
-                        name="relationship" 
-                        required
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
-                    >
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="relationship" class="form-label">Your Relationship to Student</label>
+                    <select id="relationship" name="relationship" required class="form-control">
                         <option value="">-- Select Relationship --</option>
                         <option value="Father">Father</option>
                         <option value="Mother">Mother</option>
@@ -243,7 +237,7 @@
                     </select>
                 </div>
 
-                <button type="submit" id="submit_btn" disabled style="background: #4caf50; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                <button type="submit" id="submit_btn" disabled class="btn btn-primary">
                     Submit Connection Request
                 </button>
             </form>
@@ -271,7 +265,7 @@
                         data.users.forEach(user => {
                             const item = document.createElement('div');
                             item.className = 'search-result-item';
-                            item.innerHTML = `<strong>${user.fullname || user.first_name + ' ' + user.last_name}</strong><br><small>${user.email}</small>`;
+                            item.innerHTML = `<strong>${user.fullname || user.first_name + ' ' + user.last_name}</strong><small>${user.email}</small>`;
                             item.onclick = () => selectStudent(user);
                             resultsDiv.appendChild(item);
                         });
@@ -292,7 +286,7 @@
             document.getElementById('search_student').value = user.fullname || user.first_name + ' ' + user.last_name;
             document.getElementById('search_results').style.display = 'none';
             
-            document.getElementById('selected_student_display').style.display = 'block';
+            document.getElementById('selected_student_display').style.display = 'flex';
             document.getElementById('selected_student_name').textContent = user.fullname || user.first_name + ' ' + user.last_name + ' (' + user.email + ')';
             document.getElementById('no_selection').style.display = 'none';
             document.getElementById('submit_btn').disabled = false;
