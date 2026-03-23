@@ -1,0 +1,364 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+/* ───────────────────────────────────────────
+   Background
+─────────────────────────────────────────── */
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    background-color: #060606;
+    position: relative;
+    overflow-x: hidden;
+    color: #e2e8f0;
+}
+
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    width: 60vmax;
+    height: 60vmax;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+    animation: drift 20s infinite linear alternate;
+    z-index: 0;
+    pointer-events: none;
+}
+
+body::before {
+    background: radial-gradient(circle, rgba(234, 179, 8, 0.35) 0%, transparent 70%);
+    top: -10%;
+    left: -10%;
+}
+
+body::after {
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+    bottom: -10%;
+    right: -10%;
+    animation-delay: -10s;
+    animation-direction: alternate-reverse;
+}
+
+@keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(10vw, 15vh) scale(1.15); }
+}
+
+/* ───────────────────────────────────────────
+   Wrapper
+─────────────────────────────────────────── */
+.erp-wrapper {
+    width: 100%;
+    max-width: 560px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ───────────────────────────────────────────
+   Glass Card
+─────────────────────────────────────────── */
+.erp-card {
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 44px 44px 36px;
+    text-align: center;
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.5s ease;
+}
+
+.erp-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 35px 60px -15px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 40px rgba(234, 179, 8, 0.1);
+}
+
+/* ───────────────────────────────────────────
+   Pending Icon
+─────────────────────────────────────────── */
+.erp-icon-wrap {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 22px;
+    background: rgba(234, 179, 8, 0.1);
+    border: 1px solid rgba(234, 179, 8, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse-amber 2.8s ease-in-out infinite;
+}
+
+.erp-icon-wrap svg {
+    width: 44px;
+    height: 44px;
+    color: #fbbf24;
+}
+
+@keyframes pulse-amber {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.35); }
+    50%       { box-shadow: 0 0 0 14px rgba(234, 179, 8, 0); }
+}
+
+/* ───────────────────────────────────────────
+   Header Text
+─────────────────────────────────────────── */
+.erp-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff 0%, #fde68a 50%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.erp-subtitle {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    font-weight: 300;
+    margin-bottom: 26px;
+}
+
+.erp-subtitle strong {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+/* ───────────────────────────────────────────
+   Event Info Block
+─────────────────────────────────────────── */
+.erp-event-info {
+    background: rgba(234, 179, 8, 0.07);
+    border: 1px solid rgba(234, 179, 8, 0.2);
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 22px;
+    text-align: left;
+}
+
+.erp-event-info h2 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fbbf24;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.erp-event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.erp-event-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: #94a3b8;
+}
+
+.erp-event-meta-row strong {
+    color: #cbd5e1;
+    min-width: 42px;
+}
+
+/* ───────────────────────────────────────────
+   Steps Block
+─────────────────────────────────────────── */
+.erp-steps {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 22px;
+    text-align: left;
+}
+
+.erp-steps-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+.erp-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.erp-step:last-child {
+    margin-bottom: 0;
+}
+
+.erp-step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.erp-step-content strong {
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.erp-step-content p {
+    font-size: 0.82rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.erp-step-content p strong {
+    color: #94a3b8;
+    display: inline;
+    font-size: inherit;
+}
+
+/* ───────────────────────────────────────────
+   Alert Banners
+─────────────────────────────────────────── */
+.erp-alert {
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    text-align: left;
+    animation: fadeSlideIn 0.4s ease-out both;
+}
+
+.erp-alert-info {
+    background: rgba(6, 182, 212, 0.08);
+    border: 1px solid rgba(6, 182, 212, 0.22);
+    border-left: 4px solid #06b6d4;
+    color: #67e8f9;
+}
+
+.erp-alert-info strong {
+    color: #a5f3fc;
+}
+
+.erp-alert-warning {
+    background: rgba(234, 179, 8, 0.08);
+    border: 1px solid rgba(234, 179, 8, 0.22);
+    border-left: 4px solid #eab308;
+    color: #fde68a;
+}
+
+.erp-alert-warning strong {
+    color: #fcd34d;
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ───────────────────────────────────────────
+   Button
+─────────────────────────────────────────── */
+.erp-actions {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.erp-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.erp-btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #fff;
+    box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.65),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.erp-btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    transition: left 0.6s ease;
+}
+
+.erp-btn-primary:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 30px -10px rgba(99, 102, 241, 0.85),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.erp-btn-primary:hover::before { left: 100%; }
+
+.erp-btn-primary:active {
+    transform: translateY(1px);
+    transition-duration: 0.1s;
+}
+
+/* ───────────────────────────────────────────
+   Accessibility
+─────────────────────────────────────────── */
+*:focus-visible {
+    outline: 2px solid #818cf8;
+    outline-offset: 2px;
+}
