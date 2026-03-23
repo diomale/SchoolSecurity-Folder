@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Connection - School Security</title>
-    @vite(['resources/css/OutsideUSerStyleFolder/outside_user_request_connection.css'])
+    @vite(['resources/css/OutsideUser/outside_user_request_connection.css'])
 </head>
 <body>
     <div class="request-container">

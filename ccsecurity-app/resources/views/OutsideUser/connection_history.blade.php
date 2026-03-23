@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connection History - School Security</title>
-    @vite(['resources/css/OutsideUSerStyleFolder/outside_user_connections_history.css'])
+    @vite(['resources/css/OutsideUser/outside_user_connections_history.css'])
 </head>
 <body>
     <div class="history-container">

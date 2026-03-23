@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notifications - School Security</title>
-    @vite(['resources/css/OutsideUSerStyleFolder/outside_user_notifications.css'])
+    @vite(['resources/css/OutsideUser/outside_user_notifications.css'])
 </head>
 <body>
     <div class="notifications-container">

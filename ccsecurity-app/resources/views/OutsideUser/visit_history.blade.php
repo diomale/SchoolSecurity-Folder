@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visit History - School Security</title>
-    @vite(['resources/css/OutsideUSerStyleFolder/outsideuser_style_visit_history.css'])
+    @vite(['resources/css/OutsideUser/outsideuser_style_visit_history.css'])
 </head>
 <body>
     <div class="history-container">
