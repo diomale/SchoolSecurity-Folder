@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
+    @vite(['resources/css/Admin/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
 <div class="dashboard-container">
@@ -93,11 +93,6 @@
                     <label>New Password <span style="color:var(--text-muted); font-weight:400;">(leave blank to keep current)</span></label>
                     <input type="password" name="password" class="form-input" autocomplete="off" placeholder="Set new password">
                     @error('password')<span class="error-text">{{ $message }}</span>@enderror
-                </div>
-                <div class="form-group">
-                    <label>Purpose of Visit <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="purpose_of_visit" class="form-input" value="{{ old('purpose_of_visit', $outside_user->purpose_of_visit) }}" required>
-                    @error('purpose_of_visit')<span class="error-text">{{ $message }}</span>@enderror
                 </div>
                 <div class="form-group">
                     <label>QR Status</label>

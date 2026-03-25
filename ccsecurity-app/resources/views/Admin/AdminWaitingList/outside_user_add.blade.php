@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/AdminStyleFolder/admin_style_shared.css', 'resources/js/app.js'])
+    @vite(['resources/css/Admin/admin_style_shared.css', 'resources/js/app.js'])
 </head>
 <body>
 <div class="dashboard-container">
@@ -92,11 +92,6 @@
                     <label>Password <span style="color:var(--danger)">*</span></label>
                     <input type="password" name="password" class="form-input" required autocomplete="off" placeholder="Set a secure password">
                     @error('password')<span class="error-text">{{ $message }}</span>@enderror
-                </div>
-                <div class="form-group">
-                    <label>Purpose of Visit <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="purpose_of_visit" class="form-input" value="{{ old('purpose_of_visit') }}" required placeholder="e.g., Parent visit, Delivery, etc.">
-                    @error('purpose_of_visit')<span class="error-text">{{ $message }}</span>@enderror
                 </div>
 
                 <div style="display:flex; gap:12px; margin-top:8px;">

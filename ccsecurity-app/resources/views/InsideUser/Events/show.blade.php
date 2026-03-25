@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/InsideUserStyleFolder/insideuser_dashboard_style.css', 'resources/css/InsideUserStyleFolder/insideuser_style_events.css'])
+    @vite(['resources/css/InsideUser/insideuser_style_dashboard.css', 'resources/css/InsideUser/insideuser_style_events.css'])
     <style>
         .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
         @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
@@ -91,6 +91,38 @@
                             <div class="alert-info-box" style="margin-bottom: 0;">
                                 <strong>Admin Remarks:</strong><br><span style="margin-top:5px; display:inline-block;">{{ $event->admin_remarks }}</span>
                             </div>
+                        @endif
+                    </div>
+
+                    <!-- Public Visibility -->
+                    <div class="glass-card">
+                        <h2 class="section-title mb-4">Public Visibility</h2>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Show this event on the welcome page for public registration</p>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.03); padding: 15px; border-radius: var(--radius-sm);">
+                            <div>
+                                <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Show on Welcome Page</div>
+                                <div style="font-size: 0.85rem; color: {{ $event->show_on_welcome ? 'var(--success)' : 'var(--text-muted)' }}; font-weight: 500;">
+                                    {{ $event->show_on_welcome ? 'Currently visible on welcome page' : 'Currently hidden from welcome page' }}
+                                </div>
+                            </div>
+                            
+                            @if($event->status === 'approved')
+                                <form action="{{ route('insideuser.events.toggle-welcome', $event->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn {{ $event->show_on_welcome ? 'btn-secondary' : 'btn-primary' }} btn-sm">
+                                        {{ $event->show_on_welcome ? 'Hide from Welcome' : 'Show on Welcome' }}
+                                    </button>
+                                </form>
+                            @else
+                                <span class="badge badge-yellow" style="font-size: 0.75rem;">Awaiting Approval</span>
+                            @endif
+                        </div>
+                        
+                        @if($event->status !== 'approved')
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px; font-style: italic;">
+                                Note: Public visibility settings will only take effect once the event is approved by an administrator.
+                            </p>
                         @endif
                     </div>
 
