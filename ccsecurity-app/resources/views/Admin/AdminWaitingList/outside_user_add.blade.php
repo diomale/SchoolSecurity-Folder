@@ -93,11 +93,6 @@
                     <input type="password" name="password" class="form-input" required autocomplete="off" placeholder="Set a secure password">
                     @error('password')<span class="error-text">{{ $message }}</span>@enderror
                 </div>
-                <div class="form-group">
-                    <label>Purpose of Visit <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="purpose_of_visit" class="form-input" value="{{ old('purpose_of_visit') }}" required placeholder="e.g., Parent visit, Delivery, etc.">
-                    @error('purpose_of_visit')<span class="error-text">{{ $message }}</span>@enderror
-                </div>
 
                 <div style="display:flex; gap:12px; margin-top:8px;">
                     <button type="submit" class="btn-primary">✓ Create Account</button>

@@ -194,12 +194,25 @@ class OutsideUserController extends Controller
         return view('OutsideUser.visit_request');
     }
 
-    /**
-     * Submit visit request
-     */
     public function submitVisitRequest(Request $request)
     {
         $outsideUser = Auth::guard('outsideuser')->user();
+
+        // Check if user already has an active visit request (pending or approved for today/future)
+        $existingRequest = VisitRequest::where('outside_user_id', $outsideUser->id)
+            ->where(function($query) {
+                $query->where('status', 'pending')
+                    ->orWhere(function($q) {
+                        $q->where('status', 'approved')
+                          ->where('visit_date', '>=', today());
+                    });
+            })
+            ->first();
+
+        if ($existingRequest) {
+            $statusMsg = $existingRequest->status === 'pending' ? 'is still pending approval' : 'is already approved';
+            return redirect()->back()->with('error', "You already have an active visit request that {$statusMsg}. Please wait for it to expire or be completed before requesting again.");
+        }
 
         $validated = $request->validate([
             'visit_date' => 'required|date|after_or_equal:today',
@@ -217,7 +230,7 @@ class OutsideUserController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->back()->with('success', 'Visit request submitted! Please wait for admin approval.');
+        return redirect()->route('outsider.dashboard')->with('success', 'Visit request submitted! Please wait for admin approval.');
     }
 
     /**

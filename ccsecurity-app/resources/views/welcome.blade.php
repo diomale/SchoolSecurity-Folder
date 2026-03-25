@@ -46,7 +46,7 @@
                     <div class="login-wrapper">
                         <div class="login-header">
                             <h2>Welcome Back</h2>
-                            <p class="text-muted">Sign in to your account</p>
+                            <p class="text-muted">Sign in to your account, Authorized Personnel Only, Student and staff.</p>
                         </div>
 
                         <form method="POST" action="{{ route('insideuser.login.submit') }}" class="login-form">
@@ -71,7 +71,7 @@
                                 </div>
                             @endif
 
-                            <button type="submit" class="btn btn-primary btn-block pulse-hover">Secure Login</button>
+                            <button type="submit" class="btn btn-primary btn-block pulse-hover">Login</button>
                         </form>
                     </div>
 

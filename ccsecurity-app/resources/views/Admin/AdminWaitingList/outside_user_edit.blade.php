@@ -95,11 +95,6 @@
                     @error('password')<span class="error-text">{{ $message }}</span>@enderror
                 </div>
                 <div class="form-group">
-                    <label>Purpose of Visit <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="purpose_of_visit" class="form-input" value="{{ old('purpose_of_visit', $outside_user->purpose_of_visit) }}" required>
-                    @error('purpose_of_visit')<span class="error-text">{{ $message }}</span>@enderror
-                </div>
-                <div class="form-group">
                     <label>QR Status</label>
                     <select name="qr_status" class="form-select">
                         <option value="active"   {{ $outside_user->qr_status === 'active'   ? 'selected' : '' }}>Active</option>
