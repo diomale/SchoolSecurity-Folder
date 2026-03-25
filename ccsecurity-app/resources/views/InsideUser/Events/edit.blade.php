@@ -101,12 +101,23 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="qr_request_deadline">QR Registration Deadline <span class="required">*</span></label>
-                            <input type="datetime-local" id="qr_request_deadline" name="qr_request_deadline" value="{{ old('qr_request_deadline', $event->qr_request_deadline->format('Y-m-d\TH:i')) }}" required>
-                            @error('qr_request_deadline')
-                                <div class="error-text">{{ $message }}</div>
-                            @enderror
+                        <div class="event-form-grid">
+                            <div class="form-group">
+                                <label for="qr_request_deadline">QR Registration Deadline <span class="required">*</span></label>
+                                <input type="datetime-local" id="qr_request_deadline" name="qr_request_deadline" value="{{ old('qr_request_deadline', $event->qr_request_deadline->format('Y-m-d\TH:i')) }}" required>
+                                @error('qr_request_deadline')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="alien_user_limit">Participant Limit <span class="required">*</span></label>
+                                <input type="number" id="alien_user_limit" name="alien_user_limit" value="{{ old('alien_user_limit', $event->alien_user_limit) }}" required min="1" max="500">
+                                <div class="help-text">Maximum number of guest participants allowed</div>
+                                @error('alien_user_limit')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="form-group" style="margin-top: 10px;">

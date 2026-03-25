@@ -103,22 +103,23 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="qr_request_deadline">QR Registration Deadline <span class="required">*</span></label>
-                            <input type="datetime-local" id="qr_request_deadline" name="qr_request_deadline" value="{{ old('qr_request_deadline') }}" required min="{{ date('Y-m-d\TH:i') }}">
-                            <div class="help-text">Last date and time for participants to request QR codes</div>
-                            @error('qr_request_deadline')
-                                <div class="error-text">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <div class="event-form-grid">
+                            <div class="form-group">
+                                <label for="qr_request_deadline">QR Registration Deadline <span class="required">*</span></label>
+                                <input type="datetime-local" id="qr_request_deadline" name="qr_request_deadline" value="{{ old('qr_request_deadline') }}" required min="{{ date('Y-m-d\TH:i') }}">
+                                <div class="help-text">Last date and time for participants to request QR codes</div>
+                                @error('qr_request_deadline')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                        <div class="form-group" style="margin-top: 10px;">
-                            <div style="display: flex; align-items: flex-start; gap: 12px; background: rgba(79, 70, 229, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px dashed rgba(79, 70, 229, 0.2);">
-                                <input type="checkbox" id="show_on_welcome" name="show_on_welcome" value="1" {{ old('show_on_welcome') ? 'checked' : '' }} style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer;">
-                                <div>
-                                    <label for="show_on_welcome" style="margin-bottom: 4px; cursor: pointer;">Show on Welcome Page</label>
-                                    <p class="help-text" style="margin-top: 0;">If checked, this event will be visible on the public welcome page for guest registration once approved.</p>
-                                </div>
+                            <div class="form-group">
+                                <label for="alien_user_limit">Participant Limit <span class="required">*</span></label>
+                                <input type="number" id="alien_user_limit" name="alien_user_limit" value="{{ old('alien_user_limit', 50) }}" required min="1" max="500">
+                                <div class="help-text">Maximum number of guest participants allowed</div>
+                                @error('alien_user_limit')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
