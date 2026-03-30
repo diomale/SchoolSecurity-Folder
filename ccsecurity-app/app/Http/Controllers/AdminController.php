@@ -104,7 +104,6 @@ class AdminController extends Controller
             'email' => 'required|email|max:150|unique:mysql_second.outside_user,email',
             'phone_number' => 'nullable|string|max:20',
             'password' => 'required|string|min:8',
-            'purpose_of_visit' => 'required|string|max:255',
         ]);
 
         $qrValue = 'OUT-ADMIN-' . strtoupper(uniqid() . rand(1000, 9999));
@@ -116,7 +115,6 @@ class AdminController extends Controller
             'email' => $request->email,
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
-            'purpose_of_visit' => $request->purpose_of_visit,
             'qr_value' => $qrValue,
             'qr_status' => 'active',
             'qr_expires_at' => now()->addDay(),
@@ -144,7 +142,6 @@ class AdminController extends Controller
             'last_name' => 'required|string|max:150',
             'email' => 'required|email|max:150|unique:mysql_second.outside_user,email,' . $id,
             'phone_number' => 'nullable|string|max:20',
-            'purpose_of_visit' => 'required|string|max:255',
             'qr_status' => 'required|string',
             'password' => 'nullable|string|min:8',
         ]);
@@ -155,7 +152,6 @@ class AdminController extends Controller
             'fullname' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
-            'purpose_of_visit' => $request->purpose_of_visit,
             'qr_status' => $request->qr_status,
             'updated_at' => now(),
         ];

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Staff Login - CCSS</title>
-    @vite(['resources/css/InsideUserStyleFolder/insideuser_style_login.css'])
+    @vite(['resources/css/InsideUser/insideuser_style_login.css'])
 </head>
 <body>
     <div class="bg-shape shape-1"></div>

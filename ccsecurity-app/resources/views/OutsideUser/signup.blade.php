@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visitor Registration - School Security</title>
     
-    @vite(['resources/css/OutsideUSerStyleFolder/outsideuser_style_signup.css', 'resources/js/app.js'])
+    @vite(['resources/css/OutsideUser/outsideuser_style_signup.css', 'resources/js/app.js'])
 
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 

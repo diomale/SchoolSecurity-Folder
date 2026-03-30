@@ -27,7 +27,6 @@ class OutsideUser extends Authenticatable
         'qr_value',
         'qr_status',
         'qr_expires_at',
-        'purpose_of_visit',
         'created_at',
         'updated_at',
     ];

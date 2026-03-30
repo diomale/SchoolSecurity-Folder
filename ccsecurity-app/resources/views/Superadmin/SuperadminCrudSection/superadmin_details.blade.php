@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/SuperadminStyleFolder/superadmin_style_dashboard.css', 'resources/css/SuperadminStyleFolder/superadmin_style_details.css', 'resources/js/app.js'])
+    @vite(['resources/css/Superadmin/superadmin_style_dashboard.css', 'resources/css/Superadmin/superadmin_style_details.css', 'resources/js/app.js'])
 </head>
 <body>
     <div class="dashboard-container">

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/InsideUserStyleFolder/insideuser_dashboard_style.css', 'resources/css/InsideUserStyleFolder/insideuser_style_events.css'])
+    @vite(['resources/css/InsideUser/insideuser_style_dashboard.css', 'resources/css/InsideUser/insideuser_style_events.css'])
 </head>
 <body>
     <div class="dashboard-container">
@@ -109,12 +109,14 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="alien_user_limit">Maximum Participants <span class="required">*</span></label>
-                            <input type="number" id="alien_user_limit" name="alien_user_limit" value="{{ old('alien_user_limit', $event->alien_user_limit) }}" required min="1" max="500">
-                            @error('alien_user_limit')
-                                <div class="error-text">{{ $message }}</div>
-                            @enderror
+                        <div class="form-group" style="margin-top: 10px;">
+                            <div style="display: flex; align-items: flex-start; gap: 12px; background: rgba(79, 70, 229, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px dashed rgba(79, 70, 229, 0.2);">
+                                <input type="checkbox" id="show_on_welcome" name="show_on_welcome" value="1" {{ old('show_on_welcome', $event->show_on_welcome) ? 'checked' : '' }} style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer;">
+                                <div>
+                                    <label for="show_on_welcome" style="margin-bottom: 4px; cursor: pointer;">Show on Welcome Page</label>
+                                    <p class="help-text" style="margin-top: 0;">If checked, this event will be visible on the public welcome page for guest registration once approved.</p>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="alert-info-box" style="background: var(--warning-light); border-left-color: var(--warning); color: #B45309;">
