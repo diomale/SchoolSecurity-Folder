@@ -1,4 +1,4 @@
-# 🛡️ Campus Security Monitoring System
+#  Campus Security Monitoring System
 
 [![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
@@ -9,17 +9,17 @@ A robust, Laravel-based security monitoring system designed for comprehensive ca
 
 ---
 
-## 👥 User Roles & Access Levels
+##  User Roles & Access Levels
 
-*   **👑 Super Admin**: Full system configuration and top-level oversight.
-*   **🧑‍💼 Admin**: Departmental management and user administration.
-*   **🏫 Inside Users**: Students, faculty, or staff members.
-*   **🌍 Outside Users**: Visitors and external guests.
-*   **🛂 Security Guards**: Front-line operators for scanning and log management.
+*   ** Super Admin**: Full system configuration and top-level oversight.
+*   ** Admin**: Departmental management and user administration.
+*   ** Inside Users**: Students, faculty, or staff members.
+*   ** Outside Users**: Visitors and external guests.
+*   ** Security Guards**: Front-line operators for scanning and log management.
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
 - **Multi-Auth System**: Independent dashboards and logic for all 5 user roles.
 - **QR Code Management**: Dynamic QR generation for visitors and staff with automated deactivation.
@@ -31,7 +31,7 @@ A robust, Laravel-based security monitoring system designed for comprehensive ca
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -97,7 +97,7 @@ A robust, Laravel-based security monitoring system designed for comprehensive ca
 
 ---
 
-## 🛠️ Development & Maintenance
+##  Development & Maintenance
 
 | Action | Command |
 | :--- | :--- |
@@ -108,7 +108,7 @@ A robust, Laravel-based security monitoring system designed for comprehensive ca
 
 ---
 
-## 📁 Project Structure Highlights
+##  Project Structure Highlights
 
 - `app/Http/Controllers/`: Role-specific logic (Admin, Security, etc.)
 - `app/Models/`: Core entities like `QuickPass`, `EntryLog`, and `Shift`.
@@ -118,7 +118,7 @@ A robust, Laravel-based security monitoring system designed for comprehensive ca
 
 ---
 
-## 🔒 Security Best Practices
+##  Security Best Practices
 
 - [ ] **Production Env**: Set `APP_DEBUG=false` and `APP_ENV=production`.
 - [ ] **API Protection**: Ensure `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` are configured.
@@ -127,7 +127,7 @@ A robust, Laravel-based security monitoring system designed for comprehensive ca
 
 ---
 
-## 👨‍💻 Development Team
+##  Development Team
 
 **BitStack Studio**
 - **Diomale Romero**
