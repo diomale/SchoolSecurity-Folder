@@ -249,7 +249,19 @@ Send this URL to anyone you want to access the system. They can open it in any b
 
 **Note:** The ngrok URL changes every time you restart ngrok (free plan). You need to share the new URL each time.
 
-### Step 6: Stop ngrok
+### Step 6: Update Google reCAPTCHA (if needed)
+
+If your app uses Google reCAPTCHA, you must add the ngrok domain:
+
+1. Go to [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin)
+2. Select your reCAPTCHA site
+3. Scroll to **Domains**
+4. Add the ngrok domain (e.g. `abc123.ngrok-free.dev`)
+5. Save
+
+You'll need to do this each time you restart ngrok (the domain changes).
+
+### Step 7: Stop ngrok
 
 When you're done, press `Ctrl + C` in the ngrok terminal window, or just close the window.
 
@@ -320,11 +332,12 @@ You can close Docker Desktop if you're done for the day. Right-click the Docker 
 | App (HTTPS, local) | `https://localhost` |
 | App (HTTP, local) | `http://localhost:8080` |
 | App (public, ngrok) | `https://your-url.ngrok-free.dev` |
-| Super Admin login | `https://localhost/superadmin/login` |
-| Admin login | `https://localhost/admin/login` |
-| Security Guard login | `https://localhost/securityguard/login` |
-| Inside User login | `https://localhost/insideuser/login` |
-| Outside User login | `https://localhost/outsideuser/login` |
+| Super Admin login | `/superadmin/login` |
+| Admin login | `/admin/login` |
+| Security Guard login | `/securityguard/login` |
+| Inside User login | `/insideuser/login` |
+| Outside User login | `/outsideuser/login` |
+| Google reCAPTCHA Admin | https://www.google.com/recaptcha/admin |
 
 ---
 
@@ -387,6 +400,17 @@ If `ccsecurity_db` or `securitysystemdatabase` are missing, the SQL dumps need t
 1. Make sure ngrok is still running in the second terminal
 2. The URL changes each time you restart ngrok — copy the new URL
 3. Free plan sessions expire after 2 hours — restart ngrok to get a new session
+
+### reCAPTCHA not working via ngrok
+
+Google reCAPTCHA only works on domains you've authorized. When using ngrok:
+
+1. Copy the ngrok domain (e.g. `abc123.ngrok-free.dev`)
+2. Go to [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin)
+3. Add the domain under **Domains**
+4. Save and refresh your app
+
+The domain changes each time you restart ngrok, so you'll need to update it each session.
 
 ### Container won't start
 

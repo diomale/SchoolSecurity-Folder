@@ -36,6 +36,9 @@ Database schema version control that allows you to modify and share your applica
 ### Artisan CLI
 Laravel's command-line interface for interacting with the framework, generating code, managing migrations, and more.
 
+### Authentication Guards
+Laravel supports multiple authentication guards, allowing different user types to authenticate against different user providers and databases. This project uses 5 guards: `superadmin`, `admin`, `securityguard`, `insideuser`, `outsideuser`.
+
 ## Common Laravel Tasks for AI Assistant
 When helping with Laravel projects, focus on:
 
@@ -59,48 +62,47 @@ When helping with Laravel projects, focus on:
 - Use Laravel's built-in authentication and authorization features
 - Leverage Laravel's helper functions and facades
 - Write tests using PHPUnit
-- Use Laravel Mix for asset compilation
+- Use Vite for asset compilation (replaces Laravel Mix)
 - Implement proper error handling and logging
 
-## Practical Laravel Application Example
-Based on a real-world scenario, Laravel can be used to build a comprehensive security management system with multiple user roles:
+## This Project's Architecture
 
-### School Security Management System Example
-This system includes four main dashboards with different access levels:
+### Dual Database Setup
+This project uses two separate MySQL/MariaDB databases:
 
-#### 1. Online Visitor Registration
-- Public-facing registration form for visitors to pre-register
-- QR code generation for visitor identification
-- Email notifications with QR codes
+| Database | Connection | Purpose |
+|----------|------------|---------|
+| `ccsecurity_db` | `mysql` (default) | Primary — `super_admins` table |
+| `securitysystemdatabase` | `mysql_second` | Secondary — all other tables (admins, users, logs, etc.) |
 
-#### 2. Security Guard Dashboard (QR Scanner)
-- Mobile-friendly interface for scanning visitor QR codes
-- Real-time check-in/check-out processing
-- Quick access to visitor details
+Models specify their connection via `protected $connection = 'mysql_second'`. The primary database uses the default connection.
 
-#### 3. Admin Dashboard (Security Head)
-- Overview of daily operations
-- Visitor management and reporting
-- Manual registration capabilities for walk-ins
+### Docker Setup
+The app runs in 3 Docker containers:
 
-#### 4. Super Admin Dashboard (Developers/System Administrators)
-- User management for all roles
-- System configuration settings
-- Audit logs and system health monitoring
+| Container | Port | Purpose |
+|-----------|------|---------|
+| `laravel.test` | 8080 | PHP 8.5 app server with Supervisor |
+| `mariadb` | 3307 | MariaDB 11 database |
+| `caddy` | 443 | HTTPS reverse proxy with self-signed TLS |
 
-### Key Laravel Components Used in This Example:
-- **Blade Templates**: For creating responsive dashboards (`*.blade.php`)
-- **Authentication**: Role-based access control for different user types
-- **Database Relationships**: Connecting visitors, admins, and security logs
-- **Form Requests**: Validating visitor registration data
-- **Notifications**: Email/SMS alerts for check-ins and emergencies
-- **Queues**: Processing notifications and background tasks
-- **API Resources**: For mobile-friendly interfaces for security guards
+### User Roles and Guards
 
-### Common Laravel Files Structure for This Project:
-- `routes/web.php` - Contains routes for all dashboards
-- `app/Http/Controllers/` - Controllers for each dashboard type
-- `resources/views/` - Blade templates for each user role
-- `database/migrations/` - Database schema for visitors, users, and logs
-- `app/Models/` - Models representing Visitors, Users, SecurityLogs, etc.
-- `config/auth.php` - Authentication and authorization settings
+| Role | Guard | Model | Table | Database |
+|------|-------|-------|-------|----------|
+| Super Admin | `superadmin` | `SuperAdmin` | `super_admins` | `ccsecurity_db` |
+| Admin | `admin` | `admin` | `admins` | `securitysystemdatabase` |
+| Security Guard | `securityguard` | `securityguard` | `security_guard_user` | `securitysystemdatabase` |
+| Inside User | `insideuser` | `InsideUser` | `inside_user` | `securitysystemdatabase` |
+| Outside User | `outsideuser` | `OutsideUser` | `outside_user` | `securitysystemdatabase` |
+
+### Key Files in This Project
+- `compose.yaml` — Docker Compose configuration
+- `docker/Caddyfile` — Caddy HTTPS reverse proxy config
+- `docker/supervisord.conf` — Supervisor config (auto-starts PHP server)
+- `docker/create-second-db.sh` — Creates secondary database on first run
+- `app/Models/` — Eloquent models with dual-database support
+- `app/Http/Controllers/` — Controllers for each user role
+- `routes/web.php` — All route definitions grouped by role
+- `resources/css/` — Separate CSS files for each portal
+- `public/build/` — Compiled production assets (Vite)
