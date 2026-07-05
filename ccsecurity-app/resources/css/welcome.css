@@ -729,3 +729,39 @@ body {
         justify-content: center;
     }
 }
+
+/* Footer */
+.welcome-footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    color: #000;
+    font-size: 0.85rem;
+}
+
+.welcome-footer p {
+    margin: 0 0 8px 0;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+}
+
+.footer-links a {
+    color: #000;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: #333;
+    text-decoration: underline;
+}
+
+.footer-divider {
+    color: #666;
+}

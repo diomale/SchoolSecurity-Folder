@@ -222,6 +222,16 @@
             </div>
 
         </main>
+
+        <!-- Footer -->
+        <footer class="welcome-footer">
+            <p>&copy; {{ date('Y') }} Columban College Security System. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="{{ route('privacy') }}">Privacy Policy</a>
+                <span class="footer-divider">|</span>
+                <a href="{{ route('terms') }}">Terms of Service</a>
+            </div>
+        </footer>
     </div>
 
     <script>
