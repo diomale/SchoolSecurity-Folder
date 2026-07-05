@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust Caddy reverse proxy for HTTPS
+        $middleware->trustProxies(at: '*');
+
         // Register custom middleware for redirecting authenticated users
         $middleware->alias([
             'redirect.auth' => \App\Http\Middleware\RedirectAuthenticated::class,

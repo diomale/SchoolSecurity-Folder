@@ -1,0 +1,10 @@
+https://localhost, https://caddy {
+    tls internal
+
+    @vite {
+        path /@vite/* /resources/* /node_modules/*
+    }
+    reverse_proxy @vite laravel.test:5173
+
+    reverse_proxy laravel.test:80
+}
