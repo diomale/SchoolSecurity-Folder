@@ -16,6 +16,7 @@ Columban College Security System — a Laravel 12 multi-role security monitoring
 8. [Quick Reference](#quick-reference)
 9. [Troubleshooting](#troubleshooting)
 10. [Architecture](#architecture)
+11. [Linux Deployment (Raspberry Pi)](#linux-deployment-raspberry-pi)
 
 ---
 
@@ -508,3 +509,94 @@ docker compose exec laravel.test cat /tmp/vite.log
 **Important:** Vite dev server uses `public/hot` file which overrides production assets. If CSS stops loading, make sure you either:
 - Have Vite running, OR
 - Have run `npm run build` and no `public/hot` file exists
+
+---
+
+## Linux Deployment (x86_64 and ARM64)
+
+The Docker environment works on both **x86_64 (Intel/AMD)** and **ARM64 (Raspberry Pi 3B/4, Apple Silicon)** Linux systems. Docker automatically uses the correct architecture for your hardware.
+
+**Configuration included:**
+- Memory limits (512M for PHP/MariaDB, 128M for Caddy)
+- Memory reservations (256M for PHP/MariaDB, 64M for Caddy)
+- No hardcoded platform — uses host architecture
+
+### Prerequisites for Linux
+
+1. **Linux distribution** (Ubuntu 20.04+, Debian 11+, Raspberry Pi OS 64-bit, etc.)
+2. **Docker Engine** (not Docker Desktop):
+   ```bash
+   curl -fsSL https://get.docker.com | sh
+   sudo usermod -aG docker $USER
+   # Log out and back in for group changes to take effect
+   ```
+3. **Docker Compose**:
+   ```bash
+   sudo apt install docker-compose-plugin
+   ```
+
+### Deployment Steps
+
+1. **Copy project files** to your Linux machine:
+   ```bash
+   scp -r ccsecurity-app/ user@your-server:/home/user/
+   ```
+
+2. **SSH into the server**:
+   ```bash
+   ssh user@your-server
+   cd ccsecurity-app
+   ```
+
+3. **Start the containers**:
+   ```bash
+   docker compose up -d
+   ```
+
+4. **Wait for MariaDB** to become healthy:
+   ```bash
+   docker compose ps
+   # Wait until mariadb shows "healthy"
+   ```
+
+5. **Build frontend assets** (if not already built):
+   ```bash
+   docker compose exec laravel.test npm run build
+   ```
+
+6. **Access the app**:
+   - Local: `https://localhost` or `http://localhost:8080`
+   - Public: Use ngrok as described in [Making It Public (ngrok)](#making-it-public-with-ngrok)
+
+### Linux Performance Tips
+
+- **Pre-build assets on your PC** before deploying to save time and resources
+- **Use a USB SSD** instead of SD card (for Raspberry Pi) for better I/O performance
+- **Monitor resources** with `docker stats` to ensure memory limits aren't exceeded
+- **Consider adding swap space** (2GB) on low-memory devices:
+  ```bash
+  sudo fallocate -l 2G /swapfile
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+  ```
+
+### Troubleshooting Linux Deployment
+
+**"Permission denied" when running Docker commands:**
+```bash
+sudo usermod -aG docker $USER
+# Log out and back in
+```
+
+**"Cannot connect to the Docker daemon":**
+```bash
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
+**Out of memory errors:**
+- Check memory usage: `docker stats`
+- Increase swap space (see above)
+- Reduce memory limits in `compose.yaml` if needed
