@@ -12,34 +12,7 @@
 <body>
 <div class="dashboard-container">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand">
-                <strong>Columban College</strong>
-                <span>Admin Portal</span>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link active"><span class="nav-icon">👮</span><span>Security Guards</span></a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'security_guards'])
 
     <!-- Main Content -->
     <main class="main-content">
@@ -49,16 +22,16 @@
                 <p class="subtitle">Add, edit, or remove security personnel accounts</p>
             </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <a href="{{ route('admin.shift.management') }}" class="btn-info">🕐 Manage Shifts</a>
+                <a href="{{ route('admin.shift.management') }}" class="btn-info">Manage Shifts</a>
                 <a href="{{ route('security.user.add.section') }}" class="btn-primary">+ Add Guard</a>
             </div>
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success fade-in">✓ {{ session('success') }}</div>
+            <div class="alert alert-success fade-in">{{ session('success') }}</div>
         @endif
         @if(session('error'))
-            <div class="alert alert-danger fade-in">⚠ {{ session('error') }}</div>
+            <div class="alert alert-danger fade-in">{{ session('error') }}</div>
         @endif
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; padding:0; overflow:hidden;">
@@ -66,17 +39,17 @@
             <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <button type="button" onclick="openPasswordModal('bulk-delete-form')"
                     id="bulk-delete-btn" class="btn-danger btn-sm" disabled>
-                    🗑 Bulk Delete
+                    Bulk Delete
                 </button>
                 <form action="{{ route('security.user.table.section') }}" method="GET" class="search-form">
                     <div class="search-input-wrapper">
-                        <span class="search-icon">🔍</span>
+                        <span class="search-icon"></span>
                         <input type="text" name="search" class="search-input" placeholder="Search guards by name or email..."
                             value="{{ request('search') }}">
                     </div>
                     <button type="submit" class="btn-secondary btn-sm">Search</button>
                     @if(request('search'))
-                        <a href="{{ route('security.user.table.section') }}" class="btn-clear btn-sm">✖ Clear</a>
+                        <a href="{{ route('security.user.table.section') }}" class="btn-clear btn-sm">Clear</a>
                     @endif
                 </form>
             </div>
@@ -112,13 +85,13 @@
                             <td class="actions-cell">
                                 <div class="action-buttons">
                                     <a href="{{ route('admin.guard.shifts', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}"
-                                        class="btn-icon btn-info" title="View Shifts">🕐</a>
+                                        class="btn-icon btn-info" title="View Shifts"></a>
                                     <a href="{{ route('security.guard.user.details', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}"
-                                        class="btn-icon btn-view" title="View">👁</a>
+                                        class="btn-icon btn-view" title="View"></a>
                                     <a href="{{ route('security.guard.user.edit', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}"
-                                        class="btn-icon btn-edit" title="Edit">✎</a>
+                                        class="btn-icon btn-edit" title="Edit"></a>
                                     <button type="button" onclick="openPasswordModal('delete-form-{{ $security_guard_user->id }}')"
-                                        class="btn-icon btn-delete" title="Delete">🗑</button>
+                                        class="btn-icon btn-delete" title="Delete"></button>
                                     <form id="delete-form-{{ $security_guard_user->id }}"
                                         action="{{ route('security.guard.user.delete', $security_guard_user->id) }}"
                                         method="POST" style="display:none;">
@@ -131,7 +104,7 @@
                         <tr>
                             <td colspan="6">
                                 <div class="empty-state">
-                                    <div class="empty-icon">👮</div>
+                                    <div class="empty-icon"></div>
                                     <h3>No Security Guards Found</h3>
                                     <p>No staff accounts match your search criteria.</p>
                                 </div>
@@ -160,7 +133,7 @@
 <div id="passwordModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>🔒 Confirm Your Identity</h3>
+            <h3>Confirm Your Identity</h3>
             <button type="button" class="close-modal" onclick="closePasswordModal()">&times;</button>
         </div>
         <p class="modal-desc">Enter your admin password to authorize this action.</p>

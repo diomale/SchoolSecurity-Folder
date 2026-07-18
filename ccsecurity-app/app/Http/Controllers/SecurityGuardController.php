@@ -270,8 +270,24 @@ class SecurityGuardController extends Controller
             'password' => 'required'
         ]);
 
+        // Rate limiting: Check for too many failed attempts
+        $email = $request->email;
+        $rateLimitKey = 'securityguard_login_attempts_' . md5($email);
+        $maxAttempts = 5;
+        $lockoutMinutes = 15;
+
+        $attempts = cache()->get($rateLimitKey, 0);
+        if ($attempts >= $maxAttempts) {
+            return back()->withErrors([
+                'email' => 'Too many failed attempts. Please try again in ' . $lockoutMinutes . ' minutes.'
+            ])->withInput($request->only('email'));
+        }
+
         // Add 'status' => 1 to ensure only active guards can log in
         if (Auth::guard('securityguard')->attempt(array_merge($credentials, ['status' => 1]))) {
+
+            // Reset rate limit on successful login
+            cache()->forget($rateLimitKey);
 
             // IMPORTANT: Regenerate session to prevent session fixation
             $request->session()->regenerate();
@@ -279,9 +295,12 @@ class SecurityGuardController extends Controller
             return redirect()->intended(route('security.dashboard'));
         }
 
+        // Increment rate limit on failed login
+        cache()->put($rateLimitKey, $attempts + 1, now()->addMinutes($lockoutMinutes));
+
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email'); // Keeps the email in the field for the user
+        ])->withInput($request->only('email'));
     }
 
     public function logout(Request $request)

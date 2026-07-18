@@ -13,35 +13,7 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <!-- Direct linking out of SPA flow -->
-                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📊</span> Back to Command
-                </a>
-                <a href="{{ route('security.scanner.show') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">🔍</span> QR Scanner
-                </a>
-                <a href="{{ route('security.quick-pass.list') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">🚗</span> Quick Pass
-                </a>
-                <a href="{{ route('security.entry.logs') }}" class="tab-button active" style="text-decoration: none;">
-                    <span class="nav-icon">📜</span> Entry Logs
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('SecurityGuardUser.partials.sidebar', ['activePage' => 'entry-logs'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -116,7 +88,9 @@
                 </div>
                 @else
                 <div class="no-inside">
-                    <span style="font-size: 2rem; display: block; margin-bottom: 10px;">🏫</span>
+                    <span style="display: block; margin-bottom: 10px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </span>
                     No one is currently inside the school premises.
                 </div>
                 @endif
@@ -250,7 +224,9 @@
                 
                 @else
                 <div class="empty-state">
-                    <div class="empty-icon">📜</div>
+                    <div class="empty-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
                     <p style="font-size: 1.1rem; color: var(--text-main); font-weight: 600;">No entry/exit logs found</p>
                     <span class="suggestion">Adjust your filters to see more results.</span>
                 </div>

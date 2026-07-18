@@ -23,30 +23,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('insideuser.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">📊</span> Overview
-                </a>
-                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
-                    <span class="nav-icon">👤</span> Profile
-                </a>
-                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link active">
-                    <span class="nav-icon">🎉</span> My Events
-                </a>
-                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
-                    <span class="nav-icon">🤝</span> Connection Requests
-                </a>
-                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
-                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
-                </a>
-            </nav>
-        </aside>
+        @include('InsideUser.partials.sidebar', ['activePage' => 'events'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -58,6 +35,7 @@
                     <p class="subtitle fade-in" style="animation-delay: 0.1s;">Manage and export registrations for your event.</p>
                 </div>
                 <div class="header-right fade-in" style="animation-delay: 0.1s; display: flex; gap: 10px;">
+                    <a href="{{ route('insideuser.events.pending-approvals', $event->id) }}" class="btn btn-secondary" style="border: 1px solid rgba(255,255,255,0.12); color: var(--text-main);">Approvals ({{ $registrations->where('needs_creator_approval', true)->whereNull('creator_approved_at')->count() }})</a>
                     <button onclick="openModal()" class="btn btn-primary">+ Register Walk-in</button>
                     <a href="{{ route('insideuser.events.exportRegistrations', $event->id) }}" class="btn btn-success" style="background: var(--success);">Export CSV</a>
                 </div>
@@ -137,10 +115,19 @@
                                         <span class="badge badge-green">{{ ucfirst($reg->status) }}</span>
                                     </td>
                                     <td style="font-size: 0.85rem; color: var(--text-muted);">{{ $reg->created_at->format('M d, Y g:i A') }}</td>
-                                    <td class="table-action-icons">
-                                        @if($reg->creator_approved_at)
-                                            <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" title="Download QR">⬇️</a>
-                                            <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')">✉️</a>
+                                    <td class="table-action-icons" style="white-space: nowrap;">
+                                        @if($reg->needs_creator_approval && !$reg->creator_approved_at)
+                                            <form action="{{ route('insideuser.events.approvals.approve', $reg->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" onclick="return confirm('Approve {{ $reg->fullname }}? QR code will be emailed.')" title="Approve" style="background:none;border:none;cursor:pointer;color:var(--success);font-size:1.2rem;display:inline-block;margin-right:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>
+                                            </form>
+                                            <form action="{{ route('insideuser.events.approvals.reject', $reg->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" onclick="return confirm('Reject {{ $reg->fullname }}?')" title="Reject" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:1.2rem;display:inline-block;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                                            </form>
+                                        @elseif($reg->creator_approved_at)
+                                            <a href="{{ route('insideuser.events.downloadQR', $reg->id) }}" target="_blank" title="Download QR"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
+                                            <a href="{{ route('insideuser.events.resendQR', $reg->id) }}" title="Resend Email" onclick="return confirm('Resend QR code to {{ $reg->email }}?')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
                                         @else
                                             <span style="color: var(--text-light); font-size: 0.8rem;">Awaiting</span>
                                         @endif
@@ -153,7 +140,7 @@
                     <div style="margin-top: 20px;">{{ $registrations->links() }}</div>
                     @else
                     <div class="empty-state" style="padding: 60px 20px; text-align: center;">
-                        <div style="font-size: 3rem; margin-bottom: 20px;">📭</div>
+                        <div style="font-size: 3rem; margin-bottom: 20px;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
                         <h4 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 10px;">No registrations yet..</h4>
                         <p style="color: var(--text-muted);">As participants register, they will appear here.</p>
                     </div>

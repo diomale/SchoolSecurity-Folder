@@ -14,42 +14,7 @@
     <div class="dashboard-container">
         
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-
-            <nav class="sidebar-nav">
-                <button class="tab-button active" onclick="switchTab('overview')">
-                    <span class="nav-icon">📊</span> Overview
-                </button>
-                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
-                    <span class="nav-icon">👤</span> Profile
-                </a>
-                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">🎉</span> My Events
-                </a>
-                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
-                    <span class="nav-icon">🤝</span> Connection Requests
-                    @if($pendingConnections->count() > 0)
-                        <span class="notification-badge">{{ $pendingConnections->count() }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
-                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('insideuser.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('InsideUser.partials.sidebar', ['activePage' => 'overview', 'pendingCount' => $pendingConnections->count()])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -80,7 +45,7 @@
 
                     @if($connectedParents->count() > 0)
                         <div class="alert alert-success">
-                            <div class="alert-icon">✓</div>
+                            <div class="alert-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                             <div class="alert-content">
                                 <h3>Connected Parents/Guardians</h3>
                                 <p>You have <strong>{{ $connectedParents->count() }}</strong> connected parent(s) who can see your entry/exit records.</p>
@@ -109,7 +74,7 @@
                             <a href="{{ route('insideuser.events.create') }}" class="btn btn-primary btn-sm">+ Create Event</a>
                         </div>
                         <div class="card-interior bg-purple-light">
-                            <div class="interior-icon text-purple">🎉</div>
+                            <div class="interior-icon text-purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                             <div class="interior-text">
                                 <h4>Manage Your Events</h4>
                                 <p>Create and manage events for alien user registration. Track registrations, approve participants, and generate QR codes.</p>
@@ -165,7 +130,7 @@
                             <p class="table-footer-note">Showing last {{ $entryLogs->count() }} records. Total: {{ $insideUser->entryLogs()->count() }} logs</p>
                         @else
                             <div class="empty-state">
-                                <div class="empty-icon">📭</div>
+                                <div class="empty-icon"></div>
                                 <h4>No Entry/Exit Records</h4>
                                 <p>You don't have any entry or exit records yet. Your logs will appear here when you scan your QR code at the security checkpoint.</p>
                             </div>

@@ -12,40 +12,7 @@
 <body>
     <div class="dashboard-container">
         
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="{{ route('insideuser.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">📊</span> Overview
-                </a>
-                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
-                    <span class="nav-icon">👤</span> Profile
-                </a>
-                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link active">
-                    <span class="nav-icon">🎉</span> My Events
-                </a>
-                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
-                    <span class="nav-icon">🤝</span> Connection Requests
-                </a>
-                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
-                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('insideuser.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('InsideUser.partials.sidebar', ['activePage' => 'events'])
 
         <!-- Main Content -->
         <main class="main-content">
@@ -55,7 +22,9 @@
                     <p class="subtitle fade-in" style="animation-delay: 0.1s;">Manage and track your custom events.</p>
                 </div>
                 <div class="header-right fade-in" style="animation-delay: 0.1s;">
-                     <a href="{{ route('insideuser.events.create') }}" class="btn btn-primary">+ Create Event</a>
+                    @if($canCreateEvents)
+                        <a href="{{ route('insideuser.events.create') }}" class="btn btn-primary">+ Create Event</a>
+                    @endif
                 </div>
             </header>
 
@@ -104,7 +73,7 @@
                                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">{{ Str::limit($event->event_description, 50) }}</div>
                                     </td>
                                     <td>
-                                        <div style="font-weight: 600;">{{ $event->event_date->format('M d, Y') }}</div>
+                                        <div style="font-weight: 600;">@if($event->event_end_date && !$event->event_date->eq($event->event_end_date)){{ $event->event_date->format('M d') }} – {{ $event->event_end_date->format('M d, Y') }}@else{{ $event->event_date->format('M d, Y') }}@endif</div>
                                         <div style="font-size: 0.85rem; color: var(--text-muted);">{{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</div>
                                     </td>
                                     <td>
@@ -142,11 +111,15 @@
 
                     @else
                     <div class="empty-state">
-                        <div class="empty-icon">📅</div>
+                        <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
                         <h4>No events yet</h4>
-                        <p>Get started by creating your first event to invite outsiders.</p>
-                        <br>
-                        <a href="{{ route('insideuser.events.create') }}" class="btn btn-primary">+ Create Event</a>
+                        @if($canCreateEvents)
+                            <p>Get started by creating your first event to invite outsiders.</p>
+                            <br>
+                            <a href="{{ route('insideuser.events.create') }}" class="btn btn-primary">+ Create Event</a>
+                        @else
+                            <p>You do not have permission to create events. Please contact an admin to request access.</p>
+                        @endif
                     </div>
                     @endif
                 </div>

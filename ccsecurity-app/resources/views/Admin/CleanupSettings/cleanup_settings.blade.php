@@ -11,29 +11,7 @@
 </head>
 <body>
 <div class="dashboard-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link active"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf
-                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'cleanup_settings'])
 
     <main class="main-content">
         <div class="top-header fade-in">
@@ -44,15 +22,15 @@
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success fade-in">✓ {{ session('success') }}</div>
+            <div class="alert alert-success fade-in">{{ session('success') }}</div>
         @endif
         @if(session('error'))
-            <div class="alert alert-danger fade-in">⚠ {{ session('error') }}</div>
+            <div class="alert alert-danger fade-in">{{ session('error') }}</div>
         @endif
 
         <!-- Global Status Card -->
         <div class="glass-card fade-in" style="animation-delay:0.05s;">
-            <h3>⚙️ Global Auto-Delete Status</h3>
+            <h3>Global Auto-Delete Status</h3>
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
                 <div>
                     <div style="font-size:1rem; font-weight:600; color:var(--text-main); margin-bottom:4px;">Master Auto-Delete Switch</div>
@@ -65,10 +43,10 @@
                         @endif
                     </div>
                 </div>
-                <button onclick="openPasswordModal('toggle-global')" class="btn-primary">⚙ Toggle Global Setting</button>
+                <button onclick="openPasswordModal('toggle-global')" class="btn-primary">Toggle Global Setting</button>
             </div>
             <div class="alert alert-info" style="margin:0;">
-                ℹ <strong>Note:</strong> The global switch controls whether scheduled cleanup runs automatically.
+                <strong>Note:</strong> The global switch controls whether scheduled cleanup runs automatically.
                 Individual table settings control which tables are cleaned and their retention periods.
                 Scheduled cleanup runs <strong>daily at midnight</strong>.
             </div>
@@ -83,7 +61,7 @@
                     $tableStats = $stats[$tableName];
                 @endphp
                 <div class="glass-card" style="margin:0; padding:22px;">
-                    <h3 style="font-size:1rem; margin-bottom:16px;">🗂 {{ $label }}</h3>
+                    <h3 style="font-size:1rem; margin-bottom:16px;">{{ $label }}</h3>
 
                     <!-- Stats -->
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
@@ -122,9 +100,9 @@
                     <!-- Actions -->
                     <div style="display:flex; gap:8px;">
                         <button onclick="openEditModal('{{ $tableName }}', {{ $settings->auto_delete_enabled ? 1 : 0 }}, {{ $settings->retention_days }})"
-                            class="btn-info btn-sm" style="flex:1;">✎ Edit Settings</button>
+                            class="btn-info btn-sm" style="flex:1;">Edit Settings</button>
                         <button onclick="openRunModal('{{ $tableName }}', {{ $settings->retention_days }})"
-                            class="btn-danger btn-sm" style="flex:1;">▶ Run Now</button>
+                            class="btn-danger btn-sm" style="flex:1;">Run Now</button>
                     </div>
                 </div>
             @endforeach
@@ -132,7 +110,7 @@
 
         <!-- Scheduled Cleanup Info -->
         <div class="glass-card fade-in" style="animation-delay:0.15s;">
-            <h3>🕐 Scheduled Cleanup Info</h3>
+            <h3>Scheduled Cleanup Info</h3>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px;">
                 <div class="detail-item">
                     <div class="detail-label">Schedule</div>
@@ -150,7 +128,7 @@
                 </div>
             </div>
             <div class="alert alert-warning" style="margin-top:16px; margin-bottom:0;">
-                ⚠ <strong>Production Setup:</strong> Windows Task Scheduler runs daily. Each table uses its own retention setting.
+                <strong>Production Setup:</strong> Windows Task Scheduler runs daily. Each table uses its own retention setting.
                 Setting retention to 0 will delete <strong>all records</strong> from that table.
             </div>
         </div>
@@ -161,7 +139,7 @@
 <div id="passwordModal-toggle-global" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>⚙️ Confirm Global Toggle</h3>
+            <h3>Confirm Global Toggle</h3>
             <button type="button" class="close-modal" onclick="closePasswordModal('toggle-global')">&times;</button>
         </div>
         <p class="modal-desc">Enter your admin password to toggle the global auto-delete setting.</p>
@@ -183,7 +161,7 @@
 <div id="editSettingsModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>✎ Edit Cleanup Settings</h3>
+            <h3>Edit Cleanup Settings</h3>
             <button type="button" class="close-modal" onclick="closeEditModal()">&times;</button>
         </div>
         <p class="modal-desc">Enter your admin password to update retention settings.</p>
@@ -208,7 +186,7 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
-                <button type="submit" class="btn-primary">💾 Save Changes</button>
+                <button type="submit" class="btn-primary">Save Changes</button>
             </div>
         </form>
     </div>
@@ -218,12 +196,12 @@
 <div id="runCleanupModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>▶ Run Manual Cleanup</h3>
+            <h3>Run Manual Cleanup</h3>
             <button type="button" class="close-modal" onclick="closeRunModal()">&times;</button>
         </div>
         <p class="modal-desc">Enter your admin password to run cleanup now.</p>
         <div class="alert alert-warning" style="margin-bottom:16px;">
-            ⚠ This will permanently delete records <span id="run-retention-text"></span>
+            This will permanently delete records <span id="run-retention-text"></span>
         </div>
         <form action="{{ route('admin.cleanup.run-now') }}" method="POST">
             @csrf
@@ -235,7 +213,7 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" onclick="closeRunModal()">Cancel</button>
-                <button type="submit" class="btn-danger">▶ Run Cleanup</button>
+                <button type="submit" class="btn-danger">Run Cleanup</button>
             </div>
         </form>
     </div>

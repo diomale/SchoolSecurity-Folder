@@ -14,33 +14,7 @@
     <div class="dashboard-container">
         
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-
-            <nav class="sidebar-nav">
-                <button class="tab-button active" onclick="switchTab('dashboard')">
-                    <span class="nav-icon">📊</span> Overview
-                </button>
-                <button class="tab-button" onclick="switchTab('profile')">
-                    <span class="nav-icon">👤</span> My Profile
-                </button>
-                <button class="tab-button" onclick="switchTab('notifications')">
-                    <span class="nav-icon">🔔</span> Activity Logs
-                </button>
-            </nav>
-
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('SecurityGuardUser.partials.sidebar', ['activePage' => 'dashboard'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -72,28 +46,36 @@
                 
                 <div class="stats-grid mb-4">
                     <div class="stat-card fade-in" style="animation-delay: 0.1s;">
-                        <div class="stat-icon bg-primary">📱</div>
+                        <div class="stat-icon bg-primary">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-value">{{ $todayScans }}</span>
                             <span class="stat-label">Total Scans Today</span>
                         </div>
                     </div>
                     <div class="stat-card fade-in" style="animation-delay: 0.2s;">
-                        <div class="stat-icon bg-success">🏃</div>
+                        <div class="stat-icon bg-success">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-value text-success">{{ $todayEntries }}</span>
                             <span class="stat-label">Entries Today</span>
                         </div>
                     </div>
                     <div class="stat-card fade-in" style="animation-delay: 0.3s;">
-                        <div class="stat-icon bg-warning">🚶</div>
+                        <div class="stat-icon bg-warning">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-value text-warning">{{ $todayExits }}</span>
                             <span class="stat-label">Exits Today</span>
                         </div>
                     </div>
                     <div class="stat-card fade-in" style="animation-delay: 0.4s;">
-                        <div class="stat-icon bg-info">📅</div>
+                        <div class="stat-icon bg-info">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-value text-primary">{{ $totalScans }}</span>
                             <span class="stat-label">All-Time Scans</span>
@@ -105,42 +87,54 @@
                     <h3>Quick Actions</h3>
                     <div class="actions-grid">
                         <a href="{{ route('security.scanner.show') }}" class="action-card">
-                            <div class="action-icon">🔍</div>
+                            <div class="action-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                            </div>
                             <div class="action-text">
                                 <h4>QR Scanner</h4>
                                 <p>Scan user QR codes for Entry/Exit</p>
                             </div>
                         </a>
                         <a href="{{ route('security.quick-pass.list') }}" class="action-card">
-                            <div class="action-icon">🚗</div>
+                            <div class="action-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            </div>
                             <div class="action-text">
                                 <h4>Quick Pass</h4>
                                 <p>Temporary same-day visitor passes</p>
                             </div>
                         </a>
                         <a href="{{ route('security.entry.logs') }}" class="action-card">
-                            <div class="action-icon">📜</div>
+                            <div class="action-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            </div>
                             <div class="action-text">
                                 <h4>Entry/Exit Logs</h4>
                                 <p>View real-time campus movement</p>
                             </div>
                         </a>
                         <a href="{{ route('security.walkin.list') }}" class="action-card">
-                            <div class="action-icon">📝</div>
+                            <div class="action-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                            </div>
                             <div class="action-text">
                                 <h4>Walk-in Visitors</h4>
                                 <p>Manage manual guest registrations</p>
                             </div>
                         </a>
                         <a href="{{ route('security.shift.management') }}" class="action-card">
-                            <div class="action-icon">⏱️</div>
+                            <div class="action-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
                             <div class="action-text">
                                 <h4>Shift Management</h4>
                                 <p>Clock in/out or view your schedules</p>
                             </div>
                         </a>
                         <a href="{{ route('security.qr.status.management') }}" class="action-card">
-                            <div class="action-icon">⚙️</div>
+                            <div class="action-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            </div>
                             <div class="action-text">
                                 <h4>QR Status Manager</h4>
                                 <p>Activate or block user access</p>
@@ -295,7 +289,9 @@
                     </div>
                     @else
                     <div class="empty-state">
-                        <div class="empty-icon">📭</div>
+                        <div class="empty-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h6"/></svg>
+                        </div>
                         <p>No recent activities found.</p>
                         <span class="suggestion">All global scans will appear here.</span>
                     </div>

@@ -18,6 +18,7 @@ class Event extends Model
         'event_name',
         'event_description',
         'event_date',
+        'event_end_date',
         'event_start_time',
         'event_end_time',
         'qr_request_deadline',
@@ -30,6 +31,7 @@ class Event extends Model
 
     protected $casts = [
         'event_date' => 'date',
+        'event_end_date' => 'date',
         'event_start_time' => 'datetime:H:i',
         'event_end_time' => 'datetime:H:i',
         'qr_request_deadline' => 'datetime:Y-m-d H:i:s',

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Services\AdminActivityLogger;
 
 class AdminEventController extends Controller
 {
@@ -79,6 +80,11 @@ class AdminEventController extends Controller
             'approved_at' => now(),
         ]);
 
+        AdminActivityLogger::eventManagement('Approved Event', "Approved event: {$event->event_name}", [
+            'event_id' => $event->id,
+            'event_name' => $event->event_name,
+        ]);
+
         return redirect()->route('admin.events.pending')
             ->with('success', 'Event approved successfully!');
     }
@@ -98,6 +104,11 @@ class AdminEventController extends Controller
         $event->update([
             'status' => Event::STATUS_REJECTED,
             'admin_remarks' => $request->admin_remarks,
+        ]);
+
+        AdminActivityLogger::eventManagement('Rejected Event', "Rejected event: {$event->event_name}", [
+            'event_id' => $event->id,
+            'event_name' => $event->event_name,
         ]);
 
         return redirect()->route('admin.events.pending')
@@ -169,6 +180,11 @@ class AdminEventController extends Controller
             'approved_at' => now(),
         ]);
 
+        AdminActivityLogger::eventManagement('Bulk Approved Events', "Bulk approved " . count($request->event_ids) . " events", [
+            'event_ids' => $request->event_ids,
+            'count' => count($request->event_ids),
+        ]);
+
         return redirect()->route('admin.events.pending')
             ->with('success', count($request->event_ids) . ' events approved successfully!');
     }
@@ -190,6 +206,11 @@ class AdminEventController extends Controller
             'admin_remarks' => $request->admin_remarks,
         ]);
 
+        AdminActivityLogger::eventManagement('Bulk Rejected Events', "Bulk rejected " . count($request->event_ids) . " events", [
+            'event_ids' => $request->event_ids,
+            'count' => count($request->event_ids),
+        ]);
+
         return redirect()->route('admin.events.pending')
             ->with('success', count($request->event_ids) . ' events rejected.');
     }
@@ -204,6 +225,11 @@ class AdminEventController extends Controller
 
         $event->update([
             'status' => Event::STATUS_COMPLETED,
+        ]);
+
+        AdminActivityLogger::eventManagement('Marked Event Completed', "Marked event as completed: {$event->event_name}", [
+            'event_id' => $event->id,
+            'event_name' => $event->event_name,
         ]);
 
         return redirect()->route('admin.events.all')

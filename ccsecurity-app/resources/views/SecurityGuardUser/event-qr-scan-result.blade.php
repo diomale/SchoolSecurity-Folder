@@ -58,8 +58,8 @@
             <div class="event-box">
                 <h2 style="margin: 0 0 8px 0; font-size: 16px;">{{ $event->event_name }}</h2>
                 <div style="font-size: 13px; color: #666;">
-                    <div> {{ $event->event_date->format('M d, Y') }}</div>
-                    <div> {{ $event->event_start_time->format('g:i A') }}</div>
+                    <div>{{ $event->event_date->format('M d, Y') }}</div>
+                    <div>{{ $event->event_start_time->format('g:i A') }}</div>
                 </div>
             </div>
 

@@ -7,9 +7,6 @@
     font-family: 'Outfit', sans-serif;
 }
 
-/* ───────────────────────────────────────────
-   Background
-─────────────────────────────────────────── */
 body {
     min-height: 100vh;
     display: flex;
@@ -37,13 +34,13 @@ body::after {
 }
 
 body::before {
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
     top: -10%;
     left: -10%;
 }
 
 body::after {
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
     bottom: -10%;
     right: -10%;
     animation-delay: -10s;
@@ -52,12 +49,10 @@ body::after {
 
 @keyframes drift {
     0%   { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(10vw, 15vh) scale(1.15); }
+    100% { transform: translate(8vw, 12vh) scale(1.1); }
 }
 
-/* ───────────────────────────────────────────
-   Layout Wrapper
-─────────────────────────────────────────── */
+/* ── Wrapper ── */
 .er-wrapper {
     width: 100%;
     max-width: 560px;
@@ -68,9 +63,7 @@ body::after {
     gap: 16px;
 }
 
-/* ───────────────────────────────────────────
-   Glass Card
-─────────────────────────────────────────── */
+/* ── Glass Card ── */
 .er-card {
     background: rgba(15, 23, 42, 0.45);
     backdrop-filter: blur(28px);
@@ -93,13 +86,10 @@ body::after {
     box-shadow:
         0 35px 60px -15px rgba(0, 0, 0, 0.9),
         0 0 0 1px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        0 0 40px rgba(99, 102, 241, 0.12);
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* ───────────────────────────────────────────
-   Page Header
-─────────────────────────────────────────── */
+/* ── Page Header ── */
 .er-header {
     text-align: center;
     margin-bottom: 28px;
@@ -109,7 +99,7 @@ body::after {
     font-size: 2.2rem;
     font-weight: 700;
     letter-spacing: -0.03em;
-    background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 40%, #e0e7ff 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #ffffff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -123,9 +113,7 @@ body::after {
     font-weight: 300;
 }
 
-/* ───────────────────────────────────────────
-   Alert Banners
-─────────────────────────────────────────── */
+/* ── Alert Banners ── */
 .er-alert {
     padding: 14px 18px;
     border-radius: 14px;
@@ -141,10 +129,10 @@ body::after {
 }
 
 .er-alert-success {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    border-left: 4px solid #10b981;
-    color: #34d399;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 4px solid #ffffff;
+    color: #e2e8f0;
 }
 
 .er-alert-error {
@@ -159,12 +147,10 @@ body::after {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ───────────────────────────────────────────
-   Event Info Block
-─────────────────────────────────────────── */
+/* ── Event Info Block ── */
 .er-event-info {
-    background: rgba(99, 102, 241, 0.08);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 20px 22px;
     margin-bottom: 28px;
@@ -173,7 +159,7 @@ body::after {
 .er-event-info h2 {
     font-size: 1.15rem;
     font-weight: 600;
-    color: #c7d2fe;
+    color: #f1f5f9;
     margin-bottom: 12px;
 }
 
@@ -194,11 +180,10 @@ body::after {
 .er-event-meta-row .er-icon {
     font-size: 1rem;
     flex-shrink: 0;
+    color: #64748b;
 }
 
-/* ───────────────────────────────────────────
-   Form
-─────────────────────────────────────────── */
+/* ── Form ── */
 .er-form {
     display: flex;
     flex-direction: column;
@@ -222,7 +207,7 @@ body::after {
 }
 
 .er-form-group:focus-within label {
-    color: #818cf8;
+    color: #e2e8f0;
 }
 
 .er-required {
@@ -254,16 +239,14 @@ body::after {
 
 .er-form-group input:focus {
     background: rgba(15, 23, 42, 0.85);
-    border-color: #6366f1;
+    border-color: rgba(255, 255, 255, 0.3);
     box-shadow:
         inset 0 2px 4px rgba(0, 0, 0, 0.3),
-        0 0 0 3px rgba(99, 102, 241, 0.18),
-        0 0 18px rgba(99, 102, 241, 0.15);
+        0 0 0 3px rgba(255, 255, 255, 0.06),
+        0 0 20px rgba(255, 255, 255, 0.04);
 }
 
-/* ───────────────────────────────────────────
-   Submit Button
-─────────────────────────────────────────── */
+/* ── Submit Button ── */
 .er-btn {
     margin-top: 8px;
     padding: 17px;
@@ -280,10 +263,10 @@ body::after {
 }
 
 .er-btn-primary {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    color: #ffffff;
+    background: #ffffff;
+    color: #000000;
     box-shadow:
-        0 10px 20px -10px rgba(99, 102, 241, 0.65),
+        0 10px 20px -10px rgba(255, 255, 255, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -294,15 +277,15 @@ body::after {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
     transition: left 0.6s ease;
 }
 
 .er-btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    background: #f1f5f9;
     transform: translateY(-3px);
     box-shadow:
-        0 20px 30px -10px rgba(99, 102, 241, 0.85),
+        0 20px 30px -10px rgba(255, 255, 255, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -312,7 +295,7 @@ body::after {
 
 .er-btn-primary:active:not(:disabled) {
     transform: translateY(1px);
-    box-shadow: 0 5px 10px -5px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 5px 10px -5px rgba(255, 255, 255, 0.15);
     transition-duration: 0.1s;
 }
 
@@ -323,9 +306,7 @@ body::after {
     box-shadow: none;
 }
 
-/* ───────────────────────────────────────────
-   Back Link
-─────────────────────────────────────────── */
+/* ── Back Link ── */
 .er-footer {
     text-align: center;
     margin-top: 26px;
@@ -334,7 +315,7 @@ body::after {
 }
 
 .er-back-link {
-    color: #818cf8;
+    color: #94a3b8;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
@@ -346,18 +327,15 @@ body::after {
 
 .er-back-link:hover {
     color: #ffffff;
-    background: rgba(99, 102, 241, 0.2);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+    background: rgba(255, 255, 255, 0.08);
 }
 
-/* ───────────────────────────────────────────
-   Note / Warning Banner (outside the card)
-─────────────────────────────────────────── */
+/* ── Note Banner ── */
 .er-note {
-    background: rgba(234, 179, 8, 0.08);
-    border: 1px solid rgba(234, 179, 8, 0.22);
-    border-left: 4px solid #eab308;
-    color: #fde68a;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 4px solid rgba(255, 255, 255, 0.3);
+    color: #94a3b8;
     padding: 14px 18px;
     border-radius: 14px;
     font-size: 0.875rem;
@@ -367,13 +345,11 @@ body::after {
 }
 
 .er-note strong {
-    color: #fcd34d;
+    color: #e2e8f0;
 }
 
-/* ───────────────────────────────────────────
-   Accessibility
-─────────────────────────────────────────── */
+/* ── Accessibility ── */
 *:focus-visible {
-    outline: 2px solid #818cf8;
+    outline: 2px solid rgba(255, 255, 255, 0.5);
     outline-offset: 2px;
 }

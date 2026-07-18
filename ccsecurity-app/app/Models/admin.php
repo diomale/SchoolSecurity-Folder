@@ -31,4 +31,12 @@ class admin extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    /**
+     * Get trusted devices for this admin
+     */
+    public function devices()
+    {
+        return $this->hasMany(SuperadminDevice::class, 'admin_id');
+    }
 }

@@ -11,29 +11,7 @@
 </head>
 <body>
 <div class="dashboard-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link active"><span class="nav-icon">👮</span><span>Security Guards</span></a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf
-                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'shift_management'])
 
     <main class="main-content">
         <div class="top-header fade-in">
@@ -41,7 +19,7 @@
                 <h1>Guard <span class="highlight">Schedule</span></h1>
                 <p class="subtitle">Individual shift listing for security personnel</p>
             </div>
-            <a href="{{ $backUrl }}" class="btn-secondary">← Back</a>
+            <a href="{{ $backUrl }}" class="btn-secondary">Back</a>
         </div>
 
         <!-- Guard Profile Header -->
@@ -59,7 +37,7 @@
 
         <div class="fade-in" style="animation-delay:0.1s;">
             <h3 style="margin-bottom:20px; font-size:1.1rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
-                🗓️ Detailed Shift Listing ({{ $shifts->total() }})
+                Detailed Shift Listing ({{ $shifts->total() }})
             </h3>
 
             @if($shifts->count() > 0)
@@ -90,11 +68,11 @@
 
                         <div style="display:flex; flex-direction:column; gap:8px; background:var(--bg-main); padding:14px; border-radius:var(--radius-sm);">
                             <div style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:1rem;">
-                                <span style="font-size:1.2rem;">🕒</span>
-                                {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} – {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
+                                <span style="font-size:1.2rem;"></span>
+                                {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
                             </div>
                             <div style="display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:0.9rem;">
-                                <span>⚖️</span>
+                                <span></span>
                                 Duration: <strong>{{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours</strong>
                             </div>
                         </div>
@@ -102,7 +80,7 @@
                         <div style="margin-top:16px; display:flex; justify-content:flex-end;">
                             <form method="POST" action="{{ route('admin.shift.delete', $shift->id) }}" onsubmit="return confirm('Delete this shift?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn-danger btn-sm">🗑 Delete Shift</button>
+                                <button type="submit" class="btn-danger btn-sm">Delete Shift</button>
                             </form>
                         </div>
                     </div>
@@ -117,7 +95,7 @@
             @else
                 <div class="glass-card">
                     <div class="empty-state" style="padding:40px 20px;">
-                        <div class="empty-icon">📂</div>
+                        <div class="empty-icon"></div>
                         <h3>No Shifts Assigned</h3>
                         <p>This guard doesn't have any scheduled shifts yet.</p>
                         <a href="{{ route('admin.shift.management') }}" class="btn-primary" style="margin-top:16px;">Assign a Shift</a>

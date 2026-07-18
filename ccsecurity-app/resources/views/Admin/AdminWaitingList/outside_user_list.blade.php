@@ -13,55 +13,7 @@
 <div class="dashboard-container">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand">
-                <strong>Columban College</strong>
-                <span>Admin Portal</span>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                <span class="nav-icon">🏠</span> <span>Dashboard</span>
-            </a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link">
-                <span class="nav-icon">🎓</span> <span>Inside Users</span>
-            </a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link">
-                <span class="nav-icon">👮</span> <span>Security Guards</span>
-            </a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link active">
-                <span class="nav-icon">👤</span> <span>Outsider Management</span>
-            </a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link">
-                <span class="nav-icon">📅</span> <span>Visit Requests</span>
-            </a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link">
-                <span class="nav-icon">👨‍👩‍👧</span> <span>Connections</span>
-            </a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link">
-                <span class="nav-icon">🎉</span> <span>Events</span>
-            </a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link">
-                <span class="nav-icon">📱</span> <span>QR Management</span>
-            </a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link">
-                <span class="nav-icon">🕐</span> <span>Shift Management</span>
-            </a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link">
-                <span class="nav-icon">🗑️</span> <span>Cleanup Settings</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <span class="nav-icon">🚪</span> <span>Logout</span>
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'outsider_management'])
 
     <!-- Main Content -->
     <main class="main-content">
@@ -71,20 +23,20 @@
                 <p class="subtitle">Manage visitor accounts and external passes</p>
             </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <a href="{{ route('admin.visit.requests') }}" class="btn-info">📅 Visit Requests</a>
+                <a href="{{ route('admin.visit.requests') }}" class="btn-info">Visit Requests</a>
                 <a href="{{ route('admin.outsider.add') }}" class="btn-primary">+ Add Walk-in</a>
             </div>
         </div>
 
         <!-- Alerts -->
         @if(session('success'))
-            <div class="alert alert-success fade-in">✓ {{ session('success') }}</div>
+            <div class="alert alert-success fade-in">{{ session('success') }}</div>
         @endif
         @if(session('info'))
-            <div class="alert alert-info fade-in">ℹ {{ session('info') }}</div>
+            <div class="alert alert-info fade-in">{{ session('info') }}</div>
         @endif
         @if(session('error'))
-            <div class="alert alert-danger fade-in">⚠ {{ session('error') }}</div>
+            <div class="alert alert-danger fade-in">{{ session('error') }}</div>
         @endif
 
         <!-- Glass Card -->
@@ -95,18 +47,18 @@
                 <div style="display:flex; gap:10px; align-items:center;">
                     <button type="button" onclick="openPasswordModal('bulk-delete-form')"
                         id="bulk-delete-btn" class="btn-danger btn-sm" disabled>
-                        🗑 Bulk Delete
+                        Bulk Delete
                     </button>
                 </div>
                 <form action="{{ route('show.admin.outsider.list') }}" method="GET" class="search-form">
                     <div class="search-input-wrapper">
-                        <span class="search-icon">🔍</span>
+                        <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
                         <input type="text" name="search" class="search-input" placeholder="Search name, email, phone..."
                             value="{{ request('search') }}">
                     </div>
                     <button type="submit" class="btn-secondary btn-sm">Search</button>
                     @if(request('search'))
-                        <a href="{{ route('show.admin.outsider.list') }}" class="btn-clear btn-sm">✖ Clear</a>
+                        <a href="{{ route('show.admin.outsider.list') }}" class="btn-clear btn-sm">Clear</a>
                     @endif
                 </form>
             </div>
@@ -158,11 +110,11 @@
                             <td class="actions-cell">
                                 <div class="action-buttons">
                                     <a href="{{ route('admin.outsider.edit', ['id' => $outside_user->id, 'back_url' => url()->current()]) }}"
-                                        class="btn-icon btn-edit" title="Edit">✎</a>
+                                        class="btn-icon btn-edit" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
 
                                     <button type="button"
                                         onclick="openPasswordModal('delete-form-{{ $outside_user->id }}')"
-                                        class="btn-icon btn-delete" title="Delete">🗑</button>
+                                        class="btn-icon btn-delete" title="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>
                                     <form id="delete-form-{{ $outside_user->id }}"
                                         action="{{ route('admin.outsider.delete', $outside_user->id) }}"
                                         method="POST" style="display:none;">
@@ -172,11 +124,11 @@
                                     @if($outside_user->status === \App\Models\outsideuser::STATUS_PENDING)
                                         <form action="{{ route('admin.approved.user', $outside_user->id) }}" method="POST" style="display:inline;">
                                             @csrf @method('PATCH')
-                                            <button type="submit" class="btn-icon btn-view" title="Approve">✓</button>
+                                            <button type="submit" class="btn-icon btn-view" title="Approve"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></button>
                                         </form>
                                         <form action="{{ route('admin.rejected.user', $outside_user->id) }}" method="POST" style="display:inline;">
                                             @csrf @method('PATCH')
-                                            <button type="submit" class="btn-icon btn-delete" title="Reject">✗</button>
+                                            <button type="submit" class="btn-icon btn-delete" title="Reject"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
                                         </form>
                                     @endif
                                 </div>
@@ -186,7 +138,7 @@
                         <tr>
                             <td colspan="8">
                                 <div class="empty-state">
-                                    <div class="empty-icon">👤</div>
+                                    <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
                                     <h3>No users found</h3>
                                     <p>No outsider accounts match your search criteria.</p>
                                 </div>
@@ -215,7 +167,7 @@
 <div id="passwordModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>🔒 Confirm Your Identity</h3>
+            <h3>Confirm Your Identity</h3>
             <button type="button" class="close-modal" onclick="closePasswordModal()">&times;</button>
         </div>
         <p class="modal-desc">Enter your admin password to authorize this action.</p>

@@ -50,7 +50,7 @@
                 <button type="submit" class="btn-login">Sign In</button>
             </form>
 
-            <a href="{{ route('welcome') }}" class="back-link">&larr; Back to Home</a>
+            <a href="{{ route('welcome.page') }}" class="back-link">&larr; Back to Home</a>
         </div>
     </div>
 </body>

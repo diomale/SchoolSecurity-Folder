@@ -11,29 +11,7 @@
 </head>
 <body>
 <div class="dashboard-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link active"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf
-                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'shift_management'])
 
     <main class="main-content">
         <div class="top-header fade-in">
@@ -47,28 +25,28 @@
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success fade-in">✓ {{ session('success') }}</div>
+            <div class="alert alert-success fade-in">{{ session('success') }}</div>
         @endif
         @if(session('error'))
-            <div class="alert alert-danger fade-in">⚠ {{ session('error') }}</div>
+            <div class="alert alert-danger fade-in">{{ session('error') }}</div>
         @endif
 
         <div class="glass-card fade-in" style="animation-delay:0.05s; padding:16px 24px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <form method="GET" action="{{ route('admin.shift.management') }}" class="search-form">
                     <div class="search-input-wrapper">
-                        <span class="search-icon">🔍</span>
+                        <span class="search-icon"></span>
                         <input type="text" name="search" class="search-input" placeholder="Search guard name, date, or status..." value="{{ request('search') }}">
                     </div>
                     <button type="submit" class="btn-secondary btn-sm">Search</button>
                     @if(request('search'))
-                        <a href="{{ route('admin.shift.management') }}" class="btn-clear btn-sm">✖ Clear</a>
+                        <a href="{{ route('admin.shift.management') }}" class="btn-clear btn-sm">Clear</a>
                     @endif
                 </form>
 
                 <div style="display:flex; gap:10px;">
                     <button type="button" onclick="submitBulkAction('bulk-delete-form', true)" id="bulk-delete-btn" class="btn-danger btn-sm" disabled>
-                        🗑 Bulk Delete Selected
+                        Bulk Delete Selected
                     </button>
                 </div>
             </div>
@@ -76,7 +54,7 @@
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; padding:0; overflow:hidden;">
             <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05);">
-                <h3 style="margin:0; border:none; padding:0;">🕐 Current Shifts</h3>
+                <h3 style="margin:0; border:none; padding:0;">Current Shifts</h3>
             </div>
 
             <!-- Hidden Bulk Delete Form -->
@@ -113,7 +91,7 @@
                             <td class="date-cell">{{ $shift->shift_date->format('M d, Y') }}</td>
                             <td>
                                 <span style="font-weight:600; color:var(--text-main);">{{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }}</span>
-                                <span style="color:var(--text-muted); margin:0 4px;">→</span>
+                                <span style="color:var(--text-muted); margin:0 4px;">to</span>
                                 <span style="font-weight:600; color:var(--text-main);">{{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}</span>
                             </td>
                             <td>
@@ -132,10 +110,10 @@
                             </td>
                             <td class="actions-cell">
                                 <div class="action-buttons">
-                                    <a href="{{ route('admin.guard.shifts', ['id' => $shift->security_guard_user_id, 'back_url' => url()->current()]) }}" class="btn-icon btn-view" title="View Guard Schedule">👁</a>
+                                    <a href="{{ route('admin.guard.shifts', ['id' => $shift->security_guard_user_id, 'back_url' => url()->current()]) }}" class="btn-icon btn-view" title="View Guard Schedule">View</a>
                                     <form action="{{ route('admin.shift.delete', $shift->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this shift?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" title="Delete Shift">🗑</button>
+                                        <button type="submit" class="btn-icon btn-delete" title="Delete Shift">Delete</button>
                                     </form>
                                 </div>
                             </td>
@@ -144,7 +122,7 @@
                         <tr>
                             <td colspan="7">
                                 <div class="empty-state">
-                                    <div class="empty-icon">🕐</div>
+                                     <div class="empty-icon"></div>
                                     <h3>No shifts found</h3>
                                     <p>Try adjusting your search or assign a new shift.</p>
                                 </div>
@@ -165,7 +143,7 @@
 <div id="assignShiftModal" class="modal-overlay">
     <div class="modal-content" style="max-width: 600px;">
         <div class="modal-header">
-            <h3>🕐 Assign New Shift</h3>
+            <h3>Assign New Shift</h3>
             <button type="button" class="close-modal" onclick="closeAssignShiftModal()">&times;</button>
         </div>
         <p class="modal-desc">Schedule a single shift or a recurring pattern for a security guard.</p>
@@ -249,7 +227,7 @@
 
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" onclick="closeAssignShiftModal()">Cancel</button>
-                <button type="submit" class="btn-primary">✓ Assign Shift</button>
+                <button type="submit" class="btn-primary">Assign Shift</button>
             </div>
         </form>
     </div>

@@ -33,7 +33,7 @@
                     </div>
                     <div class="erp-event-meta-row">
                         <strong>Date:</strong>
-                        <span>{{ $event->event_date->format('l, F d, Y') }}</span>
+                        <span>@if($event->event_end_date && !$event->event_date->eq($event->event_end_date)){{ $event->event_date->format('l, F d') }} – {{ $event->event_end_date->format('l, F d, Y') }}@else{{ $event->event_date->format('l, F d, Y') }}@endif</span>
                     </div>
                     <div class="erp-event-meta-row">
                         <strong>Time:</strong>
@@ -82,7 +82,7 @@
 
             {{-- Actions --}}
             <div class="erp-actions">
-                <a href="{{ route('welcome') }}" class="erp-btn erp-btn-primary">← Back to Home</a>
+                <a href="{{ route('welcome.page') }}" class="erp-btn erp-btn-primary">← Back to Home</a>
             </div>
 
         </div>{{-- /.erp-card --}}

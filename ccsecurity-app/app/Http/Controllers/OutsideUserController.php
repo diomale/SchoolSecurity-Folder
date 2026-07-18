@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use App\Mail\OutsideUserVerifyEmail;
 use App\Rules\Recaptcha;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -114,6 +117,16 @@ class OutsideUserController extends Controller
 
     public function Login(Request $request)
     {
+        // --- Anti-brute-force: Rate limit (5 attempts per IP per 15 min) ---
+        $ip = $request->ip();
+        $rateKey = "outsideuser_login:{$ip}";
+        $attempts = (int) Cache::get($rateKey, 0);
+        if ($attempts >= 5) {
+            return back()->withErrors([
+                'email' => 'Too many login attempts. Please try again in 15 minutes.',
+            ])->onlyInput('email');
+        }
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -125,7 +138,17 @@ class OutsideUserController extends Controller
         ];
 
         if (Auth::guard('outsideuser')->attempt($credentials)) {
+            // Clear rate limit on successful login
+            Cache::forget($rateKey);
+
             $user = Auth::guard('outsideuser')->user();
+            
+            // Check if email is verified
+            if (!$user->email_verified_at) {
+                Auth::guard('outsideuser')->logout();
+                return redirect()->route('outsideuser.verify.notice')
+                    ->with('email', $user->email);
+            }
             
             // Check if account is approved
             if ($user->status !== OutsideUser::STATUS_APPROVED) {
@@ -138,6 +161,9 @@ class OutsideUserController extends Controller
             $request->session()->regenerate();
             return redirect()->intended(route('outsider.dashboard'));
         }
+
+        // Increment rate limit on failed login
+        Cache::put($rateKey, $attempts + 1, now()->addMinutes(15));
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
@@ -156,6 +182,16 @@ class OutsideUserController extends Controller
 
     public function SignupRequest(Request $request)
     {
+        // --- Anti-brute-force: Rate limit (5 signups per IP per 15 min) ---
+        $ip = $request->ip();
+        $rateKey = "outsideuser_signup:{$ip}";
+        $attempts = (int) Cache::get($rateKey, 0);
+        if ($attempts >= 5) {
+            return back()->withErrors([
+                'email' => 'Too many registration attempts. Please try again in 15 minutes.',
+            ])->onlyInput('email');
+        }
+
         $validated = $request->validate([
             'first_name'           => 'required|string|max:150',
             'last_name'            => 'required|string|max:150',
@@ -165,25 +201,36 @@ class OutsideUserController extends Controller
             'g-recaptcha-response' => ['required', new Recaptcha],
         ]);
 
-      
-        $qrValue = 'OUT-' . strtoupper(uniqid() . rand(1000, 9999));
+        // Increment rate limit
+        Cache::put($rateKey, $attempts + 1, now()->addMinutes(15));
 
-        
-        OutsideUser::create([
+        $qrValue = 'OUT-' . strtoupper(uniqid() . rand(1000, 9999));
+        $verificationToken = Str::random(64);
+
+        $user = OutsideUser::create([
             'first_name'   => $validated['first_name'],
             'last_name'    => $validated['last_name'],
             'email'        => $validated['email'],
             'phone_number' => $validated['phone_number'],
-            'password'     => Hash::make($validated['password']), 
+            'password'     => Hash::make($validated['password']),
             'qr_value'     => $qrValue,
             'qr_status'    => 'inactive',
-            'status'       => OutsideUser::STATUS_PENDING,
+            'status'       => OutsideUser::STATUS_APPROVED,
+            'email_verification_token' => $verificationToken,
             'created_at'   => now(),
             'updated_at'   => now(),
         ]);
 
-        return redirect()->route('outsideuser.login.show')
-            ->with('success', 'Account created! Please login and request a visit.');
+        // Send verification email
+        $verificationUrl = route('outsideuser.verify.email', $verificationToken);
+        try {
+            Mail::to($user->email)->send(new OutsideUserVerifyEmail($user, $verificationUrl));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send verification email: ' . $e->getMessage());
+        }
+
+        return redirect()->route('outsideuser.verify.notice')
+            ->with('email', $user->email);
     }
 
     /**
@@ -383,5 +430,73 @@ class OutsideUserController extends Controller
             ->update(['is_read' => true]);
 
         return redirect()->back()->with('success', 'All notifications marked as read');
+    }
+
+    // =========================================================================
+    // EMAIL VERIFICATION
+    // =========================================================================
+
+    /**
+     * Show the "verify your email" notice page
+     */
+    public function showVerifyNotice()
+    {
+        return view('OutsideUser.verify-notice');
+    }
+
+    /**
+     * Handle email verification when user clicks the link
+     */
+    public function verifyEmail($token)
+    {
+        $user = OutsideUser::where('email_verification_token', $token)->first();
+
+        if (!$user) {
+            return redirect()->route('outsideuser.login.show')
+                ->with('error', 'Invalid verification link.');
+        }
+
+        if ($user->email_verified_at) {
+            return redirect()->route('outsideuser.login.show')
+                ->with('success', 'Email already verified. Please login.');
+        }
+
+        $user->update([
+            'email_verified_at' => now(),
+            'email_verification_token' => null,
+        ]);
+
+        return redirect()->route('outsideuser.login.show')
+            ->with('success', 'Email verified successfully! You can now login.');
+    }
+
+    /**
+     * Resend verification email
+     */
+    public function resendVerification(Request $request)
+    {
+        $email = $request->session()->get('email');
+
+        if (!$email) {
+            return redirect()->route('outsideuser.login.show');
+        }
+
+        $user = OutsideUser::where('email', $email)->first();
+
+        if (!$user || $user->email_verified_at) {
+            return redirect()->route('outsideuser.login.show');
+        }
+
+        $token = Str::random(64);
+        $user->update(['email_verification_token' => $token]);
+
+        $verificationUrl = route('outsideuser.verify.email', $token);
+        try {
+            Mail::to($user->email)->send(new OutsideUserVerifyEmail($user, $verificationUrl));
+            return back()->with('success', 'Verification email resent. Check your inbox.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to resend verification email: ' . $e->getMessage());
+            return back()->with('error', 'Failed to send email. Please try again later.');
+        }
     }
 }

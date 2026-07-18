@@ -11,6 +11,7 @@ use App\Models\EventRegistration;
 use App\Models\OutsideUser;
 use App\Mail\EventRegistrationQrMail;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class InsideUserEventController extends Controller
@@ -42,7 +43,9 @@ class InsideUserEventController extends Controller
                     ->where('inside_user_id', $insideUser->id);
             })->count();
 
-        return view('InsideUser.Events.dashboard', compact('events', 'totalEvents', 'pendingEvents', 'approvedEvents', 'totalRegistrations'));
+        $canCreateEvents = $insideUser->can_create_events ?? false;
+
+        return view('InsideUser.Events.dashboard', compact('events', 'totalEvents', 'pendingEvents', 'approvedEvents', 'totalRegistrations', 'canCreateEvents'));
     }
 
     // =========================================================================
@@ -51,28 +54,42 @@ class InsideUserEventController extends Controller
 
     public function create()
     {
+        $insideUser = Auth::guard('insideuser')->user();
+
+        if (!$insideUser->can_create_events) {
+            return redirect()->route('insideuser.events.dashboard')
+                ->with('error', 'You do not have permission to create events. Please contact an admin.');
+        }
+
         return view('InsideUser.Events.create');
     }
 
     public function store(Request $request)
     {
+        $insideUser = Auth::guard('insideuser')->user();
+
+        if (!$insideUser->can_create_events) {
+            return redirect()->route('insideuser.events.dashboard')
+                ->with('error', 'You do not have permission to create events. Please contact an admin.');
+        }
+
         $request->validate([
             'event_name' => 'required|string|max:255',
             'event_description' => 'nullable|string',
             'event_date' => 'required|date|after_or_equal:today',
+            'event_end_date' => 'nullable|date|after_or_equal:event_date',
             'event_start_time' => 'required',
             'event_end_time' => 'required|after:event_start_time',
             'qr_request_deadline' => 'required|date|after:now',
             'alien_user_limit' => 'required|integer|min:1|max:500',
         ]);
 
-        $insideUser = Auth::guard('insideuser')->user();
-
         Event::create([
             'inside_user_id' => $insideUser->id,
             'event_name' => $request->event_name,
             'event_description' => $request->event_description,
             'event_date' => $request->event_date,
+            'event_end_date' => $request->event_end_date ?: $request->event_date,
             'event_start_time' => $request->event_start_time,
             'event_end_time' => $request->event_end_time,
             'qr_request_deadline' => $request->qr_request_deadline,
@@ -136,6 +153,7 @@ class InsideUserEventController extends Controller
             'event_name' => 'required|string|max:255',
             'event_description' => 'nullable|string',
             'event_date' => 'required|date|after_or_equal:today',
+            'event_end_date' => 'nullable|date|after_or_equal:event_date',
             'event_start_time' => 'required',
             'event_end_time' => 'required|after:event_start_time',
             'qr_request_deadline' => 'required|date|after:now',
@@ -146,6 +164,7 @@ class InsideUserEventController extends Controller
             'event_name' => $request->event_name,
             'event_description' => $request->event_description,
             'event_date' => $request->event_date,
+            'event_end_date' => $request->event_end_date ?: $request->event_date,
             'event_start_time' => $request->event_start_time,
             'event_end_time' => $request->event_end_time,
             'qr_request_deadline' => $request->qr_request_deadline,
@@ -382,7 +401,7 @@ class InsideUserEventController extends Controller
 
         // Check if event is approved
         if ($event->status !== Event::STATUS_APPROVED) {
-            return redirect()->route('welcome')
+            return redirect()->route('welcome.page')
                 ->with('error', 'This event is not available for registration.');
         }
 
@@ -398,6 +417,27 @@ class InsideUserEventController extends Controller
     public function submitPublicRegistration(Request $request, $eventId)
     {
         $event = Event::withCount('registrations')->findOrFail($eventId);
+
+        // --- Anti-brute-force: Honeypot check (bots fill hidden fields) ---
+        if ($request->filled('website')) {
+            return redirect()->back()->with('error', 'Registration failed.');
+        }
+
+        // --- Anti-brute-force: Timing check (form submitted too fast = bot) ---
+        $submittedAt = $request->input('form_loaded_at');
+        if (!$submittedAt || (now()->timestamp - (int) $submittedAt) < 3) {
+            return redirect()->back()
+                ->with('error', 'Form was submitted too quickly. Please wait a moment and try again.');
+        }
+
+        // --- Anti-brute-force: Rate limit (5 submissions per IP per event per 15 min) ---
+        $ip = $request->ip();
+        $rateKey = "event_register:{$eventId}:{$ip}";
+        $attempts = (int) Cache::get($rateKey, 0);
+        if ($attempts >= 5) {
+            return redirect()->back()
+                ->with('error', 'Too many registration attempts. Please try again in 15 minutes.');
+        }
 
         // Validate
         $request->validate([
@@ -424,6 +464,18 @@ class InsideUserEventController extends Controller
             return redirect()->back()
                 ->with('error', 'Event is full. No more slots available.');
         }
+
+        // --- Anti-brute-force: Duplicate email-per-event check ---
+        $duplicateEmail = EventRegistration::where('event_id', $event->id)
+            ->where('email', $request->email)
+            ->exists();
+        if ($duplicateEmail) {
+            return redirect()->back()
+                ->with('error', 'This email is already registered for this event.');
+        }
+
+        // Increment rate limit counter
+        Cache::put($rateKey, $attempts + 1, now()->addMinutes(15));
 
         // Generate unique QR code
         $qrCode = EventRegistration::generateQRCode($event->id);

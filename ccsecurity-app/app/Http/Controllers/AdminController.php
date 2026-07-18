@@ -18,6 +18,10 @@ use App\Models\ShiftLog;
 use App\Models\QuickPass;
 use App\Models\ParentChildConnection;
 use App\Rules\CurrentAdminPassword;
+use App\Models\AdminDevice;
+use App\Services\AdminActivityLogger;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\DeviceVerificationMail;
 use Carbon\Carbon;
 
 
@@ -28,7 +32,27 @@ class AdminController extends Controller
     // =========================================================================
 
     public function dashboard(){
-        return view('admin.dashboard');
+        $totalInsideUsers = InsideUser::count();
+        $totalGuards = securityguard::count();
+        $totalOutsideUsers = OutsideUser::count();
+        $totalEntryLogs = EntryLog::count();
+        $totalEvents = \App\Models\Event::count();
+        $pendingVisitRequests = VisitRequest::where('status', 'pending')->count();
+        $pendingConnections = \App\Models\ParentChildConnection::where('status', 'pending')->count();
+        $currentlyInside = \App\Models\CurrentlyInside::count();
+        $activeGuards = securityguard::where('status', 1)->count();
+
+        return view('admin.dashboard', compact(
+            'totalInsideUsers',
+            'totalGuards',
+            'totalOutsideUsers',
+            'totalEntryLogs',
+            'totalEvents',
+            'pendingVisitRequests',
+            'pendingConnections',
+            'currentlyInside',
+            'activeGuards'
+        ));
     }
 
     public function showProfile()
@@ -123,6 +147,11 @@ class AdminController extends Controller
             'updated_at' => now(),
         ]);
 
+        AdminActivityLogger::userManagement('Created Outside User', "Created outside user: {$request->first_name} {$request->last_name}", [
+            'name' => $request->first_name . ' ' . $request->last_name,
+            'email' => $request->email,
+        ]);
+
         return redirect()->route('show.admin.outsider.list')->with('success', 'Walk-in account created successfully! QR code will expire in 24 hours.');
     }
 
@@ -162,6 +191,11 @@ class AdminController extends Controller
 
         $outside_user->update($data);
 
+        AdminActivityLogger::userManagement('Updated Outside User', "Updated outside user: {$outside_user->fullname}", [
+            'user_id' => $outside_user->id,
+            'name' => $outside_user->fullname,
+        ]);
+
         return redirect()->route('show.admin.outsider.list')->with('success', 'User updated successfully!');
     }
 
@@ -177,6 +211,11 @@ class AdminController extends Controller
         $outside_user = OutsideUser::findOrFail($id);
         $outside_user->delete();
 
+        AdminActivityLogger::userManagement('Deleted Outside User', "Deleted outside user: {$outside_user->fullname}", [
+            'user_id' => $outside_user->id,
+            'name' => $outside_user->fullname,
+        ]);
+
         return redirect()->route('show.admin.outsider.list')->with('success', 'User deleted successfully!');
     }
 
@@ -191,6 +230,11 @@ class AdminController extends Controller
         $outside_user->update([
             'status' => OutsideUser::STATUS_APPROVED,
             'updated_at' => now(),
+        ]);
+
+        AdminActivityLogger::userManagement('Approved Outside User', "Approved outside user: {$outside_user->fullname}", [
+            'user_id' => $outside_user->id,
+            'name' => $outside_user->fullname,
         ]);
 
         return redirect()
@@ -209,6 +253,11 @@ class AdminController extends Controller
         $outside_user->update([
             'status' => OutsideUser::STATUS_REJECTED,
             'updated_at' => now(),
+        ]);
+
+        AdminActivityLogger::userManagement('Rejected Outside User', "Rejected outside user: {$outside_user->fullname}", [
+            'user_id' => $outside_user->id,
+            'name' => $outside_user->fullname,
         ]);
 
         return redirect()
@@ -277,6 +326,11 @@ class AdminController extends Controller
             'status' => 1,
         ]);
 
+        AdminActivityLogger::userManagement('Created Security Guard', "Created security guard: {$validate['first_name']} {$validate['last_name']}", [
+            'name' => $validate['first_name'] . ' ' . $validate['last_name'],
+            'email' => $validate['email'],
+        ]);
+
         return redirect()->route('security.user.table.section')
             ->with('success', 'New user created successfully!');
     }
@@ -317,6 +371,11 @@ class AdminController extends Controller
 
         $security_guard_user->update($data);
 
+        AdminActivityLogger::userManagement('Updated Security Guard', "Updated security guard: {$security_guard_user->fullname}", [
+            'user_id' => $security_guard_user->id,
+            'name' => $security_guard_user->fullname,
+        ]);
+
         return redirect()
         ->route('security.user.table.section')
         ->with('Success', 'Security Guard User updated successfully');
@@ -333,6 +392,11 @@ class AdminController extends Controller
         
         $security_guard_user = securityguard::findOrFail($id);
         $security_guard_user->delete();
+
+        AdminActivityLogger::userManagement('Deleted Security Guard', "Deleted security guard: {$security_guard_user->fullname}", [
+            'user_id' => $security_guard_user->id,
+            'name' => $security_guard_user->fullname,
+        ]);
 
         return redirect()->route('security.user.table.section')->with('Success', 'Deleted Successfully');
     }
@@ -378,6 +442,11 @@ class AdminController extends Controller
 
         InsideUser::whereIn('id', $request->user_ids)->delete();
 
+        AdminActivityLogger::userManagement('Bulk Deleted Inside Users', "Bulk deleted " . count($request->user_ids) . " inside users", [
+            'user_ids' => $request->user_ids,
+            'count' => count($request->user_ids),
+        ]);
+
         return redirect()->back()->with('success', count($request->user_ids) . ' users deleted successfully!');
     }
 
@@ -390,6 +459,12 @@ class AdminController extends Controller
         $inside_user->update([
             'qr_status' => $newStatus,
             'updated_at' => now(),
+        ]);
+
+        AdminActivityLogger::qrManagement('Toggled QR Status', "Toggled QR status for {$inside_user->fullname} to {$newStatus}", [
+            'user_id' => $inside_user->id,
+            'name' => $inside_user->fullname,
+            'new_status' => $newStatus,
         ]);
         
         return redirect()->back()->with('success', "QR status for {$inside_user->fullname} changed to {$newStatus}!");
@@ -407,6 +482,12 @@ class AdminController extends Controller
         InsideUser::whereIn('id', $request->user_ids)->update([
             'qr_status' => $newStatus,
             'updated_at' => now(),
+        ]);
+
+        AdminActivityLogger::qrManagement('Bulk Toggled QR Status', "Bulk toggled QR status for " . count($request->user_ids) . " users", [
+            'user_ids' => $request->user_ids,
+            'count' => count($request->user_ids),
+            'new_status' => $newStatus,
         ]);
         
         return redirect()->back()->with('success', "QR status updated for " . count($request->user_ids) . " users!");
@@ -478,6 +559,12 @@ class AdminController extends Controller
             'qr_status'  => $validate['qr_status'],
         ]);
 
+        AdminActivityLogger::userManagement('Created Inside User', "Created inside user: {$validate['first_name']} {$validate['last_name']}", [
+            'user_id' => null,
+            'name' => $validate['first_name'] . ' ' . $validate['last_name'],
+            'email' => $validate['email'],
+        ]);
+
         return redirect()->route('admin.show.crudSection')
             ->with('success', 'New user created successfully!');
     }
@@ -519,6 +606,11 @@ class AdminController extends Controller
 
         $inside_user->update($data);
 
+        AdminActivityLogger::userManagement('Updated Inside User', "Updated inside user: {$inside_user->fullname}", [
+            'user_id' => $inside_user->id,
+            'name' => $inside_user->fullname,
+        ]);
+
         return redirect()
         ->route('admin.show.crudSection')
         ->with('Success', 'User updated successfully');
@@ -535,6 +627,11 @@ class AdminController extends Controller
         
         $inside_user = InsideUser::findOrFail($id);
         $inside_user->delete();
+
+        AdminActivityLogger::userManagement('Deleted Inside User', "Deleted inside user: {$inside_user->fullname}", [
+            'user_id' => $inside_user->id,
+            'name' => $inside_user->fullname,
+        ]);
 
         return redirect()->route('admin.show.crudSection')->with('Success', 'Deleted Successfully');
     }
@@ -556,23 +653,320 @@ class AdminController extends Controller
             'password' => 'required'
         ]);
 
+        // Rate limiting: Check for too many failed attempts
+        $email = $request->email;
+        $rateLimitKey = 'admin_login_attempts_' . md5($email);
+        $maxAttempts = 5;
+        $lockoutMinutes = 15;
+
+        $attempts = cache()->get($rateLimitKey, 0);
+        if ($attempts >= $maxAttempts) {
+            return back()->withErrors([
+                'email' => 'Too many failed attempts. Please try again in ' . $lockoutMinutes . ' minutes.'
+            ])->withInput($request->only('email'));
+        }
+
         if (Auth::guard('admin')->attempt([
             'email' => $request->email,
             'password' => $request->password,
             'status' => 1
         ])) {
+            $user = Auth::guard('admin')->user();
+
+            // Reset rate limit on successful login
+            cache()->forget($rateLimitKey);
+
+            // Generate device fingerprint
+            $fingerprint = $this->generateDeviceFingerprint($request);
+
+            // Check if device is trusted
+            $trustedDevice = AdminDevice::where('admin_id', $user->id)
+                ->where('device_fingerprint', $fingerprint)
+                ->where('is_trusted', true)
+                ->first();
+
+            if (!$trustedDevice) {
+                // New device - require verification
+                Auth::guard('admin')->logout();
+
+                // Generate verification code
+                $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+                // Store verification data in session
+                $sessionData = [
+                    'admin_device_verification_user_id' => $user->id,
+                    'admin_device_verification_code' => $verificationCode,
+                    'admin_device_verification_fingerprint' => $fingerprint,
+                    'admin_device_verification_ip' => $request->ip(),
+                    'admin_device_verification_ua' => $request->userAgent(),
+                    'admin_device_verification_created_at' => now()->timestamp,
+                ];
+
+                foreach ($sessionData as $key => $value) {
+                    session()->put($key, $value);
+                }
+                session()->save();
+
+                // Get device info for email
+                $deviceInfo = $this->getDeviceInfo($request);
+
+                // Send verification email
+                try {
+                    Mail::to($user->email)->send(new DeviceVerificationMail(
+                        $verificationCode,
+                        $user->email,
+                        $deviceInfo
+                    ));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send admin verification email: ' . $e->getMessage());
+                }
+
+                return redirect()->route('admin.device.verify.show');
+            }
+
+            // Trusted device - update last used
+            $trustedDevice->update(['last_used_at' => now()]);
+
             return redirect()->route('admin.dashboard');
         }
 
+        // Rate limiting on failed login
+        cache()->put($rateLimitKey, $attempts + 1, now()->addMinutes($lockoutMinutes));
+
+        AdminActivityLogger::auth('Login Failed', 'Failed login attempt for email: ' . $request->email, ['email' => $request->email]);
+
         return back()->withErrors([
             'email' => 'Invalid credentials'
-        ]);
+        ])->withInput($request->only('email'));
     }
 
     public function logout()
     {
+        $admin = Auth::guard('admin')->user();
+        AdminActivityLogger::auth('Logout', 'Admin logged out: ' . ($admin->name ?? $admin->email ?? 'Unknown'));
         Auth::guard('admin')->logout();
         return redirect()->route('admin.login');
+    }
+
+    // Device Verification
+    public function showDeviceVerification()
+    {
+        $userId = session('admin_device_verification_user_id');
+
+        if (!$userId) {
+            return redirect()->route('admin.login');
+        }
+
+        $user = \App\Models\admin::find($userId);
+
+        if (!$user) {
+            return redirect()->route('admin.login');
+        }
+
+        return view('Admin.device-verification', compact('user'));
+    }
+
+    public function verifyDevice(Request $request)
+    {
+        $request->validate([
+            'verification_code' => 'required|digits:6',
+        ]);
+
+        $storedCode = session('admin_device_verification_code');
+        $createdAt = session('admin_device_verification_created_at');
+
+        // Check if code is expired (15 minutes)
+        if ($createdAt && (now()->timestamp - $createdAt) > 900) {
+            session()->forget([
+                'admin_device_verification_user_id',
+                'admin_device_verification_code',
+                'admin_device_verification_fingerprint',
+                'admin_device_verification_ip',
+                'admin_device_verification_ua',
+                'admin_device_verification_created_at',
+            ]);
+
+            return back()->withErrors([
+                'verification_code' => 'Verification code has expired. Please login again.'
+            ])->route('admin.login');
+        }
+
+        // Rate limiting for verification code attempts
+        $rateLimitKey = 'admin_verify_attempts_' . md5(session('admin_device_verification_user_id', 'unknown'));
+        $maxAttempts = 5;
+        $lockoutMinutes = 15;
+
+        $attempts = cache()->get($rateLimitKey, 0);
+        if ($attempts >= $maxAttempts) {
+            session()->forget([
+                'admin_device_verification_user_id',
+                'admin_device_verification_code',
+                'admin_device_verification_fingerprint',
+                'admin_device_verification_ip',
+                'admin_device_verification_ua',
+                'admin_device_verification_created_at',
+            ]);
+
+            return back()->withErrors([
+                'verification_code' => 'Too many failed attempts. Please login again.'
+            ])->route('admin.login');
+        }
+
+        // Verify code
+        if ($request->verification_code !== $storedCode) {
+            // Increment rate limit on failed verification
+            cache()->put($rateLimitKey, $attempts + 1, now()->addMinutes($lockoutMinutes));
+
+            return back()->withErrors([
+                'verification_code' => 'Invalid verification code.'
+            ]);
+        }
+
+        // Reset rate limit on successful verification
+        cache()->forget($rateLimitKey);
+
+        // Code is valid - trust this device
+        $userId = session('admin_device_verification_user_id');
+        $fingerprint = session('admin_device_verification_fingerprint');
+        $ip = session('admin_device_verification_ip');
+        $ua = session('admin_device_verification_ua');
+
+        $deviceInfo = $this->parseUserAgent($ua);
+
+        AdminDevice::updateOrCreate(
+            [
+                'admin_id' => $userId,
+                'device_fingerprint' => $fingerprint,
+            ],
+            [
+                'ip_address' => $ip,
+                'user_agent' => $ua,
+                'browser' => $deviceInfo['browser'],
+                'os' => $deviceInfo['os'],
+                'is_trusted' => true,
+                'last_used_at' => now(),
+            ]
+        );
+
+        // Clear verification session data
+        session()->forget([
+            'admin_device_verification_user_id',
+            'admin_device_verification_code',
+            'admin_device_verification_fingerprint',
+            'admin_device_verification_ip',
+            'admin_device_verification_ua',
+            'admin_device_verification_created_at',
+        ]);
+
+        // Log the user in
+        Auth::guard('admin')->login(\App\Models\admin::find($userId));
+
+        $admin = \App\Models\admin::find($userId);
+        AdminActivityLogger::auth('Login Successful', 'Admin logged in via device verification: ' . ($admin->name ?? $admin->email ?? 'Unknown'));
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    public function resendVerificationCode()
+    {
+        $userId = session('admin_device_verification_user_id');
+
+        if (!$userId) {
+            return redirect()->route('admin.login');
+        }
+
+        // Rate limiting for resend attempts
+        $rateLimitKey = 'admin_resend_attempts_' . md5($userId);
+        $maxAttempts = 3;
+        $lockoutMinutes = 15;
+
+        $attempts = cache()->get($rateLimitKey, 0);
+        if ($attempts >= $maxAttempts) {
+            return back()->withErrors([
+                'verification_code' => 'Too many resend attempts. Please login again.'
+            ])->route('admin.login');
+        }
+
+        // Increment resend rate limit
+        cache()->put($rateLimitKey, $attempts + 1, now()->addMinutes($lockoutMinutes));
+
+        $user = \App\Models\admin::find($userId);
+
+        // Generate new verification code
+        $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Update session
+        session([
+            'admin_device_verification_code' => $verificationCode,
+            'admin_device_verification_created_at' => now(),
+        ]);
+
+        // Get device info
+        $request = request();
+        $deviceInfo = $this->getDeviceInfo($request);
+
+        // Send verification email
+        try {
+            Mail::to($user->email)->send(new DeviceVerificationMail(
+                $verificationCode,
+                $user->email,
+                $deviceInfo
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Failed to resend admin verification email: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Verification code has been resent to your email.');
+    }
+
+    private function generateDeviceFingerprint(Request $request)
+    {
+        $data = [
+            $request->userAgent(),
+            $request->ip(),
+        ];
+
+        return md5(implode('|', $data));
+    }
+
+    private function getDeviceInfo(Request $request)
+    {
+        $ua = $request->userAgent();
+        $deviceInfo = $this->parseUserAgent($ua);
+
+        return $deviceInfo['browser'] . ' on ' . $deviceInfo['os'];
+    }
+
+    private function parseUserAgent($ua)
+    {
+        $browser = 'Unknown Browser';
+        $os = 'Unknown OS';
+
+        if (str_contains($ua, 'Firefox')) {
+            $browser = 'Firefox';
+        } elseif (str_contains($ua, 'Edg')) {
+            $browser = 'Edge';
+        } elseif (str_contains($ua, 'Chrome')) {
+            $browser = 'Chrome';
+        } elseif (str_contains($ua, 'Safari')) {
+            $browser = 'Safari';
+        } elseif (str_contains($ua, 'Opera') || str_contains($ua, 'OPR')) {
+            $browser = 'Opera';
+        }
+
+        if (str_contains($ua, 'Windows')) {
+            $os = 'Windows';
+        } elseif (str_contains($ua, 'Mac')) {
+            $os = 'macOS';
+        } elseif (str_contains($ua, 'Linux')) {
+            $os = 'Linux';
+        } elseif (str_contains($ua, 'Android')) {
+            $os = 'Android';
+        } elseif (str_contains($ua, 'iPhone') || str_contains($ua, 'iPad')) {
+            $os = 'iOS';
+        }
+
+        return ['browser' => $browser, 'os' => $os];
     }
 
 
@@ -734,6 +1128,12 @@ class AdminController extends Controller
             'updated_at' => now(),
         ]);
 
+        AdminActivityLogger::visitRequest('Approved Visit Request', "Approved visit request from {$visitRequest->outsideUser->fullname}", [
+            'visit_request_id' => $visitRequest->id,
+            'name' => $visitRequest->outsideUser->fullname,
+            'visit_date' => $visitRequest->visit_date,
+        ]);
+
         return redirect()->back()->with('success', 'Visit request approved and QR code activated!');
     }
 
@@ -755,6 +1155,12 @@ class AdminController extends Controller
             'related_id' => $visitRequest->id,
             'created_at' => now(),
             'updated_at' => now(),
+        ]);
+
+        AdminActivityLogger::visitRequest('Rejected Visit Request', "Rejected visit request from {$visitRequest->outsideUser->fullname}", [
+            'visit_request_id' => $visitRequest->id,
+            'name' => $visitRequest->outsideUser->fullname,
+            'visit_date' => $visitRequest->visit_date,
         ]);
 
         return redirect()->back()->with('success', 'Visit request rejected.');
@@ -904,6 +1310,12 @@ class AdminController extends Controller
 
         $tableName = CleanupTableSetting::TABLES[$validated['table_name']];
         $status = $validated['auto_delete_enabled'] ? 'enabled' : 'disabled';
+
+        AdminActivityLogger::system('Updated Cleanup Settings', "Updated cleanup settings for {$validated['table_name']}", [
+            'table_name' => $validated['table_name'],
+            'auto_delete_enabled' => $validated['auto_delete_enabled'],
+            'retention_days' => $validated['retention_days'],
+        ]);
         
         return redirect()->back()->with('success', "{$tableName} cleanup settings updated! Auto-delete {$status}, Retention: {$validated['retention_days']} days.");
     }
@@ -999,6 +1411,12 @@ class AdminController extends Controller
         $tableLabel = CleanupTableSetting::TABLES[$tableName];
         $message = "Cleanup completed! {$deletedCount} records deleted from {$tableLabel} (Retention: {$days} days).";
 
+        AdminActivityLogger::system('Ran Manual Cleanup', "Ran manual cleanup for {$tableName}", [
+            'table_name' => $tableName,
+            'deleted_count' => $deletedCount,
+            'retention_days' => $days,
+        ]);
+
         return redirect()->back()->with('success', $message);
     }
 
@@ -1015,6 +1433,10 @@ class AdminController extends Controller
 
         $newStatus = CleanupSetting::toggleAutoDelete();
         $statusText = $newStatus ? 'enabled' : 'disabled';
+
+        AdminActivityLogger::system('Toggled Global Auto-Delete', "Toggled global auto-delete to {$statusText}", [
+            'new_status' => $newStatus,
+        ]);
         
         return redirect()->back()->with('success', "Global auto-delete has been {$statusText}.");
     }

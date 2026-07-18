@@ -12,34 +12,7 @@
 <body>
 <div class="dashboard-container">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand">
-                <strong>Columban College</strong>
-                <span>Admin Portal</span>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link active"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'connections'])
 
     <!-- Main Content -->
     <main class="main-content">
@@ -53,21 +26,21 @@
         <!-- Stats Row -->
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:24px;" class="fade-in">
             <div class="glass-card" style="margin:0; padding:20px; display:flex; align-items:center; gap:16px; border-left:4px solid var(--warning);">
-                <div style="font-size:2rem;">⏳</div>
+                <div style="font-size:2rem;"></div>
                 <div>
                     <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Awaiting Student</div>
                     <div style="font-size:1.8rem; font-weight:800;">{{ $pendingCount }}</div>
                 </div>
             </div>
             <div class="glass-card" style="margin:0; padding:20px; display:flex; align-items:center; gap:16px; border-left:4px solid var(--success);">
-                <div style="font-size:2rem;">✅</div>
+                <div style="font-size:2rem;"></div>
                 <div>
                     <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Approved (Auto)</div>
                     <div style="font-size:1.8rem; font-weight:800;">{{ $approvedCount }}</div>
                 </div>
             </div>
             <div class="glass-card" style="margin:0; padding:20px; display:flex; align-items:center; gap:16px; border-left:4px solid var(--danger);">
-                <div style="font-size:2rem;">❌</div>
+                <div style="font-size:2rem;"></div>
                 <div>
                     <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Rejected</div>
                     <div style="font-size:1.8rem; font-weight:800;">{{ $rejectedCount }}</div>
@@ -76,20 +49,20 @@
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success fade-in">✓ {{ session('success') }}</div>
+            <div class="alert alert-success fade-in"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> {{ session('success') }}</div>
         @endif
         @if(session('error'))
-            <div class="alert alert-danger fade-in">⚠ {{ session('error') }}</div>
+            <div class="alert alert-danger fade-in"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> {{ session('error') }}</div>
         @endif
 
         <!-- Info notice -->
         <div class="alert alert-info fade-in" style="animation-delay:0.05s;">
-            ℹ <strong>Note:</strong> Parent-child connections require <strong>student approval only</strong>. Admin approval is not required — connections with student acceptance are automatically approved.
+            <strong>Note:</strong> Parent-child connections require <strong>student approval only</strong>. Admin approval is not required — connections with student acceptance are automatically approved.
         </div>
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; padding:0; overflow:hidden;">
             <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05);">
-                <h3 style="margin:0; border:none; padding:0;">👨‍👩‍👧 Connection Requests</h3>
+                <h3 style="margin:0; border:none; padding:0;">Connection Requests</h3>
             </div>
 
             <div class="table-container" style="border-radius:0; border:none;">
@@ -152,7 +125,7 @@
                         <tr>
                             <td colspan="6">
                                 <div class="empty-state">
-                                    <div class="empty-icon">👨‍👩‍👧</div>
+                                    <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
                                     <h3>No Connection Requests</h3>
                                     <p>No parent-child connection requests found.</p>
                                 </div>

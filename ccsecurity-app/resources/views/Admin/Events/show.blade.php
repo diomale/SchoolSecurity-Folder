@@ -11,29 +11,7 @@
 </head>
 <body>
 <div class="dashboard-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link active"><span class="nav-icon">🎉</span><span>Events</span></a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf
-                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'events'])
 
     <main class="main-content">
         <div class="top-header fade-in">
@@ -43,7 +21,7 @@
             </div>
             <div style="display:flex; gap:10px;">
                 <a href="{{ route('admin.events.pending') }}" class="btn-secondary">← Pending</a>
-                <a href="{{ route('admin.events.all') }}" class="btn-secondary">📋 All Events</a>
+                <a href="{{ route('admin.events.all') }}" class="btn-secondary">All Events</a>
             </div>
         </div>
 
@@ -52,7 +30,7 @@
             <div>
                 <!-- Event Info -->
                 <div class="glass-card fade-in" style="animation-delay:0.05s;">
-                    <h3>🎉 Event Information</h3>
+                    <h3>Event Information</h3>
                     <div class="detail-grid">
                         <div class="detail-item" style="grid-column:span 2;">
                             <div class="detail-label">Event Name</div>
@@ -64,7 +42,7 @@
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Date</div>
-                            <div class="detail-value">{{ $event->event_date->format('l, F d, Y') }}</div>
+                            <div class="detail-value">@if($event->event_end_date && !$event->event_date->eq($event->event_end_date)){{ $event->event_date->format('l, F d') }} – {{ $event->event_end_date->format('l, F d, Y') }}@else{{ $event->event_date->format('l, F d, Y') }}@endif</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Time</div>
@@ -83,7 +61,7 @@
 
                 <!-- Organizer -->
                 <div class="glass-card fade-in" style="animation-delay:0.1s;">
-                    <h3>👤 Organizer</h3>
+                    <h3>Organizer</h3>
                     <div class="detail-grid">
                         <div class="detail-item">
                             <div class="detail-label">Name</div>
@@ -100,7 +78,7 @@
                 @if($recentRegistrations->count() > 0)
                 <div class="glass-card fade-in" style="animation-delay:0.15s; padding:0; overflow:hidden;">
                     <div style="padding:20px 24px; border-bottom:1px solid rgba(0,0,0,0.05);">
-                        <h3 style="margin:0; border:none; padding:0;">📋 Recent Registrations ({{ $recentRegistrations->count() }})</h3>
+                        <h3 style="margin:0; border:none; padding:0;">Recent Registrations ({{ $recentRegistrations->count() }})</h3>
                     </div>
                     <div class="table-container" style="border-radius:0; border:none;">
                         <table class="modern-table">
@@ -124,13 +102,13 @@
             <div>
                 <!-- Current Status -->
                 <div class="glass-card fade-in" style="animation-delay:0.05s;">
-                    <h3>📌 Current Status</h3>
+                    <h3>Current Status</h3>
                     @if($event->status === 'pending')
-                        <span class="badge status-pending" style="font-size:0.95rem; padding:8px 16px;">⏳ Pending Approval</span>
+                        <span class="badge status-pending" style="font-size:0.95rem; padding:8px 16px;">Pending Approval</span>
                     @elseif($event->status === 'approved')
-                        <span class="badge status-approved" style="font-size:0.95rem; padding:8px 16px;">✅ Approved</span>
+                        <span class="badge status-approved" style="font-size:0.95rem; padding:8px 16px;">Approved</span>
                     @elseif($event->status === 'rejected')
-                        <span class="badge status-rejected" style="font-size:0.95rem; padding:8px 16px;">❌ Rejected</span>
+                        <span class="badge status-rejected" style="font-size:0.95rem; padding:8px 16px;">Rejected</span>
                     @endif
 
                     @if($event->admin_remarks)
@@ -156,7 +134,7 @@
                 <!-- Approval Actions -->
                 @if($event->status === 'pending')
                 <div class="glass-card fade-in" style="animation-delay:0.1s;">
-                    <h3>⚡ Approval Actions</h3>
+                    <h3>Approval Actions</h3>
 
                     <form action="{{ route('admin.events.approve', $event->id) }}" method="POST" style="margin-bottom:16px;">
                         @csrf
@@ -164,7 +142,7 @@
                             <label>Admin Remarks <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label>
                             <textarea name="admin_remarks" class="form-textarea" rows="3" placeholder="Add any notes or conditions..."></textarea>
                         </div>
-                        <button type="submit" class="btn-success btn-block" onclick="return confirm('Approve this event?')">✅ Approve Event</button>
+                        <button type="submit" class="btn-success btn-block" onclick="return confirm('Approve this event?')">Approve Event</button>
                     </form>
 
                     <form action="{{ route('admin.events.reject', $event->id) }}" method="POST">
@@ -173,7 +151,7 @@
                             <label>Rejection Reason <span style="color:var(--danger)">*</span></label>
                             <textarea name="admin_remarks" class="form-textarea" rows="3" required placeholder="Explain why this event is rejected..."></textarea>
                         </div>
-                        <button type="submit" class="btn-danger btn-block" onclick="return confirm('Reject this event?')">❌ Reject Event</button>
+                        <button type="submit" class="btn-danger btn-block" onclick="return confirm('Reject this event?')">Reject Event</button>
                     </form>
                 </div>
                 @endif

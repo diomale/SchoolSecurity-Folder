@@ -13,34 +13,7 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📊</span> Back to Command
-                </a>
-                <a href="{{ route('security.scanner.show') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">🔍</span> QR Scanner
-                </a>
-                <a href="{{ route('security.quick-pass.list') }}" class="tab-button active" style="text-decoration: none;">
-                    <span class="nav-icon">🚗</span> Quick Pass
-                </a>
-                <a href="{{ route('security.entry.logs') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📜</span> Entry Logs
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('SecurityGuardUser.partials.sidebar', ['activePage' => 'quick-pass'])
 
         <!-- Main Content Area -->
         <main class="main-content">

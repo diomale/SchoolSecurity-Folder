@@ -12,40 +12,7 @@
 <body>
     <div class="dashboard-container">
         
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="{{ route('insideuser.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">📊</span> Overview
-                </a>
-                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
-                    <span class="nav-icon">👤</span> Profile
-                </a>
-                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link active">
-                    <span class="nav-icon">🎉</span> My Events
-                </a>
-                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
-                    <span class="nav-icon">🤝</span> Connection Requests
-                </a>
-                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
-                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('insideuser.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('InsideUser.partials.sidebar', ['activePage' => 'events'])
 
         <!-- Main Content -->
         <main class="main-content">
@@ -79,9 +46,18 @@
 
                         <div class="event-form-grid">
                             <div class="form-group">
-                                <label for="event_date">Event Date <span class="required">*</span></label>
+                                <label for="event_date">Start Date <span class="required">*</span></label>
                                 <input type="date" id="event_date" name="event_date" value="{{ old('event_date') }}" required min="{{ date('Y-m-d') }}">
                                 @error('event_date')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="event_end_date">End Date</label>
+                                <input type="date" id="event_end_date" name="event_end_date" value="{{ old('event_end_date') }}">
+                                <div class="help-text">Leave empty for single-day events</div>
+                                @error('event_end_date')
                                     <div class="error-text">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -102,6 +78,16 @@
                                 @enderror
                             </div>
                         </div>
+
+                        <script>
+                            document.getElementById('event_date').addEventListener('change', function() {
+                                var endDate = document.getElementById('event_end_date');
+                                endDate.min = this.value;
+                                if (endDate.value && endDate.value < this.value) {
+                                    endDate.value = this.value;
+                                }
+                            });
+                        </script>
 
                         <div class="event-form-grid">
                             <div class="form-group">

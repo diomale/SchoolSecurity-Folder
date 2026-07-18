@@ -28,6 +28,7 @@ class InsideUser extends Authenticatable
         'status',
         'qr_value',
         'qr_status',
+        'can_create_events',
     ];
 
     protected $hidden = [
@@ -93,5 +94,13 @@ class InsideUser extends Authenticatable
     public function entryLogs()
     {
         return $this->hasMany(EntryLog::class, 'inside_user_id');
+    }
+
+    /**
+     * Get trusted devices for this user
+     */
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class, 'inside_user_id');
     }
 }

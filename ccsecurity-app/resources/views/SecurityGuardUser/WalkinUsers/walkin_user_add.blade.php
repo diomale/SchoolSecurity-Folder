@@ -13,25 +13,7 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📊</span> Back to Command
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('SecurityGuardUser.partials.sidebar', ['activePage' => 'walkin'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -98,7 +80,8 @@
 
                     <div class="form-actions">
                         <button type="submit" class="btn-success">
-                            📝 Create Account & Activate QR
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                            Create Account &amp; Activate QR
                         </button>
                     </div>
                 </form>

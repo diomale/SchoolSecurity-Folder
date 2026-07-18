@@ -13,28 +13,7 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📊</span> Back to Command
-                </a>
-                <a href="{{ route('security.shift.management') }}" class="tab-button active" style="text-decoration: none;">
-                    <span class="nav-icon">⏱️</span> Shift Management
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('SecurityGuardUser.partials.sidebar', ['activePage' => 'shift'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -79,11 +58,13 @@
                             </div>
                             <div class="shift-details">
                                 <div class="shift-time">
-                                    <span style="font-size: 1.2rem; color: var(--primary);">🕒</span>
+                                    <span style="color: var(--primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
                                     {{ \Carbon\Carbon::parse($shift->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('h:i A') }}
                                 </div>
                                 <div class="shift-duration">
-                                    <span style="font-size: 1.2rem;">⏳</span>
+                                    <span style="vertical-align: middle; margin-right: 4px;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    </span>
                                     {{ \Carbon\Carbon::parse($shift->start_time)->diffInHours(\Carbon\Carbon::parse($shift->end_time)) }} hours
                                 </div>
                             </div>
@@ -104,7 +85,9 @@
                     @endif
                 @else
                     <div class="empty-state" style="padding: 60px;">
-                        <div class="empty-icon">📅</div>
+                        <div class="empty-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
                         <p style="font-size: 1.2rem; font-weight: 600; color: var(--text-main);">No Upcoming Shifts</p>
                         <span class="suggestion">You don't have any scheduled shifts at the moment.</span>
                     </div>

@@ -19,30 +19,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('insideuser.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">📊</span> Overview
-                </a>
-                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
-                    <span class="nav-icon">👤</span> Profile
-                </a>
-                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link active">
-                    <span class="nav-icon">🎉</span> My Events
-                </a>
-                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
-                    <span class="nav-icon">🤝</span> Connection Requests
-                </a>
-                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
-                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
-                </a>
-            </nav>
-        </aside>
+        @include('InsideUser.partials.sidebar', ['activePage' => 'events'])
 
         <!-- Main Content -->
         <main class="main-content">
@@ -67,7 +44,7 @@
                         <h2 class="section-title mb-4">Event Information</h2>
                         <div class="info-row"><span style="color: var(--text-muted);">Event Name</span><strong style="color: var(--text-main);">{{ $event->event_name }}</strong></div>
                         <div class="info-row"><span style="color: var(--text-muted);">Description</span><span style="color: var(--text-main); text-align: right; max-width: 60%;">{{ $event->event_description ?? 'No description' }}</span></div>
-                        <div class="info-row"><span style="color: var(--text-muted);">Date</span><strong style="color: var(--text-main);">{{ $event->event_date->format('l, F d, Y') }}</strong></div>
+                        <div class="info-row"><span style="color: var(--text-muted);">Date</span><strong style="color: var(--text-main);">@if($event->event_end_date && !$event->event_date->eq($event->event_end_date)){{ $event->event_date->format('l, F d') }} – {{ $event->event_end_date->format('l, F d, Y') }}@else{{ $event->event_date->format('l, F d, Y') }}@endif</strong></div>
                         <div class="info-row"><span style="color: var(--text-muted);">Time</span><strong style="color: var(--text-main);">{{ $event->event_start_time->format('g:i A') }} - {{ $event->event_end_time->format('g:i A') }}</strong></div>
                         <div class="info-row"><span style="color: var(--text-muted);">Registration Deadline</span><strong style="color: var(--text-main);">{{ $event->qr_request_deadline->format('M d, Y g:i A') }}</strong></div>
                     </div>

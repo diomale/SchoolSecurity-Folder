@@ -13,35 +13,7 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <!-- Direct linking instead of SPA tabs since we are out of the dashboard -->
-                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📊</span> Back to Command
-                </a>
-                <a href="{{ route('security.scanner.show') }}" class="tab-button active" style="text-decoration: none;">
-                    <span class="nav-icon">🔍</span> QR Scanner
-                </a>
-                <a href="{{ route('security.quick-pass.list') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">🚗</span> Quick Pass
-                </a>
-                <a href="{{ route('security.entry.logs') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📜</span> Entry Logs
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('SecurityGuardUser.partials.sidebar', ['activePage' => 'scanner'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -69,7 +41,7 @@
                     <div id="image-view" class="hidden">
                         <input type="file" id="qr-image-input" accept="image/*" class="hidden" onchange="scanImageFile(event)">
                         <label for="qr-image-input" class="upload-container" style="display: block;">
-                            <div class="upload-icon">📷</div>
+                            <div class="upload-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
                             <p style="font-weight: 600; color: var(--text-main); margin-bottom: 5px;">Click to upload QR code image</p>
                             <p style="font-size: 0.85rem; color: var(--text-muted);">PNG, JPG, GIF up to 10MB</p>
                         </label>

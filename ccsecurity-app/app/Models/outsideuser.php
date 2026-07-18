@@ -24,6 +24,8 @@ class OutsideUser extends Authenticatable
         'password',
         'profile_picture',
         'status',
+        'email_verified_at',
+        'email_verification_token',
         'qr_value',
         'qr_status',
         'qr_expires_at',
@@ -40,6 +42,7 @@ class OutsideUser extends Authenticatable
         'created_at' => 'datetime:Y-m-d h:i A',
         'updated_at' => 'datetime:Y-m-d h:i A',
         'qr_expires_at' => 'datetime:Y-m-d h:i A',
+        'email_verified_at' => 'datetime',
     ];
 
     protected static function booted()

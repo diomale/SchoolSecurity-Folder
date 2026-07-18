@@ -33,30 +33,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('insideuser.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">📊</span> Overview
-                </a>
-                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
-                    <span class="nav-icon">👤</span> Profile
-                </a>
-                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link active">
-                    <span class="nav-icon">🎉</span> My Events
-                </a>
-                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link">
-                    <span class="nav-icon">🤝</span> Connection Requests
-                </a>
-                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
-                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
-                </a>
-            </nav>
-        </aside>
+        @include('InsideUser.partials.sidebar', ['activePage' => 'events'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -177,7 +154,7 @@
                             </div>
                         @else
                             <div class="empty-state" style="padding: 60px 20px; text-align: center;">
-                                <div style="font-size: 3rem; margin-bottom: 20px;">✅</div>
+                                <div style="font-size: 3rem; margin-bottom: 20px;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
                                 <h4 style="font-size: 1.2rem; color: var(--success); margin-bottom: 10px;">All Caught Up!</h4>
                                 <p style="color: var(--text-muted);">No pending registrations awaiting your approval.</p>
                             </div>
@@ -224,7 +201,7 @@
                             </div>
                         @else
                             <div class="empty-state" style="padding: 60px 20px; text-align: center;">
-                                <div style="font-size: 3rem; margin-bottom: 20px;">📂</div>
+                                <div style="font-size: 3rem; margin-bottom: 20px;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
                                 <h4 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 10px;">No approved logs yet.</h4>
                                 <p style="color: var(--text-muted);">Approved registrations will appear here.</p>
                             </div>

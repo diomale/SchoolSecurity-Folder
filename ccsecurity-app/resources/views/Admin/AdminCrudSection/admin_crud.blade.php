@@ -13,33 +13,7 @@
 <div class="dashboard-container">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-circle">CCSS</div>
-            <div class="sidebar-brand">
-                <strong>Columban College</strong>
-                <span>Admin Portal</span>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
-            <a href="{{ route('admin.show.crudSection') }}" class="nav-link active"><span class="nav-icon">🎓</span><span>Inside Users</span></a>
-            <a href="{{ route('security.user.table.section') }}" class="nav-link"><span class="nav-icon">👮</span><span>Security Guards</span></a>
-            <a href="{{ route('show.admin.outsider.list') }}" class="nav-link"><span class="nav-icon">👤</span><span>Outsider Management</span></a>
-            <a href="{{ route('admin.visit.requests') }}" class="nav-link"><span class="nav-icon">📅</span><span>Visit Requests</span></a>
-            <a href="{{ route('admin.connection.requests') }}" class="nav-link"><span class="nav-icon">👨‍👩‍👧</span><span>Connections</span></a>
-            <a href="{{ route('admin.events.pending') }}" class="nav-link"><span class="nav-icon">🎉</span><span>Events</span></a>
-            <a href="{{ route('admin.qr.status.management') }}" class="nav-link"><span class="nav-icon">📱</span><span>QR Management</span></a>
-            <a href="{{ route('admin.shift.management') }}" class="nav-link"><span class="nav-icon">🕐</span><span>Shift Management</span></a>
-            <a href="{{ route('admin.cleanup.settings') }}" class="nav-link"><span class="nav-icon">🗑️</span><span>Cleanup Settings</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn"><span class="nav-icon">🚪</span><span>Logout</span></button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.partials.sidebar', ['activePage' => 'inside_users'])
     
 
     <main class="main-content">
@@ -62,12 +36,12 @@
                 <div class="toolbar-right">
                     <form action="{{ route('admin.show.crudSection') }}" method="GET" class="search-form">
                         <div class="search-input-wrapper">
-                            <span class="search-icon">🔍</span>
+                            <span class="search-icon"></span>
                             <input type="text" name="search" class="search-input" placeholder="Search by name, email, or role..." value="{{ request('search') }}">
                         </div>
                         <button type="submit" class="btn-secondary">Search</button>
                         @if(request('search'))
-                            <a href="{{ route('admin.show.crudSection') }}" class="btn-clear" title="Clear Search">✖</a>
+                            <a href="{{ route('admin.show.crudSection') }}" class="btn-clear" title="Clear Search">&times;</a>
                         @endif
                     </form>
                 </div>
@@ -75,11 +49,11 @@
 
             <!-- Alerts -->
             @if (session('success'))
-                <div class="alert alert-success">✓ {{ session('success') }}</div>
+                <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
             @if (session('error'))
-                <div class="alert alert-danger">⚠ {{ session('error') }}</div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
             <!-- Data Table -->
@@ -120,9 +94,9 @@
                             <td class="date-cell">{{ \Carbon\Carbon::parse($inside_user->created_at)->format('M d, Y') }}</td>
                             <td class="actions-cell">
                                 <div class="action-buttons">
-                                    <a href="{{ route('admin.user.details', ['id' => $inside_user->id, 'back_url' => url()->current()]) }}" class="btn-icon btn-view" title="View">👁</a>
-                                    <a href="{{ route('admin.user.edit.form', ['id' => $inside_user->id, 'back_url' => url()->current()]) }}" class="btn-icon btn-edit" title="Edit">✎</a>
-                                    <button type="button" onclick="openPasswordModal('delete-form-{{ $inside_user->id }}')" class="btn-icon btn-delete" title="Delete">🗑</button>
+                                    <a href="{{ route('admin.user.details', ['id' => $inside_user->id, 'back_url' => url()->current()]) }}" class="btn-icon btn-view" title="View">View</a>
+                                    <a href="{{ route('admin.user.edit.form', ['id' => $inside_user->id, 'back_url' => url()->current()]) }}" class="btn-icon btn-edit" title="Edit">Edit</a>
+                                    <button type="button" onclick="openPasswordModal('delete-form-{{ $inside_user->id }}')" class="btn-icon btn-delete" title="Delete">Delete</button>
                                     <form id="delete-form-{{ $inside_user->id }}" action="{{ route('admin.user.delete', $inside_user->id) }}" method="POST" style="display:none;">
                                         @csrf
                                         @method('DELETE')
@@ -170,7 +144,7 @@
                 @method('DELETE')
                 <div class="form-group">
                     <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
+                        <span class="input-icon"></span>
                         <input type="password" id="admin_password" name="admin_password" class="form-input" placeholder="Enter password" required>
                     </div>
                 </div>

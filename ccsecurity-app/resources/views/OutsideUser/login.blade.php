@@ -7,46 +7,90 @@
     @vite(['resources/css/OutsideUser/outsideuser_style_login.css','resources/js/app.js'])
 </head>
 <body>
-    <div>
-        <h1>Visitor Login</h1>
-        <p>Login to manage your visit requests and QR code</p>
+    <div class="login-card">
+
+        <div class="login-header">
+            <div class="login-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <h1>Visitor Login</h1>
+            <p>Login to manage your visit requests and QR code</p>
+        </div>
 
         @if(session('success'))
-        <div>
-            {{ session('success') }}
-        </div>
+            <div class="login-alert login-alert-success">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                {{ session('success') }}
+            </div>
         @endif
 
         @if(session('error'))
-        <div>
-            {{ session('error') }}
-        </div>
+            <div class="login-alert login-alert-error">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                {{ session('error') }}
+            </div>
         @endif
 
-        <form method="POST" action="{{ route('outsideuser.login.submit') }}">
+        <form method="POST" action="{{ route('outsideuser.login.submit') }}" id="loginForm">
             @csrf
 
-            <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+            <div class="login-form-group">
+                <label for="email">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    Email
+                </label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" required>
             </div>
 
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+            <div class="login-form-group">
+                <label for="password">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Password
+                </label>
+                <div class="login-password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <button type="button" class="login-password-toggle" onclick="togglePassword()" tabindex="-1">
+                        <svg id="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg id="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                </div>
             </div>
 
             @error('email')
-                <div>{{ $message }}</div>
+                <div class="login-validation-error">{{ $message }}</div>
             @enderror
 
-            <button type="submit">Login</button>
+            <button type="submit" class="login-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Login
+            </button>
         </form>
 
-        <div>
+        <div class="login-footer">
             <p>Don't have an account? <a href="{{ route('outsideuser.signup.show') }}">Register here</a></p>
-            <p><a href="{{ route('welcome') }}">Back to Home</a></p>
+            <a href="{{ route('welcome.page') }}" class="login-back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Back to Home
+            </a>
         </div>
+
     </div>
+
+    <script>
+        function togglePassword() {
+            var pw = document.getElementById('password');
+            var open = document.getElementById('eye-open');
+            var closed = document.getElementById('eye-closed');
+            if (pw.type === 'password') {
+                pw.type = 'text';
+                open.style.display = 'none';
+                closed.style.display = 'block';
+            } else {
+                pw.type = 'password';
+                open.style.display = 'block';
+                closed.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

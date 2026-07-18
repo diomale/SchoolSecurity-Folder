@@ -13,42 +13,7 @@
     <div class="dashboard-container">
         
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="{{ route('insideuser.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">📊</span> Overview
-                </a>
-                <a href="{{ route('insideuser.profile.show') }}" class="nav-link">
-                    <span class="nav-icon">👤</span> Profile
-                </a>
-                <a href="{{ route('insideuser.events.dashboard') }}" class="nav-link">
-                    <span class="nav-icon">🎉</span> My Events
-                </a>
-                <a href="{{ route('insideuser.connection.requests') }}" class="nav-link active">
-                    <span class="nav-icon">🤝</span> Connection Requests
-                    @if($pendingCount > 0)
-                        <span class="notification-badge">{{ $pendingCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('insideuser.connected.parents') }}" class="nav-link">
-                    <span class="nav-icon">👨‍👩‍👧</span> Connected Parents
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('insideuser.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('InsideUser.partials.sidebar', ['activePage' => 'connection_requests', 'pendingCount' => 0])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -63,7 +28,7 @@
             <div class="fade-in" style="animation-delay: 0.2s;">
                 @if(session('success'))
                     <div class="alert alert-success" style="margin-bottom: 24px;">
-                        <div class="alert-icon">✓</div>
+                        <div class="alert-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                         <div class="alert-content">
                             <h3>Success</h3>
                             <p>{{ session('success') }}</p>
@@ -146,7 +111,7 @@
                                                 </div>
                                             </div>
                                         @elseif($request->inside_user_approval === 'accepted')
-                                            <span style="color: var(--success); font-weight: 600;">✓ Accepted</span>
+                                            <span style="color: var(--success); font-weight: 600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Accepted</span>
                                         @elseif($request->inside_user_approval === 'rejected')
                                             <span style="color: var(--text-muted); font-weight: 600;">✕ Rejected</span>
                                         @endif
@@ -156,7 +121,7 @@
                                 <tr>
                                     <td colspan="6" class="text-center" style="padding: 40px;">
                                         <div class="empty-state" style="border:none; background:transparent;">
-                                            <div class="empty-icon">📭</div>
+                                            <div class="empty-icon"></div>
                                             <h4>No Requests Found</h4>
                                             <p>There are no connection requests in your history.</p>
                                         </div>

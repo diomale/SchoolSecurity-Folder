@@ -8,8 +8,14 @@ use App\Http\Controllers\InsideUserController;
 use App\Http\Controllers\InsideUserEventController;
 use App\Http\Controllers\OutsideUserController;
 use App\Http\Controllers\SecurityGuardController;
+use App\Http\Controllers\AdminEventPrivilegeController;
+use App\Http\Controllers\AdminActivityController;
 
 Route::get('/', function () {
+    return redirect()->route('welcome.page');
+});
+
+Route::get('/welcome', function () {
     $publicEvents = \App\Models\Event::with(['insideUser'])
         ->withCount('registrations')
         ->where('show_on_welcome', true)
@@ -19,7 +25,11 @@ Route::get('/', function () {
         ->paginate(9);
 
     return view('welcome', compact('publicEvents'));
-})->name('welcome');
+})->name('welcome.page');
+
+Route::get('/login', function () {
+    return view('login-choice');
+})->name('login.choice');
 
 Route::get('/privacy', function () {
     return view('privacy');
@@ -40,6 +50,11 @@ Route::prefix('superadmin')->group(function () {
     Route::middleware(['redirect.auth', 'guest:superadmin'])->group(function () {
         Route::get('/login', [SuperAdminAuthController::class, 'showLogin'])->name('superadmin.login');
         Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('superadmin.login.submit');
+
+        // Device verification routes (not logged in yet)
+        Route::get('/device-verification', [SuperAdminAuthController::class, 'showDeviceVerification'])->name('superadmin.device.verify.show');
+        Route::post('/device-verification', [SuperAdminAuthController::class, 'verifyDevice'])->name('superadmin.device.verify.submit');
+        Route::post('/device-verification/resend', [SuperAdminAuthController::class, 'resendVerificationCode'])->name('superadmin.device.verify.resend');
     });
 
     
@@ -69,6 +84,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/login', [AdminController::class, 'showAdminLogin'])->name('admin.login');
         Route::post('/login',[AdminController::class, 'login'])->name('admin.login.submit');
     });
+
+    // Admin Device Verification (no auth required - user verified credentials but needs device check)
+    Route::get('/device-verification', [AdminController::class, 'showDeviceVerification'])->name('admin.device.verify.show');
+    Route::post('/device-verification', [AdminController::class, 'verifyDevice'])->name('admin.device.verify.submit');
+    Route::post('/device-verification/resend', [AdminController::class, 'resendVerificationCode'])->name('admin.device.verify.resend');
     
     Route::middleware('auth:admin')->group(function(){
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -144,6 +164,15 @@ Route::prefix('admin')->group(function () {
         Route::post('/events/{id}/mark-completed', [AdminEventController::class, 'markCompleted'])->name('admin.events.mark-completed');
         Route::post('/events/bulk-approve', [AdminEventController::class, 'bulkApprove'])->name('admin.events.bulk-approve');
         Route::post('/events/bulk-reject', [AdminEventController::class, 'bulkReject'])->name('admin.events.bulk-reject');
+
+        // Event Privilege Management
+        Route::get('/event-privileges', [AdminEventPrivilegeController::class, 'index'])->name('admin.event-privileges.index');
+        Route::post('/event-privileges/{id}/toggle', [AdminEventPrivilegeController::class, 'toggle'])->name('admin.event-privileges.toggle');
+        Route::post('/event-privileges/bulk-toggle', [AdminEventPrivilegeController::class, 'bulkToggle'])->name('admin.event-privileges.bulk-toggle');
+
+        // Activity Logs
+        Route::get('/activity-logs', [AdminActivityController::class, 'index'])->name('admin.activity-logs.index');
+        Route::post('/activity-logs/clear-old', [AdminActivityController::class, 'clearOld'])->name('admin.activity-logs.clear-old');
     });
 
     
@@ -161,6 +190,10 @@ Route::prefix('insideuser')->group(function(){
         Route::get('/login',[InsideUserController::class, 'showUserLogin'])->name('user.login.show');
         Route::post('/login',[InsideUserController::class, 'login'])->name('insideuser.login.submit');
 
+        // Device verification routes (not logged in yet)
+        Route::get('/device-verification', [InsideUserController::class, 'showDeviceVerification'])->name('insideuser.device.verify.show');
+        Route::post('/device-verification', [InsideUserController::class, 'verifyDevice'])->name('insideuser.device.verify.submit');
+        Route::post('/device-verification/resend', [InsideUserController::class, 'resendVerificationCode'])->name('insideuser.device.verify.resend');
     });
 
     Route::middleware('auth:insideuser')->group(function(){
@@ -270,6 +303,11 @@ Route::prefix('outsideuser')->group(function(){
         Route::get('/login', [OutsideUserController::class, 'ShowLogin'])->name('outsideuser.login.show');
         Route::post('/login', [OutsideUserController::class, 'Login'])->name('outsideuser.login.submit');
         Route::post('/request',[OutsideUserController::class, 'SignupRequest'])->name('outsideuser.signup.request');
+
+        // Email verification routes
+        Route::get('/verify/notice', [OutsideUserController::class, 'showVerifyNotice'])->name('outsideuser.verify.notice');
+        Route::get('/verify/{token}', [OutsideUserController::class, 'verifyEmail'])->name('outsideuser.verify.email');
+        Route::post('/verify/resend', [OutsideUserController::class, 'resendVerification'])->name('outsideuser.verify.resend');
     });
 
     Route::middleware('auth:outsideuser')->group(function(){

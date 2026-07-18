@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    background-color: #060606;
+    position: relative;
+    overflow-x: hidden;
+    color: #e2e8f0;
+}
+
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    width: 60vmax;
+    height: 60vmax;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+    animation: drift 20s infinite linear alternate;
+    z-index: 0;
+    pointer-events: none;
+}
+
+body::before {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+    top: -10%;
+    left: -10%;
+}
+
+body::after {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+    bottom: -10%;
+    right: -10%;
+    animation-delay: -10s;
+    animation-direction: alternate-reverse;
+}
+
+@keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(8vw, 12vh) scale(1.1); }
+}
+
+/* ── Wrapper ── */
+.ers-wrapper {
+    width: 100%;
+    max-width: 560px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ── Glass Card ── */
+.ers-card {
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 42px 44px;
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ers-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 35px 60px -15px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ── Success Icon ── */
+.ers-icon-wrap {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 24px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ers-icon-wrap svg {
+    width: 36px;
+    height: 36px;
+    color: #ffffff;
+}
+
+/* ── Title & Subtitle ── */
+.ers-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+
+.ers-subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #94a3b8;
+    font-weight: 300;
+    margin-bottom: 28px;
+}
+
+.ers-subtitle strong {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+/* ── Event Info Block ── */
+.ers-event-info {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px 22px;
+    margin-bottom: 28px;
+}
+
+.ers-event-info h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 12px;
+}
+
+.ers-event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ers-event-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: #94a3b8;
+}
+
+.ers-event-meta-row .ers-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    color: #64748b;
+}
+
+/* ── QR Code Section ── */
+.ers-qr-section {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.ers-qr-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.ers-qr-container {
+    display: inline-block;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.ers-qr-container svg {
+    display: block;
+}
+
+.ers-qr-code {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-family: monospace;
+    letter-spacing: 0.05em;
+}
+
+/* ── Actions ── */
+.ers-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.ers-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.ers-btn-primary {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+}
+
+.ers-btn-primary:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(255, 255, 255, 0.15);
+}
+
+.ers-btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+}
+
+.ers-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ── Alert Warning ── */
+.ers-alert-warning {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 4px solid rgba(255, 255, 255, 0.3);
+    color: #94a3b8;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.ers-alert-warning strong {
+    color: #e2e8f0;
+}
+
+/* ── Back Link ── */
+.ers-footer {
+    text-align: center;
+    margin-top: 8px;
+}
+
+.ers-back-link {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 10px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.ers-back-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Accessibility ── */
+*:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+@media print {
+    body { background: #fff; }
+    .ers-card { box-shadow: none; border: 1px solid #ddd; }
+    .ers-footer { display: none; }
+}

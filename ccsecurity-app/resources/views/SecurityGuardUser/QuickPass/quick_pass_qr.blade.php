@@ -13,28 +13,7 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">CCSS</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('security.dashboard') }}" class="tab-button" style="text-decoration: none;">
-                    <span class="nav-icon">📊</span> Back to Command
-                </a>
-                <a href="{{ route('security.quick-pass.list') }}" class="tab-button active" style="text-decoration: none;">
-                    <span class="nav-icon">🚗</span> Quick Pass
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('security.logout') }}" style="width: 100%;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon">🚪</span> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('SecurityGuardUser.partials.sidebar', ['activePage' => 'quick-pass'])
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -86,8 +65,11 @@
                 </div>
 
                 <div class="btn-group fade-in" style="display: flex; gap: 12px; animation-delay: 0.3s; margin-bottom: 24px;">
-                    <button type="button" onclick="printQR()" class="btn-primary" style="flex: 1; justify-content: center;">🖨️ Print</button>
-                    <button type="button" onclick="takeScreenshot()" class="btn-primary" style="background: var(--success); flex: 1; justify-content: center;">📷 Screenshot</button>
+                    <button type="button" onclick="printQR()" class="btn-primary" style="flex: 1; justify-content: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        Print
+                    </button>
+                    <button type="button" onclick="takeScreenshot()" class="btn-primary" style="background: var(--success); flex: 1; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Screenshot</button>
                 </div>
 
                 <div class="instructions fade-in" style="background: var(--bg-glass-strong); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); animation-delay: 0.4s;">
