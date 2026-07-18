@@ -62,7 +62,7 @@ COMMENT = 'Stores auto-delete cleanup settings for admin control';
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`cleanup_table_settings` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `table_name` VARCHAR(50) NOT NULL COMMENT 'entry_logs, visit_requests, notifications, shift_logs',
+  `table_name` VARCHAR(50) NOT NULL COMMENT 'Entry_logs, visit_requests, notifications, shift_logs',
   `auto_delete_enabled` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=enabled, 0=disabled',
   `retention_days` INT(11) NOT NULL DEFAULT 30 COMMENT 'Number of days to keep records',
   `last_cleanup_date` TIMESTAMP NULL DEFAULT NULL,
@@ -126,11 +126,11 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `securitysystemdatabase`.`entry_logs`
+-- Table `securitysystemdatabase`.`Entry_logs`
 -- -----------------------------------------------------
 -- OPTIMIZED for 2000+ students (4000+ daily scans)
 -- Changes: scan_at TIMESTAMP (was VARCHAR), added critical indexes
-CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`entry_logs` (
+CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`Entry_logs` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `inside_user_id` INT(11) NULL DEFAULT NULL,
   `outside_user_id` INT(11) NULL DEFAULT NULL,
@@ -490,7 +490,7 @@ CREATE TABLE IF NOT EXISTS `securitysystemdatabase`.`currently_inside` (
   `email` VARCHAR(150) NOT NULL COMMENT 'Email for contact',
   `role` VARCHAR(50) NULL DEFAULT NULL COMMENT 'Role: student, staff, visitor, etc',
   `entered_at` TIMESTAMP NOT NULL COMMENT 'Entry time',
-  `entry_log_id` INT(11) NOT NULL COMMENT 'Reference to entry_logs table',
+  `entry_log_id` INT(11) NOT NULL COMMENT 'Reference to Entry_logs table',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_qr` (`qr_value`) COMMENT 'One record per QR code',
   INDEX `idx_entered_at` (`entered_at`) COMMENT 'Sort by entry time',

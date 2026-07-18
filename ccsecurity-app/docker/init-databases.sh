@@ -46,4 +46,9 @@ if [ -f "$SQL_DIR/grant-second-db.sql" ]; then
     echo "Privileges granted."
 fi
 
+# --- Fix table case sensitivity (Linux is case-sensitive) ---
+echo "Fixing table case sensitivity..."
+mariadb -u root -p"$MYSQL_ROOT_PASSWORD" securitysystemdatabase -e "RENAME TABLE entry_logs TO Entry_logs;" 2>/dev/null || true
+echo "Table case fixed."
+
 echo "=== Database initialization complete ==="
