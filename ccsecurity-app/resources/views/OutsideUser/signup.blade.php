@@ -5,11 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visitor Registration - School Security</title>
     @vite(['resources/css/OutsideUser/outsideuser_style_signup.css', 'resources/js/app.js'])
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
     <script>
-        function onSubmit(token) {
-            document.getElementById("signup-form").submit();
-        }
+        var SITE_KEY = '{{ config('services.recaptcha.site_key') }}';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('signup-btn');
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof grecaptcha === 'undefined') {
+                        alert('reCAPTCHA is still loading. Please try again in a moment.');
+                        return;
+                    }
+                    grecaptcha.ready(function() {
+                        grecaptcha.execute(SITE_KEY, {action: 'submit'}).then(function(token) {
+                            document.getElementById('g-recaptcha-response').value = token;
+                            document.getElementById('signup-form').submit();
+                        });
+                    });
+                });
+            }
+        });
     </script>
 </head>
 <body>
@@ -46,6 +63,7 @@
 
         <form action="{{ route('outsideuser.signup.request') }}" method="POST" id="signup-form">
             @csrf
+            <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
 
             <div class="signup-form-row">
                 <div class="signup-form-group">
@@ -97,10 +115,7 @@
                 </div>
             </div>
 
-            <button type="button" class="signup-btn g-recaptcha"
-                    data-sitekey="{{ config('services.recaptcha.site_key') }}"
-                    data-callback='onSubmit'
-                    data-action='submit'>
+            <button type="submit" id="signup-btn" class="signup-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                 Create Account
             </button>
