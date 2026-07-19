@@ -25,9 +25,9 @@
         <!-- Guard Profile Header -->
         <div class="glass-card fade-in" style="animation-delay:0.05s; padding:24px 30px; border-left:4px solid var(--primary);">
             <div style="display:flex; align-items:center; gap:20px;">
-                <div class="avatar-placeholder" style="width:64px; height:64px; font-size:1.8rem; margin:0;">
-                    {{ substr($guard->first_name, 0, 1) }}
-                </div>
+                <span style="color: #000; font-weight: 600; font-size:1.8rem;">
+                    {{ $guard->first_name }}
+                </span>
                 <div>
                     <h2 style="margin:0; border:0; padding:0; font-size:1.6rem;">{{ $guard->first_name }} {{ $guard->last_name }}</h2>
                     <p style="color:var(--text-muted); margin:4px 0 0 0;">{{ $guard->email }} | <span style="font-weight:600; color:var(--text-main);">ID: #{{ $guard->id }}</span></p>

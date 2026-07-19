@@ -54,7 +54,7 @@
                             <tr>
                                 <td>
                                     <div class="user-name">
-                                        <div class="avatar-placeholder">{{ substr($request->outsideUser->fullname ?? '?', 0, 1) }}</div>
+                                        <span style="color: #000; font-weight: 600;">{{ $request->outsideUser->fullname ?? '?' }}</span>
                                         {{ $request->outsideUser->fullname ?? 'N/A' }}
                                     </div>
                                 </td>

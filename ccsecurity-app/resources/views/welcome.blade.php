@@ -22,9 +22,6 @@
         <!-- Header -->
         <header class="welcome-header">
             <div class="logo-area">
-                <div class="logo-circle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                </div>
                 <h1 class="header-title">KitaKits: Columban College <span class="highlight">Security System</span></h1>
             </div>
             <a href="{{ route('login.choice') }}" class="btn-header-login">
@@ -134,10 +131,6 @@
             <!-- Right Panel -->
             <div class="right-panel">
                 <div class="branding-content">
-                    <div class="badge">KitaKits</div>
-                    <h2>Secure Access for<br><span class="gradient-text">Columban College</span></h2>
-                    <p>Experience a seamless, QR-based entry system designed for the safety of students, staff, and guests.</p>
-
                     <div class="features-list">
                         <div class="feature-item">
                             <div class="feature-icon-wrap fi-1">

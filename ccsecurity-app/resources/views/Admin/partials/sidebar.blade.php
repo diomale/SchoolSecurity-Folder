@@ -55,7 +55,7 @@
     </nav>
     <div class="sidebar-footer">
         <div class="user-profile-mini">
-            <div class="profile-avatar">{{ substr(auth('admin')->user()->name, 0, 1) }}</div>
+            <span style="color: #000; font-weight: 600;">{{ auth('admin')->user()->name }}</span>
             <div class="profile-info">
                 <span class="profile-name">{{ auth('admin')->user()->name }}</span>
                 <span class="profile-role">Admin</span>

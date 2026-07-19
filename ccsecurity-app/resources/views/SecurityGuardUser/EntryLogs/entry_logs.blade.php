@@ -65,7 +65,7 @@
                             <tr>
                                 <td>
                                     <div class="user-cell">
-                                        <div class="user-avatar-small bg-primary">{{ substr($person['fullname'] ?? 'U', 0, 1) }}</div>
+                                        <span style="color: #000; font-weight: 600;">{{ $person['fullname'] ?? 'U' }}</span>
                                         <span class="full-name">{{ $person['fullname'] ?? 'Unknown' }}</span>
                                     </div>
                                 </td>
@@ -172,7 +172,7 @@
                                                 $roleColor = 'var(--purple)';
                                             }
                                         @endphp
-                                        <div class="user-avatar-small" style="background: {{ $roleColor }};">{{ substr($uName, 0, 1) }}</div>
+                                        <span style="color: #000; font-weight: 600;">{{ $uName }}</span>
                                         <div>
                                             <div class="full-name">{{ $uName }}</div>
                                             <div style="font-size: 0.8rem; font-weight: 600; color: {{ $roleColor }};">{{ $uRoleType }}</div>

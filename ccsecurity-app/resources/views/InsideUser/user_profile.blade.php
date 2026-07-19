@@ -38,9 +38,7 @@
                 <div class="glass-card profile-card">
                     @php
                         $user = auth('insideuser')->user();
-                        $initials = collect(explode(' ', $user->fullname))->map(function($segment) { return strtoupper(substr($segment, 0, 1)); })->take(2)->join('');
                     @endphp
-                    <div class="profile-avatar">{{ $initials }}</div>
                     <h2 class="profile-name">{{ $user->fullname }}</h2>
                     <p class="profile-email">{{ $user->email }}</p>
 

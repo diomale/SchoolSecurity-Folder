@@ -82,7 +82,7 @@
                         <tr>
                             <td>
                                 <div class="user-name">
-                                    <div class="avatar-placeholder">{{ substr($connection->outsideUser->fullname ?? '?', 0, 1) }}</div>
+                                    <span style="color: #000; font-weight: 600;">{{ $connection->outsideUser->fullname ?? '?' }}</span>
                                     <div>
                                         <div style="font-weight:600;">{{ $connection->outsideUser->fullname ?? 'N/A' }}</div>
                                         <div style="font-size:0.82rem; color:var(--text-muted);">{{ $connection->outsideUser->email ?? '' }}</div>
@@ -91,9 +91,9 @@
                             </td>
                             <td>
                                 <div class="user-name">
-                                    <div class="avatar-placeholder" style="background: linear-gradient(135deg, var(--success), #34d399);">
-                                        {{ substr($connection->insideUser->fullname ?? '?', 0, 1) }}
-                                    </div>
+                                    <span style="color: #000; font-weight: 600;">
+                                        {{ $connection->insideUser->fullname ?? '?' }}
+                                    </span>
                                     <div>
                                         <div style="font-weight:600;">{{ $connection->insideUser->fullname ?? 'N/A' }}</div>
                                         <div style="font-size:0.82rem; color:var(--text-muted);">{{ $connection->insideUser->email ?? '' }}</div>

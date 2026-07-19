@@ -74,7 +74,7 @@
                             <tr class="{{ $pass->isExpired() && $pass->status !== 'expired' ? 'status-expired' : '' }}">
                                 <td>
                                     <div class="user-cell">
-                                        <div class="user-avatar-small bg-primary">{{ substr($pass->visitor_name, 0, 1) }}</div>
+                                        <span style="color: #000; font-weight: 600;">{{ $pass->visitor_name }}</span>
                                         <span class="full-name">{{ $pass->visitor_name }}</span>
                                     </div>
                                 </td>

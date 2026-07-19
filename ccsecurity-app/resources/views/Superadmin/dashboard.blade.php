@@ -36,7 +36,7 @@
 
             <div class="sidebar-footer">
                 <div class="user-profile-mini">
-                    <div class="profile-avatar">{{ substr(auth('superadmin')->user()->name, 0, 1) }}</div>
+                    <span style="color: #000; font-weight: 600;">{{ auth('superadmin')->user()->name }}</span>
                     <div class="profile-info">
                         <span class="profile-name">{{ auth('superadmin')->user()->name }}</span>
                         <span class="profile-role">Super Admin</span>
@@ -65,9 +65,9 @@
                         <div class="date">{{ now()->format('l, M j, Y') }}</div>
                         <div class="time">{{ now()->format('h:i A') }}</div>
                     </div>
-                    <div class="header-avatar" onclick="location.href='{{ route('superadmin.dashboard') }}'">
-                        {{ substr(auth('superadmin')->user()->name, 0, 1) }}
-                    </div>
+                    <span style="color: #000; font-weight: 600;" onclick="location.href='{{ route('superadmin.dashboard') }}'">
+                        {{ auth('superadmin')->user()->name }}
+                    </span>
                 </div>
             </header>
 
@@ -256,7 +256,7 @@
                             <tr>
                                 <td>
                                     <div class="user-cell">
-                                        <div class="user-avatar">{{ substr($admin->name, 0, 1) }}</div>
+                                        <span style="color: #000; font-weight: 600;">{{ $admin->name }}</span>
                                         <div class="user-info">
                                             <span class="user-name">{{ $admin->name }}</span>
                                             <span class="user-id">Admin #{{ $admin->id }}</span>

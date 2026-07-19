@@ -239,7 +239,7 @@
                                                 elseif($activity->insideUser) $uName = $activity->insideUser->fullname;
                                                 elseif($activity->outsideUser) $uName = $activity->outsideUser->fullname ?? ($activity->outsideUser->first_name . ' ' . $activity->outsideUser->last_name);
                                             @endphp
-                                            <div class="user-avatar-small">{{ substr($uName, 0, 1) }}</div>
+                                            <span style="color: #000; font-weight: 600;">{{ $uName }}</span>
                                             <div class="user-info">
                                                 <span class="full-name">{{ $uName }}</span>
                                             </div>

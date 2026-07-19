@@ -115,6 +115,13 @@
                 </div>
             </div>
 
+            <div class="signup-form-group terms-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="agree_terms" value="1" required>
+                    <span>I agree to the <a href="#" onclick="event.preventDefault(); openModal('privacy')">Privacy Policy</a> and <a href="#" onclick="event.preventDefault(); openModal('terms')">Terms of Service</a></span>
+                </label>
+            </div>
+
             <button type="submit" id="signup-btn" class="signup-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                 Create Account
@@ -130,5 +137,50 @@
         </div>
 
     </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="terms-modal-overlay" onclick="closeModal('privacy')">
+        <div class="terms-modal" onclick="event.stopPropagation()">
+            <div class="terms-modal-header">
+                <h2>Privacy Policy</h2>
+                <button class="terms-modal-close" onclick="closeModal('privacy')">&times;</button>
+            </div>
+            <div class="terms-modal-body">
+                <iframe src="{{ route('privacy') }}" width="100%" height="100%" frameborder="0" title="Privacy Policy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="terms-modal" class="terms-modal-overlay" onclick="closeModal('terms')">
+        <div class="terms-modal" onclick="event.stopPropagation()">
+            <div class="terms-modal-header">
+                <h2>Terms of Service</h2>
+                <button class="terms-modal-close" onclick="closeModal('terms')">&times;</button>
+            </div>
+            <div class="terms-modal-body">
+                <iframe src="{{ route('terms') }}" width="100%" height="100%" frameborder="0" title="Terms of Service"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(type) {
+            document.getElementById(type + '-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(type) {
+            document.getElementById(type + '-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal('privacy');
+                closeModal('terms');
+            }
+        });
+    </script>
 </body>
 </html>

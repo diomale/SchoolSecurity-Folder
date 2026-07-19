@@ -11,6 +11,81 @@
     @vite(['resources/css/InsideUser/insideuser_style_dashboard.css'])
 </head>
 <body>
+    @if($showTermsModal)
+    <!-- Mandatory Terms Acceptance Modal -->
+    <div id="terms-modal" class="terms-modal-overlay active">
+        <div class="terms-modal">
+            <div class="terms-modal-header">
+                <h2>Welcome to CCSS</h2>
+            </div>
+            <div class="terms-modal-body">
+                <div class="terms-scroll-area">
+                    <div class="terms-section">
+                        <h3>Privacy Policy</h3>
+                        <p>This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.</p>
+                        <p>We use Your Personal Data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.</p>
+                        <h4>Personal Data We Collect</h4>
+                        <ul>
+                            <li>Email address</li>
+                            <li>First name and last name</li>
+                            <li>Phone number</li>
+                            <li>Entry and exit records</li>
+                        </ul>
+                        <h4>How We Use Your Data</h4>
+                        <ul>
+                            <li>To provide and maintain our Service</li>
+                            <li>To manage Your Account</li>
+                            <li>To contact You regarding security updates</li>
+                            <li>To maintain campus security logs</li>
+                        </ul>
+                        <p><a href="{{ route('privacy') }}" target="_blank">Read full Privacy Policy &rarr;</a></p>
+                    </div>
+
+                    <div class="terms-divider"></div>
+
+                    <div class="terms-section">
+                        <h3>Terms of Service</h3>
+                        <p>By accessing and using the Columban College Security System, you agree to be bound by these Terms of Service. If you do not agree, please do not use the system.</p>
+                        <h4>User Accounts</h4>
+                        <ul>
+                            <li>You must provide accurate information when creating an account.</li>
+                            <li>You are responsible for maintaining the confidentiality of your password.</li>
+                            <li>You must not share your account credentials with others.</li>
+                        </ul>
+                        <h4>Acceptable Use</h4>
+                        <p>You agree to use the system only for its intended purpose: campus security and access management. You must not:</p>
+                        <ul>
+                            <li>Use the system for any unlawful purpose.</li>
+                            <li>Attempt to access unauthorized areas of the system.</li>
+                            <li>Share your QR codes with unauthorized individuals.</li>
+                            <li>Provide false information during registration or check-in.</li>
+                        </ul>
+                        <h4>QR Code Policy</h4>
+                        <ul>
+                            <li>QR codes are issued for your personal use only.</li>
+                            <li>Sharing QR codes with others is strictly prohibited.</li>
+                            <li>Unauthorized use of QR codes may result in account suspension.</li>
+                        </ul>
+                        <p><a href="{{ route('terms') }}" target="_blank">Read full Terms of Service &rarr;</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="terms-modal-footer">
+                <form action="{{ route('insideuser.accept.terms') }}" method="POST" id="accept-terms-form">
+                    @csrf
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="accept-terms-checkbox" required>
+                        <span>I have read and agree to the Privacy Policy and Terms of Service</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary" id="accept-terms-btn" disabled>
+                        Accept & Continue
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="dashboard-container">
         
         <!-- Sidebar Navigation -->
@@ -145,6 +220,20 @@
     </div>
 
     <script>
+        @if($showTermsModal)
+        // Terms modal logic
+        document.addEventListener('DOMContentLoaded', function() {
+            var checkbox = document.getElementById('accept-terms-checkbox');
+            var btn = document.getElementById('accept-terms-btn');
+            
+            if (checkbox && btn) {
+                checkbox.addEventListener('change', function() {
+                    btn.disabled = !this.checked;
+                });
+            }
+        });
+        @endif
+
         function switchTab(tabName) {
             // Future-proofing script just in case more tabs load dynamically on same page.
             document.querySelectorAll('.tab-content').forEach(content => {

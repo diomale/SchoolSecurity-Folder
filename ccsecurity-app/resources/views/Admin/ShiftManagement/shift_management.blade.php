@@ -83,9 +83,9 @@
                                 <input type="checkbox" value="{{ $shift->id }}" class="shift-checkbox custom-checkbox">
                             </td>
                             <td class="user-name">
-                                <div class="avatar-placeholder" style="background:linear-gradient(135deg, var(--info), var(--primary));">
-                                    {{ substr($shift->securityGuardUser->first_name ?? 'N', 0, 1) }}
-                                </div>
+                                <span style="color: #000; font-weight: 600;">
+                                    {{ $shift->securityGuardUser->first_name ?? 'N' }}
+                                </span>
                                 {{ $shift->securityGuardUser->first_name ?? 'N/A' }} {{ $shift->securityGuardUser->last_name ?? '' }}
                             </td>
                             <td class="date-cell">{{ $shift->shift_date->format('M d, Y') }}</td>

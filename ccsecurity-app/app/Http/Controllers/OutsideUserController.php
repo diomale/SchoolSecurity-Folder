@@ -199,6 +199,7 @@ class OutsideUserController extends Controller
             'phone_number'         => 'required|string|max:20',
             'password'             => 'required|string|min:8|confirmed',
             'g-recaptcha-response' => ['required', new Recaptcha],
+            'agree_terms'          => 'accepted',
         ]);
 
         // Increment rate limit
@@ -217,6 +218,7 @@ class OutsideUserController extends Controller
             'qr_status'    => 'inactive',
             'status'       => OutsideUser::STATUS_APPROVED,
             'email_verification_token' => $verificationToken,
+            'terms_accepted_at'    => now(),
             'created_at'   => now(),
             'updated_at'   => now(),
         ]);

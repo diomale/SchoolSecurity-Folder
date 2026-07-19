@@ -29,6 +29,7 @@ class InsideUser extends Authenticatable
         'qr_value',
         'qr_status',
         'can_create_events',
+        'terms_accepted_at',
     ];
 
     protected $hidden = [

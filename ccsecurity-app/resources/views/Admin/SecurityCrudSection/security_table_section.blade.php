@@ -74,9 +74,6 @@
                                 <input type="checkbox" value="{{ $security_guard_user->id }}" class="user-checkbox custom-checkbox">
                             </td>
                             <td class="user-name">
-                                <div class="avatar-placeholder" style="background: linear-gradient(135deg, var(--info), #60a5fa);">
-                                    {{ substr($security_guard_user->first_name, 0, 1) }}
-                                </div>
                                 {{ $security_guard_user->first_name }} {{ $security_guard_user->last_name }}
                             </td>
                             <td>{{ $security_guard_user->email }}</td>
@@ -85,7 +82,7 @@
                             <td class="actions-cell">
                                 <div class="action-buttons">
                                     <a href="{{ route('admin.guard.shifts', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}"
-                                        class="btn-icon btn-info" title="View Shifts"></a>
+                                        class="btn-icon btn-info" title="View Shifts">Shift</a>
                                     <a href="{{ route('security.guard.user.details', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}"
                                         class="btn-icon btn-view" title="View"></a>
                                     <a href="{{ route('security.guard.user.edit', ['id' => $security_guard_user->id, 'back_url' => url()->current()]) }}"

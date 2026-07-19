@@ -60,7 +60,7 @@
         </nav>
         <div class="sidebar-footer">
             <div class="user-profile-mini">
-                <div class="profile-avatar">{{ substr(auth('admin')->user()->name, 0, 1) }}</div>
+                <span style="color: #000; font-weight: 600;">{{ auth('admin')->user()->name }}</span>
                 <div class="profile-info">
                     <span class="profile-name">{{ auth('admin')->user()->name }}</span>
                     <span class="profile-role">Admin</span>
@@ -86,9 +86,9 @@
                     <div class="date">{{ now()->format('l, M j, Y') }}</div>
                     <div class="time">{{ now()->format('h:i A') }}</div>
                 </div>
-                <div class="header-avatar" onclick="location.href='{{ route('admin.profile.show') }}'">
-                    {{ substr(auth('admin')->user()->name, 0, 1) }}
-                </div>
+                <span style="color: #000; font-weight: 600;" onclick="location.href='{{ route('admin.profile.show') }}'">
+                    {{ auth('admin')->user()->name }}
+                </span>
             </div>
         </div>
 

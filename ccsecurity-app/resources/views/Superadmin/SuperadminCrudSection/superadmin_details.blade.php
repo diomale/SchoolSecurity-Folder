@@ -49,7 +49,7 @@
 
             <div class="details-glass-container fade-in" style="animation-delay: 0.2s;">
                 <div class="details-header">
-                    <div class="big-avatar">{{ substr($admin->name, 0, 1) }}</div>
+                    <span style="color: #000; font-weight: 600;">{{ $admin->name }}</span>
                     <div>
                         <h2 style="margin: 0; font-size: 1.8rem; color: var(--primary-dark);">{{ $admin->name }}</h2>
                         <span style="color: var(--success); font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px;">

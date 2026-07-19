@@ -19,6 +19,9 @@ class InsideUserController extends Controller
     {
         $insideUser = Auth::guard('insideuser')->user();
         
+        // Check if user needs to accept terms
+        $showTermsModal = is_null($insideUser->terms_accepted_at);
+        
         // Cache dashboard data for 5 minutes to reduce database load
         // Priority 4: Query caching optimization
         $cacheKey = 'inside_user_dashboard_' . $insideUser->id . '_' . today()->toDateString();
@@ -47,7 +50,16 @@ class InsideUserController extends Controller
         $pendingConnections = $data['pendingConnections'];
         $entryLogs = $data['entryLogs'];
 
-        return view('InsideUser.dashboard', compact('insideUser', 'connectedParents', 'pendingConnections', 'entryLogs'));
+        return view('InsideUser.dashboard', compact('insideUser', 'connectedParents', 'pendingConnections', 'entryLogs', 'showTermsModal'));
+    }
+
+    public function acceptTerms(Request $request)
+    {
+        $insideUser = Auth::guard('insideuser')->user();
+        $insideUser->update(['terms_accepted_at' => now()]);
+        
+        return redirect()->route('insideuser.dashboard')
+            ->with('success', 'Terms and Privacy Policy accepted successfully.');
     }
 
     public function userProfile()

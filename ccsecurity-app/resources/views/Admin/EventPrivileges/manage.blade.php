@@ -126,7 +126,7 @@
                             <td><input type="checkbox" value="{{ $user->id }}" class="user-checkbox custom-checkbox"></td>
                             <td>
                                 <div class="user-cell">
-                                    <div class="user-avatar-small bg-primary">{{ substr($user->fullname ?? ($user->first_name . ' ' . $user->last_name), 0, 1) }}</div>
+                                    <span style="color: #000; font-weight: 600;">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
                                     <span class="full-name">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
                                 </div>
                             </td>

@@ -97,9 +97,9 @@
                             </td>
                             <td>
                                 <div class="user-name">
-                                    <div class="avatar-placeholder" style="background:linear-gradient(135deg, var(--purple), #a78bfa);">
-                                        {{ substr($event->insideUser->fullname ?? '?', 0, 1) }}
-                                    </div>
+                                    <span style="color: #000; font-weight: 600;">
+                                        {{ $event->insideUser->fullname ?? '?' }}
+                                    </span>
                                     {{ $event->insideUser->fullname ?? 'N/A' }}
                                 </div>
                             </td>

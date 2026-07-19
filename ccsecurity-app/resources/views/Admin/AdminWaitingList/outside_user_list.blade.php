@@ -85,7 +85,7 @@
                                 <input type="checkbox" value="{{ $outside_user->id }}" class="user-checkbox custom-checkbox">
                             </td>
                             <td class="user-name">
-                                <div class="avatar-placeholder">{{ substr($outside_user->fullname ?? $outside_user->first_name, 0, 1) }}</div>
+                                <span style="color: #000; font-weight: 600;">{{ $outside_user->fullname ?? $outside_user->first_name }}</span>
                                 {{ $outside_user->fullname ?? ($outside_user->first_name . ' ' . $outside_user->last_name) }}
                             </td>
                             <td>{{ $outside_user->email }}</td>

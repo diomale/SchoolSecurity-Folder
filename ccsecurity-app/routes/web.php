@@ -199,6 +199,7 @@ Route::prefix('insideuser')->group(function(){
     Route::middleware('auth:insideuser')->group(function(){
         Route::get('/dashboard',[InsideUserController::class, 'dashboard'])->name('insideuser.dashboard');
         Route::post('/logout',[InsideUserController::class, 'logout'])->name('insideuser.logout');
+        Route::post('/accept-terms', [InsideUserController::class, 'acceptTerms'])->name('insideuser.accept.terms');
 
         Route::get('/profile', [InsideUserController::class, 'userProfile'])->name('insideuser.profile.show');
 

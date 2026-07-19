@@ -31,6 +31,7 @@ class OutsideUser extends Authenticatable
         'qr_expires_at',
         'created_at',
         'updated_at',
+        'terms_accepted_at',
     ];
 
     protected $hidden = [

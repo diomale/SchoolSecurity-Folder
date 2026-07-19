@@ -95,7 +95,7 @@
                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox student-checkbox custom-checkbox">
                             </td>
                             <td class="user-name">
-                                <div class="avatar-placeholder">{{ substr($user->fullname ?? $user->first_name, 0, 1) }}</div>
+                                <span style="color: #000; font-weight: 600;">{{ $user->fullname ?? $user->first_name }}</span>
                                 {{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}
                             </td>
                             <td>{{ $user->email }}</td>
@@ -151,7 +151,7 @@
                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox staff-checkbox custom-checkbox">
                             </td>
                             <td class="user-name">
-                                <div class="avatar-placeholder" style="background:linear-gradient(135deg, var(--info), #60a5fa);">{{ substr($user->fullname ?? $user->first_name, 0, 1) }}</div>
+                                <span style="color: #000; font-weight: 600;">{{ $user->fullname ?? $user->first_name }}</span>
                                 {{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}
                             </td>
                             <td>{{ $user->email }}</td>

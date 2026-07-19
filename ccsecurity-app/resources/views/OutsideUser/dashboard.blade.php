@@ -349,7 +349,7 @@
                                     <tr>
                                         <td>
                                             <div class="user-cell">
-                                                <div class="user-avatar-small">{{ substr($connection->insideUser->fullname ?? 'U', 0, 1) }}</div>
+                                                <span style="color: #000; font-weight: 600;">{{ $connection->insideUser->fullname ?? 'U' }}</span>
                                                 <div>
                                                     <div class="full-name">{{ $connection->insideUser->fullname ?? 'N/A' }}</div>
                                                     <div class="email-sub">{{ $connection->insideUser->email ?? 'N/A' }}</div>

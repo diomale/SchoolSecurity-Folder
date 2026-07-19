@@ -24,9 +24,6 @@
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; max-width:650px;">
             <div style="display:flex; align-items:center; gap:24px; margin-bottom:30px; padding-bottom:24px; border-bottom:1px solid rgba(0,0,0,0.05);">
-                <div class="avatar-placeholder" style="width:80px; height:80px; font-size:2.2rem; margin:0;">
-                    {{ substr(auth('admin')->user()->name, 0, 1) }}
-                </div>
                 <div>
                     <h2 style="margin:0; border:0; padding:0; font-size:1.8rem; font-weight:800;">{{ auth('admin')->user()->name }}</h2>
                     <span class="badge role-badge" style="font-size:0.85rem; padding:6px 14px;">System Administrator</span>
