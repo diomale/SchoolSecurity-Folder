@@ -39,6 +39,13 @@ if [ -f "$SQL_DIR/insert-superadmin.sql" ]; then
     echo "Super admin inserted."
 fi
 
+# --- Apply schema changes that post-date the SecuritySystemDatabase.sql dump ---
+if [ -f "$SQL_DIR/apply-missing-migrations.sql" ]; then
+    echo "Applying post-dump schema changes to securitysystemdatabase..."
+    mariadb -u root -p"$MYSQL_ROOT_PASSWORD" securitysystemdatabase < "$SQL_DIR/apply-missing-migrations.sql"
+    echo "Post-dump schema changes applied."
+fi
+
 # --- Grant second DB privileges ---
 if [ -f "$SQL_DIR/grant-second-db.sql" ]; then
     echo "Granting second DB privileges..."
