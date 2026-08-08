@@ -45,8 +45,8 @@ class InsideUser extends Authenticatable
     protected static function booted()
     {
         static::created(function ($user) {
-            // Logic: Prefix + (Base Number + Auto-increment ID)
-            $user->qr_value = 'User-' . (1000 + $user->id);
+            // Logic: Prefix + unique random token (avoids guessable/sequential QR codes)
+            $user->qr_value = 'User-' . strtoupper(bin2hex(random_bytes(8)));
 
             // Save without triggering events again to avoid infinite loops
             $user->saveQuietly();

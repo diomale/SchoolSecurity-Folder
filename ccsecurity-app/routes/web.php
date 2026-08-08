@@ -40,7 +40,7 @@ Route::get('/terms', function () {
 })->name('terms');
 
 // Public event registration routes (no login required)
-Route::get('/event/register/{code}', [InsideUserEventController::class, 'showPublicRegistration'])->name('public.event.register');
+Route::get('/event/register/{eventId}', [InsideUserEventController::class, 'showPublicRegistration'])->name('public.event.register');
 Route::post('/event/register/{eventId}/submit', [InsideUserEventController::class, 'submitPublicRegistration'])->name('public.event.register.submit');
 
 // --- SUPER ADMIN ROUTES --- //

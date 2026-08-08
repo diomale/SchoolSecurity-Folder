@@ -54,7 +54,7 @@ class ParentConnectionController extends Controller
         })
         ->whereNotIn('id', $existingConnectionIds)
         ->limit(10)
-        ->get(['id', 'first_name', 'last_name', 'fullname', 'email', 'qr_value']);
+        ->get(['id', 'first_name', 'last_name', 'fullname', 'email']);
 
         return response()->json(['users' => $users]);
     }

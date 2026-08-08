@@ -157,11 +157,11 @@
                     <div class="glass-card">
                         <h2 class="section-title mb-4">Share Event</h2>
                         <div class="qr-container">
-                            {!! QrCode::size(160)->generate(route('public.event.register', ['code' => $event->id])) !!}
+                            {!! QrCode::size(160)->generate(route('public.event.register', ['eventId' => $event->id])) !!}
                         </div>
                         <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center; margin-bottom: 10px;">Scan to register for this event</p>
                         <p style="font-size: 0.75rem; color: var(--text-light); text-align: center; word-break: break-all;">
-                            {{ route('public.event.register', ['code' => $event->id]) }}
+                            {{ route('public.event.register', ['eventId' => $event->id]) }}
                         </p>
                     </div>
 

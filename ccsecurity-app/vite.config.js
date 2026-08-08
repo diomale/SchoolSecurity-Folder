@@ -66,9 +66,10 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        origin: 'https://localhost',
+        host: '127.0.0.1',
+        origin: 'http://127.0.0.1:5173',
         hmr: {
-            host: 'localhost',
+            host: '127.0.0.1',
         },
         watch: {
             ignored: ['**/storage/framework/views/**'],

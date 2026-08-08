@@ -30,7 +30,7 @@ class SuperAdminAuthController extends Controller
         $pendingVisitRequests = \App\Models\VisitRequest::where('status', 'pending')->count();
         $activeGuards = \App\Models\securityguard::where('status', 1)->count();
 
-        return view('Superadmin.dashboard', compact(
+        return view('superadmin.dashboard', compact(
             'admins', 
             'totalAdmins', 
             'totalGuards', 
@@ -48,7 +48,7 @@ class SuperAdminAuthController extends Controller
     // Create, Read, Update, Delete,
     public function showAddForm()
     {
-        return view('Superadmin.SuperadminCrudSection.superadmin_add_form');
+        return view('superadmin.SuperadminCrudSection.superadmin_add_form');
     }
 
     public function storeAdmin(Request $request)
@@ -74,7 +74,7 @@ class SuperAdminAuthController extends Controller
     public function showAdminDetails($id)
     {
         $admin = Admin::findOrFail($id);
-        return view('Superadmin.SuperadminCrudSection.superadmin_details', compact('admin'));
+        return view('superadmin.SuperadminCrudSection.superadmin_details', compact('admin'));
     }
 
     public function deleteAdmin($id)
@@ -89,7 +89,7 @@ class SuperAdminAuthController extends Controller
     public function viewEditForm($id)
     {
         $admin = Admin::findOrFail($id);
-        return view('Superadmin.SuperadminCrudSection.superadmin_edit', compact('admin'));
+        return view('superadmin.SuperadminCrudSection.superadmin_edit', compact('admin'));
     }
 
     public function updateAdmin(Request $request, $id)
@@ -215,7 +215,7 @@ class SuperAdminAuthController extends Controller
             return redirect()->route('superadmin.login');
         }
         
-        return view('Superadmin.device-verification', compact('user'));
+        return view('superadmin.device-verification', compact('user'));
     }
 
     public function verifyDevice(Request $request)

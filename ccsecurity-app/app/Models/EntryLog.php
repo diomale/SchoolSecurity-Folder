@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class EntryLog extends Model
 {
 
-    protected $table = 'Entry_logs';
+    protected $table = 'entry_logs';
     protected $connection = 'mysql_second';
     protected $primaryKey = 'id';
     public $timestamps = false;

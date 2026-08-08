@@ -117,7 +117,7 @@ class InsideUserEventController extends Controller
         $registrations = $event->registrations()->orderBy('created_at', 'desc')->get();
 
         // Generate event QR code for sharing
-        $eventQR = route('public.event.register', ['code' => $event->id]);
+        $eventQR = route('public.event.register', ['eventId' => $event->id]);
 
         return view('InsideUser.Events.show', compact('event', 'registrations', 'eventQR'));
     }

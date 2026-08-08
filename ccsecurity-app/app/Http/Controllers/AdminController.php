@@ -42,7 +42,7 @@ class AdminController extends Controller
         $currentlyInside = \App\Models\CurrentlyInside::count();
         $activeGuards = securityguard::where('status', 1)->count();
 
-        return view('admin.dashboard', compact(
+        return view('Admin.dashboard', compact(
             'totalInsideUsers',
             'totalGuards',
             'totalOutsideUsers',

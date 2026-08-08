@@ -712,6 +712,9 @@ class SecurityGuardController extends Controller
                 $entryLog = EntryLog::create([
                     'inside_user_id' => $insideUser->id,
                     'outside_user_id' => null,
+                    'quick_pass_id' => null,
+                    'event_registration_id' => null,
+                    'qr_value' => $insideUser->qr_value,
                     'security_guard_user_id' => $guardId,
                     'scan_at' => Carbon::now()->toDateTimeString(),
                     'scan_type' => $scanType,
@@ -771,6 +774,9 @@ class SecurityGuardController extends Controller
                 $entryLog = EntryLog::create([
                     'inside_user_id' => null,
                     'outside_user_id' => $outsideUser->id,
+                    'quick_pass_id' => null,
+                    'event_registration_id' => null,
+                    'qr_value' => $outsideUser->qr_value,
                     'security_guard_user_id' => $guardId,
                     'scan_at' => Carbon::now()->toDateTimeString(),
                     'scan_type' => $scanType,
@@ -1338,6 +1344,7 @@ class SecurityGuardController extends Controller
 
         // Handle check-in/check-out
         $action = 'view';
+        $success = true;
         $message = '';
         
         if ($registration->status === 'registered') {
