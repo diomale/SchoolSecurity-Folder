@@ -21,6 +21,7 @@ services:
         volumes:
             - '.:/var/www/html'
             - './docker/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf'
+            - './docker/php-extra.ini:/etc/php/8.5/cli/conf.d/99-ccss.ini'
         networks:
             - sail
         depends_on:
@@ -42,7 +43,6 @@ services:
             MYSQL_DATABASE: '${DB_DATABASE}'
             MYSQL_USER: '${DB_USERNAME}'
             MYSQL_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         volumes:
             - 'sail-mariadb:/var/lib/mysql'
             - './docker/init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh'
@@ -79,9 +79,27 @@ services:
                     memory: 128M
                 reservations:
                     memory: 64M
+    mailpit:
+        image: 'axllent/mailpit'
+        restart: unless-stopped
+        ports:
+            - '8025:8025'
+            - '1025:1025'
+        volumes:
+            - 'sail-mailpit:/data'
+        networks:
+            - sail
+        deploy:
+            resources:
+                limits:
+                    memory: 128M
+                reservations:
+                    memory: 64M
 networks:
     sail:
         driver: bridge
 volumes:
     sail-mariadb:
+        driver: local
+    sail-mailpit:
         driver: local

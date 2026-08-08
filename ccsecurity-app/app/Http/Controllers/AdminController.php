@@ -14,6 +14,7 @@ use App\Models\Notification;
 use App\Models\CleanupSetting;
 use App\Models\CleanupTableSetting;
 use App\Models\EntryLog;
+use App\Models\Event;
 use App\Models\ShiftLog;
 use App\Models\QuickPass;
 use App\Models\ParentChildConnection;
@@ -440,14 +441,25 @@ class AdminController extends Controller
             'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
-        InsideUser::whereIn('id', $request->user_ids)->delete();
+        $ids = $request->user_ids;
+        $blockedIds = $this->insideUserIdsWithRelatedRecords($ids);
+        $deletableIds = array_values(array_diff(array_map('intval', $ids), $blockedIds));
 
-        AdminActivityLogger::userManagement('Bulk Deleted Inside Users', "Bulk deleted " . count($request->user_ids) . " inside users", [
-            'user_ids' => $request->user_ids,
-            'count' => count($request->user_ids),
+        if (!empty($deletableIds)) {
+            InsideUser::whereIn('id', $deletableIds)->delete();
+        }
+
+        AdminActivityLogger::userManagement('Bulk Deleted Inside Users', "Bulk deleted " . count($deletableIds) . " inside users", [
+            'user_ids' => $deletableIds,
+            'count' => count($deletableIds),
         ]);
 
-        return redirect()->back()->with('success', count($request->user_ids) . ' users deleted successfully!');
+        $message = count($deletableIds) . ' user(s) deleted successfully!';
+        if (count($blockedIds) > 0) {
+            $message .= ' ' . count($blockedIds) . ' skipped (they have scan history, events, or parent connections). Deactivate instead.';
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function toggleQrStatus($id)
@@ -525,9 +537,20 @@ class AdminController extends Controller
             'admin_password' => ['required', new CurrentAdminPassword]
         ]);
 
-        InsideUser::whereIn('id', $request->user_ids)->delete();
+        $ids = $request->user_ids;
+        $blockedIds = $this->insideUserIdsWithRelatedRecords($ids);
+        $deletableIds = array_values(array_diff(array_map('intval', $ids), $blockedIds));
 
-        return redirect()->back()->with('success', count($request->user_ids) . ' users deleted successfully!');
+        if (!empty($deletableIds)) {
+            InsideUser::whereIn('id', $deletableIds)->delete();
+        }
+
+        $message = count($deletableIds) . ' user(s) deleted successfully!';
+        if (count($blockedIds) > 0) {
+            $message .= ' ' . count($blockedIds) . ' skipped (they have scan history, events, or parent connections). Deactivate instead.';
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function showAddUserForm()
@@ -626,6 +649,11 @@ class AdminController extends Controller
         ]);
         
         $inside_user = InsideUser::findOrFail($id);
+
+        if (!empty($this->insideUserIdsWithRelatedRecords([$inside_user->id]))) {
+            return redirect()->route('admin.show.crudSection')->with('error', "Cannot delete {$inside_user->fullname}: they have scan history, events, or parent connections. Deactivate the user instead.");
+        }
+
         $inside_user->delete();
 
         AdminActivityLogger::userManagement('Deleted Inside User', "Deleted inside user: {$inside_user->fullname}", [
@@ -633,7 +661,17 @@ class AdminController extends Controller
             'name' => $inside_user->fullname,
         ]);
 
-        return redirect()->route('admin.show.crudSection')->with('Success', 'Deleted Successfully');
+        return redirect()->route('admin.show.crudSection')->with('success', 'Deleted Successfully');
+    }
+
+    private function insideUserIdsWithRelatedRecords(array $ids): array
+    {
+        $ids = array_map('intval', $ids);
+        $blocked = [];
+        $blocked = array_merge($blocked, EntryLog::whereIn('inside_user_id', $ids)->pluck('inside_user_id')->all());
+        $blocked = array_merge($blocked, Event::whereIn('inside_user_id', $ids)->pluck('inside_user_id')->all());
+        $blocked = array_merge($blocked, ParentChildConnection::whereIn('inside_user_id', $ids)->pluck('inside_user_id')->all());
+        return array_values(array_unique($blocked));
     }
 
 
