@@ -824,9 +824,9 @@ class AdminController extends Controller
                 'admin_device_verification_created_at',
             ]);
 
-            return back()->withErrors([
+            return redirect()->route('admin.login')->withErrors([
                 'verification_code' => 'Verification code has expired. Please login again.'
-            ])->route('admin.login');
+            ]);
         }
 
         // Rate limiting for verification code attempts
@@ -845,9 +845,9 @@ class AdminController extends Controller
                 'admin_device_verification_created_at',
             ]);
 
-            return back()->withErrors([
+            return redirect()->route('admin.login')->withErrors([
                 'verification_code' => 'Too many failed attempts. Please login again.'
-            ])->route('admin.login');
+            ]);
         }
 
         // Verify code
@@ -920,9 +920,9 @@ class AdminController extends Controller
 
         $attempts = cache()->get($rateLimitKey, 0);
         if ($attempts >= $maxAttempts) {
-            return back()->withErrors([
+            return redirect()->route('admin.login')->withErrors([
                 'verification_code' => 'Too many resend attempts. Please login again.'
-            ])->route('admin.login');
+            ]);
         }
 
         // Increment resend rate limit
@@ -936,7 +936,7 @@ class AdminController extends Controller
         // Update session
         session([
             'admin_device_verification_code' => $verificationCode,
-            'admin_device_verification_created_at' => now(),
+            'admin_device_verification_created_at' => now()->timestamp,
         ]);
 
         // Get device info

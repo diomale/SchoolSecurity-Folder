@@ -36,7 +36,7 @@
                     </div>
                     <button type="submit" class="btn-secondary btn-sm">Search</button>
                     @if(request('search'))
-                        <a href="{{ route('admin.qr.status.management') }}" class="btn-clear btn-sm">✖ Clear</a>
+                        <a href="{{ route('admin.qr.status.management') }}" class="btn-clear btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Clear</a>
                     @endif
                 </form>
 

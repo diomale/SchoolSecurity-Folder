@@ -13,7 +13,7 @@
                     <!-- Header -->
                     <tr>
                         <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">✓ Registration Approved!</h1>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Registration Approved!</h1>
                         </td>
                     </tr>
 

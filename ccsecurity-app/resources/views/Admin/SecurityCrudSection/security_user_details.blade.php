@@ -19,7 +19,7 @@
                 <h1>Guard <span class="highlight">Details</span></h1>
                 <p class="subtitle">Security guard account information</p>
             </div>
-            <a href="{{ $backUrl }}" class="btn-secondary">← Back</a>
+            <a href="{{ $backUrl }}" class="btn-secondary">Back</a>
         </div>
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; max-width:680px;">
@@ -54,7 +54,7 @@
             </div>
             <div style="margin-top:24px; display:flex; gap:12px;">
                 <a href="{{ route('security.guard.user.edit', ['id' => $security_guard_user->id, 'back_url' => $backUrl]) }}" class="btn-primary">Edit Guard</a>
-                <a href="{{ $backUrl }}" class="btn-secondary">← Back to List</a>
+                <a href="{{ $backUrl }}" class="btn-secondary">Back to List</a>
             </div>
         </div>
     </main>

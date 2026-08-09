@@ -19,7 +19,7 @@
                 <h1>Add <span class="highlight">Inside User</span></h1>
                 <p class="subtitle">Register a new student, staff, or security guard account</p>
             </div>
-            <a href="{{ route('admin.show.crudSection') }}" class="btn-secondary">← Back to List</a>
+            <a href="{{ route('admin.show.crudSection') }}" class="btn-secondary">Back to List</a>
         </div>
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; max-width:680px;">

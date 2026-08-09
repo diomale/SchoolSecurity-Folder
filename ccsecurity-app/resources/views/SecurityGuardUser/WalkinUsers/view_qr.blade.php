@@ -32,7 +32,7 @@
         @endphp
         
         <div class="no-print">
-            <a href="{{ $backRoute }}" class="standalone-back">← Back to {{ $backLabel }}</a>
+            <a href="{{ $backRoute }}" class="standalone-back">Back to {{ $backLabel }}</a>
         </div>
 
         <div class="qr-view-container">

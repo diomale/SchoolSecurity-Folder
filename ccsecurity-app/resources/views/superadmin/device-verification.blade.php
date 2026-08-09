@@ -21,40 +21,6 @@
             margin: 0 auto 20px;
             color: #FFFFFF;
         }
-        .verification-steps {
-            margin: 24px 0;
-            text-align: left;
-        }
-        .step {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 8px;
-        }
-        .step-number {
-            width: 24px;
-            height: 24px;
-            background: #FFFFFF;
-            color: #000000;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .step-text {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-        .step-text strong {
-            color: #FFFFFF;
-        }
         .resend-link {
             display: inline-flex;
             align-items: center;
@@ -99,7 +65,7 @@
                 <a href="{{ route('welcome.page') }}" class="logo-circle logo-link">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </a>
-                <h1 class="header-title">Columban College <span class="highlight">Security System</span></h1>
+                <h1 class="header-title">KitaKits: Columban College <span class="highlight">Security System</span></h1>
             </div>
         </header>
 
@@ -115,22 +81,7 @@
                     </div>
                     <div class="info-badge">New Device Detected</div>
                     <h2>Verify Your Identity</h2>
-                    <p class="text-muted">We sent a verification code to <strong>{{ $user->email }}</strong></p>
-                </div>
-
-                <div class="verification-steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-text">Check your email inbox for the verification code</div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-text">Enter the <strong>6-digit code</strong> below</div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <div class="step-text">This device will be trusted for future logins</div>
-                    </div>
+                    <p class="text-muted">A verification code was sent to <strong>{{ $user->email }}</strong></p>
                 </div>
 
                 <form method="POST" action="{{ route('superadmin.device.verify.submit') }}">
@@ -179,7 +130,7 @@
 
         <!-- Footer -->
         <footer class="welcome-footer">
-            <p>&copy; {{ date('Y') }} Columban College Security System</p>
+            <p>&copy; {{ date('Y') }} KitaKits: Columban College Security System</p>
             <div class="footer-links">
                 <a href="{{ route('privacy') }}">Privacy Policy</a>
                 <span class="footer-divider">|</span>

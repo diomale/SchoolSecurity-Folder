@@ -97,7 +97,7 @@ return [
 
         'admin' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
+            'model' => App\Models\admin::class,
         ],
 
         'insideuser' => [

@@ -66,12 +66,8 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-<<<<<<< HEAD
         host: '127.0.0.1',
         origin: 'http://127.0.0.1:5173',
-=======
-        origin: 'http://localhost:5173',
->>>>>>> 56ffe21528dc0eb223fc9be56605d4a8a4448274
         hmr: {
             host: '127.0.0.1',
         },

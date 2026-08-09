@@ -292,6 +292,15 @@ class SecurityGuardController extends Controller
             // IMPORTANT: Regenerate session to prevent session fixation
             $request->session()->regenerate();
 
+            // Only honor the intended URL if it's within the securityguard routes;
+            // otherwise (e.g. a different guard's portal) go to the guard dashboard.
+            $intended = $request->session()->get('url.intended');
+            $path = $intended ? parse_url($intended, PHP_URL_PATH) : null;
+            if (!$path || !str_starts_with($path, '/securityguard')) {
+                $request->session()->forget('url.intended');
+                return redirect()->route('security.dashboard');
+            }
+
             return redirect()->intended(route('security.dashboard'));
         }
 
@@ -395,7 +404,7 @@ class SecurityGuardController extends Controller
                 if ($quickPass->isExpired()) {
                     return response()->json([
                         'success' => false,
-                        'message' => '❌ Quick Pass expired at ' . $quickPass->expires_at->format('M d, h:i A'),
+                        'message' => 'Quick Pass expired at ' . $quickPass->expires_at->format('M d, h:i A'),
                         'user_type' => $userType,
                         'inside_user' => [
                             'id' => $quickPass->id,
@@ -416,7 +425,7 @@ class SecurityGuardController extends Controller
                 if ($quickPass->status !== QuickPass::STATUS_ACTIVE) {
                     return response()->json([
                         'success' => false,
-                        'message' => '❌ Quick Pass is no longer active (Status: ' . $quickPass->status . ')',
+                        'message' => 'Quick Pass is no longer active (Status: ' . $quickPass->status . ')',
                         'user_type' => $userType,
                         'inside_user' => [
                             'id' => $quickPass->id,
@@ -445,11 +454,11 @@ class SecurityGuardController extends Controller
                     ->first();
 
                 $scanType = 'entry';
-                $message = '🎫 Quick Pass entry logged';
+                $message = 'Quick Pass entry logged';
 
                 if ($lastEntryLog && $lastEntryLog->scan_type === 'entry') {
                     $scanType = 'exit';
-                    $message = '🎫 Quick Pass exit logged';
+                    $message = 'Quick Pass exit logged';
                 }
 
                 // Create entry log for quick pass
@@ -556,7 +565,7 @@ class SecurityGuardController extends Controller
                 if (!$event) {
                     return response()->json([
                         'success' => false,
-                        'message' => '❌ Event not found for this registration',
+                        'message' => 'Event not found for this registration',
                         'user_type' => $userType,
                         'event_registration' => [
                             'id' => $eventRegistration->id,
@@ -574,7 +583,7 @@ class SecurityGuardController extends Controller
                 if ($event->status !== 'approved') {
                     return response()->json([
                         'success' => false,
-                        'message' => '❌ Event is not active (Status: ' . ucfirst($event->status) . ')',
+                        'message' => 'Event is not active (Status: ' . ucfirst($event->status) . ')',
                         'user_type' => $userType,
                         'event_registration' => [
                             'id' => $eventRegistration->id,
@@ -593,7 +602,7 @@ class SecurityGuardController extends Controller
                 if (!$event->event_date || $event->event_date->lt(Carbon::today())) {
                     return response()->json([
                         'success' => false,
-                        'message' => '❌ Event has already passed',
+                        'message' => 'Event has already passed',
                         'user_type' => $userType,
                         'event_registration' => [
                             'id' => $eventRegistration->id,
@@ -611,12 +620,12 @@ class SecurityGuardController extends Controller
                 // Handle check-in/check-out for event
                 // Toggle between: registered -> checked_in -> checked_out -> checked_in -> ...
                 $scanType = 'entry';
-                $message = '✓ Event check-in successful';
+                $message = 'Event check-in successful';
 
                 if ($eventRegistration->status === 'checked_in') {
                     // Check out
                     $scanType = 'exit';
-                    $message = '✓ Event check-out successful';
+                    $message = 'Event check-out successful';
 
                     $eventRegistration->update([
                         'status' => 'checked_out',
@@ -625,7 +634,7 @@ class SecurityGuardController extends Controller
                 } elseif ($eventRegistration->status === 'checked_out') {
                     // Re-check in (allow toggling)
                     $scanType = 'entry';
-                    $message = '✓ Event check-in successful';
+                    $message = 'Event check-in successful';
 
                     $eventRegistration->update([
                         'status' => 'checked_in',

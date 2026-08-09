@@ -31,7 +31,7 @@
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                     </div>
                     <h2>Students & Staff</h2>
-                    <p class="text-muted">Sign in to your internal account</p>
+                    <p class="text-muted">Sign in to your account</p>
                 </div>
 
                 <form method="POST" action="{{ route('insideuser.login.submit') }}">
@@ -83,7 +83,7 @@
 
         <!-- Footer -->
         <footer class="welcome-footer">
-            <p>&copy; {{ date('Y') }} Columban College Security System</p>
+            <p>&copy; {{ date('Y') }} KitaKits: Columban College Security System</p>
             <div class="footer-links">
                 <a href="{{ route('privacy') }}">Privacy Policy</a>
                 <span class="footer-divider">|</span>

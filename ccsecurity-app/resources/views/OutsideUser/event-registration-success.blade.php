@@ -68,7 +68,7 @@
 
             {{-- Back Link --}}
             <div class="ers-footer">
-                <a href="{{ route('welcome.page') }}" class="ers-back-link">← Back to Home</a>
+                <a href="{{ route('welcome.page') }}" class="ers-back-link">Back to Home</a>
             </div>
 
         </div>{{-- /.ers-card --}}

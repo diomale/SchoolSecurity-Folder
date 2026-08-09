@@ -13,31 +13,12 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">SA</div>
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-inverse-muted);">Super Admin Portal</small></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <div class="nav-label">System</div>
-                <a href="{{ route('superadmin.dashboard') }}" class="tab-button active" style="text-decoration: none;">
-                    <span class="nav-icon">🛡️</span> Manage Admins
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <form method="POST" action="{{ route('superadmin.logout') }}" style="width: 100%; margin: 0;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <span class="nav-icon" style="font-size: 1.1rem;">🚪</span> Secure Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
+        @include('superadmin.partials.sidebar')
 
         <!-- Main Content Area -->
         <main class="main-content">
             <a href="{{ route('superadmin.dashboard') }}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); text-decoration: none; font-weight: 600; margin-bottom: 20px;">
-                &larr; Back to Dashboard
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to Dashboard
             </a>
 
             <header class="top-header">
@@ -80,15 +61,15 @@
                     <div class="form-group">
                         <label for="status">Account Status</label>
                         <select name="status" id="status">
-                            <option value="1" {{ old('status', $admin->status ?? 1) == 1 ? 'selected' : '' }}>🟢 Active</option>
-                            <option value="0" {{ old('status', $admin->status ?? 1) == 0 ? 'selected' : '' }}>🔴 Inactive</option>
+                            <option value="1" {{ old('status', $admin->status ?? 1) == 1 ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('status', $admin->status ?? 1) == 0 ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
 
                     <div class="form-actions">
                         <a href="{{ route('superadmin.dashboard') }}" class="btn-secondary">Cancel</a>
                         <button type="submit" class="btn-primary" style="margin: 0; background: var(--success);">
-                            💾 Save Changes
+                            Save Changes
                         </button>
                     </div>
                 </form>

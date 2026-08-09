@@ -16,11 +16,12 @@
         <!-- Navigation/Header Bar -->
         <nav class="top-nav">
             <a href="{{ route('outsider.dashboard') }}" class="back-link">
-                <span class="icon">⟵</span> Back to Dashboard
+                <span class="icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                </span> Back to Dashboard
             </a>
             <div class="nav-right">
-                <span class="nav-text">Columban College School Security</span>
-                <div class="logo-circle">CCSS</div>
+                <span class="nav-text">KitaKits: Columban College Security System</span>
             </div>
         </nav>
 
@@ -33,7 +34,9 @@
 
                 @if(session('success'))
                 <div class="alert alert-success">
-                    <div class="alert-icon">✓</div>
+                    <div class="alert-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
                     <div class="alert-content">
                         {{ session('success') }}
                     </div>

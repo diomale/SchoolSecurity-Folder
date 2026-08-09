@@ -22,7 +22,7 @@
                 <h1>Add <span class="highlight">Walk-in Visitor</span></h1>
                 <p class="subtitle">Create a new outsider/visitor account</p>
             </div>
-            <a href="{{ route('show.admin.outsider.list') }}" class="btn-secondary">← Back to List</a>
+            <a href="{{ route('show.admin.outsider.list') }}" class="btn-secondary">Back to List</a>
         </div>
 
         <div class="glass-card fade-in" style="animation-delay: 0.1s; max-width: 680px;">

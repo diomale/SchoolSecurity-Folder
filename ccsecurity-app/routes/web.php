@@ -62,6 +62,7 @@ Route::prefix('superadmin')->group(function () {
         
         
         Route::get('/dashboard', [SuperAdminAuthController::class, 'dashboard'])->name('superadmin.dashboard');
+        Route::get('/logs', [SuperAdminAuthController::class, 'showLogs'])->name('superadmin.logs');
         Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('superadmin.logout');
 
         

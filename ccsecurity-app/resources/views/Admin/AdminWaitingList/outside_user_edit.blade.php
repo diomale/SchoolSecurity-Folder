@@ -22,7 +22,7 @@
                 <h1>Edit <span class="highlight">Visitor Account</span></h1>
                 <p class="subtitle">Updating {{ $outside_user->first_name }} {{ $outside_user->last_name }}</p>
             </div>
-            <a href="{{ $backUrl ?? route('show.admin.outsider.list') }}" class="btn-secondary">← Back</a>
+            <a href="{{ $backUrl ?? route('show.admin.outsider.list') }}" class="btn-secondary">Back</a>
         </div>
 
         <div class="glass-card fade-in" style="animation-delay: 0.1s; max-width: 680px;">

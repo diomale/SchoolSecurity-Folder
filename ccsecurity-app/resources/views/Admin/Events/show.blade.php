@@ -20,7 +20,7 @@
                 <p class="subtitle">Event review & approval</p>
             </div>
             <div style="display:flex; gap:10px;">
-                <a href="{{ route('admin.events.pending') }}" class="btn-secondary">← Pending</a>
+                <a href="{{ route('admin.events.pending') }}" class="btn-secondary">Pending</a>
                 <a href="{{ route('admin.events.all') }}" class="btn-secondary">All Events</a>
             </div>
         </div>

@@ -31,7 +31,7 @@
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                     </div>
                     <h2>Super Admin Portal</h2>
-                    <p class="text-muted">Sign in to manage system administrators</p>
+                    <p class="text-muted">Manage system administrators</p>
                 </div>
 
                 <form method="POST" action="{{ route('superadmin.login.submit') }}">
@@ -83,7 +83,7 @@
 
         <!-- Footer -->
         <footer class="welcome-footer">
-            <p>&copy; {{ date('Y') }} Columban College Security System</p>
+            <p>&copy; {{ date('Y') }} KitaKits: Columban College Security System</p>
             <div class="footer-links">
                 <a href="{{ route('privacy') }}">Privacy Policy</a>
                 <span class="footer-divider">|</span>

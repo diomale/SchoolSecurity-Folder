@@ -208,9 +208,9 @@ class InsideUserController extends Controller
                 'device_verification_created_at',
             ]);
             
-            return back()->withErrors([
+            return redirect()->route('user.login.show')->withErrors([
                 'verification_code' => 'Verification code has expired. Please login again.'
-            ])->route('user.login.show');
+            ]);
         }
         
         // Rate limiting for verification code attempts
@@ -229,9 +229,9 @@ class InsideUserController extends Controller
                 'device_verification_created_at',
             ]);
             
-            return back()->withErrors([
+            return redirect()->route('user.login.show')->withErrors([
                 'verification_code' => 'Too many failed attempts. Please login again.'
-            ])->route('user.login.show');
+            ]);
         }
         
         // Verify code
@@ -301,9 +301,9 @@ class InsideUserController extends Controller
 
         $attempts = cache()->get($rateLimitKey, 0);
         if ($attempts >= $maxAttempts) {
-            return back()->withErrors([
+            return redirect()->route('user.login.show')->withErrors([
                 'verification_code' => 'Too many resend attempts. Please login again.'
-            ])->route('user.login.show');
+            ]);
         }
         
         // Increment resend rate limit
@@ -317,7 +317,7 @@ class InsideUserController extends Controller
         // Update session
         session([
             'device_verification_code' => $verificationCode,
-            'device_verification_created_at' => now(),
+            'device_verification_created_at' => now()->timestamp,
         ]);
         
         // Get device info

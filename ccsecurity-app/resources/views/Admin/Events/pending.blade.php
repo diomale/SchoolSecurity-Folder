@@ -33,7 +33,7 @@
                 <input type="date" name="date_to" class="form-input" style="flex:1; min-width:150px;" value="{{ request('date_to') }}" placeholder="To date">
                 <button type="submit" class="btn-primary">Filter</button>
                 @if(request('search') || request('date_from') || request('date_to'))
-                    <a href="{{ route('admin.events.pending') }}" class="btn-clear">✖ Clear</a>
+                    <a href="{{ route('admin.events.pending') }}" class="btn-clear"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Clear</a>
                 @endif
             </form>
         </div>
@@ -85,7 +85,7 @@
                             <td>Max: <strong>{{ $event->alien_user_limit }}</strong></td>
                             <td class="date-cell">{{ $event->created_at->diffForHumans() }}</td>
                             <td class="actions-cell">
-                                <a href="{{ route('admin.events.show', $event->id) }}" class="btn-primary btn-sm">Review →</a>
+                                <a href="{{ route('admin.events.show', $event->id) }}" class="btn-primary btn-sm">Review</a>
                             </td>
                         </tr>
                         @endforeach

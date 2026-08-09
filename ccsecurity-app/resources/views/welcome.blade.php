@@ -157,7 +157,7 @@
 
         <!-- Footer -->
         <footer class="welcome-footer">
-            <p>&copy; {{ date('Y') }} Columban College Security System</p>
+            <p>&copy; {{ date('Y') }} KitaKits: Columban College Security System</p>
             <div class="footer-links">
                 <a href="{{ route('privacy') }}">Privacy Policy</a>
                 <span class="footer-divider">|</span>

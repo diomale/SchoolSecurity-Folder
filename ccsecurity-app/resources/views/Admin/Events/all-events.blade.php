@@ -65,7 +65,7 @@
                 <input type="date" name="date_from" class="form-input" style="flex:1; min-width:160px;" value="{{ request('date_from') }}">
                 <button type="submit" class="btn-primary">Filter</button>
                 @if(request('search') || request('status') || request('date_from'))
-                    <a href="{{ route('admin.events.all') }}" class="btn-clear">✖ Clear</a>
+                    <a href="{{ route('admin.events.all') }}" class="btn-clear"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Clear</a>
                 @endif
             </form>
         </div>

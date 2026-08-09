@@ -23,14 +23,16 @@
                     <p class="subtitle fade-in" style="animation-delay: 0.1s;">History and Status of Temporary Visitor Passes</p>
                 </div>
                 <div class="header-right quickpass-header-actions fade-in" style="animation-delay: 0.2s;">
-                    <a href="{{ route('security.quick-pass.list') }}" class="btn-secondary" title="Refresh to check expiration">↻ Refresh</a>
+                    <a href="{{ route('security.quick-pass.list') }}" class="btn-secondary" title="Refresh to check expiration"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh</a>
                     <a href="{{ route('security.quick-pass.create') }}" class="btn-primary">+ New Quick Pass</a>
                 </div>
             </header>
 
             @if(session('success'))
                 <div class="alert alert-success fade-in">
-                    <div class="alert-icon">✓</div>
+                    <div class="alert-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
                     <div class="alert-content">{{ session('success') }}</div>
                 </div>
             @endif

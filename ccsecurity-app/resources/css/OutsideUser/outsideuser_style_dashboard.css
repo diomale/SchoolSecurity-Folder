@@ -728,6 +728,26 @@ a:hover {
     font-size: 0.95rem;
 }
 
+/* Child Activity Filter */
+.child-filter-select {
+    width: 100%;
+    max-width: 360px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border, #e2e8f0);
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: #fff;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: border-color var(--transition);
+}
+
+.child-filter-select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
 /* Alerts */
 .alert {
     display: flex;

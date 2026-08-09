@@ -13,8 +13,8 @@ class Recaptcha implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // Skip reCAPTCHA validation in local development
-        if (app()->environment('local')) {
+        // Skip reCAPTCHA validation when no secret key is configured
+        if (!config('services.recaptcha.secret_key')) {
             return;
         }
 

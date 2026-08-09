@@ -19,7 +19,7 @@
                 <h1>Edit <span class="highlight">Inside User</span></h1>
                 <p class="subtitle">Updating {{ $inside_user->first_name }} {{ $inside_user->last_name }}</p>
             </div>
-            <a href="{{ $backUrl }}" class="btn-secondary">← Back</a>
+            <a href="{{ $backUrl }}" class="btn-secondary">Back</a>
         </div>
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; max-width:680px;">

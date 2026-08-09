@@ -19,7 +19,7 @@
                 <h1>Admin <span class="highlight">Profile</span></h1>
                 <p class="subtitle">Your account details and personal settings</p>
             </div>
-            <a href="{{ route('admin.dashboard') }}" class="btn-secondary">← Back to Dashboard</a>
+            <a href="{{ route('admin.dashboard') }}" class="btn-secondary">Back to Dashboard</a>
         </div>
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; max-width:650px;">

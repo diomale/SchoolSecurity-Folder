@@ -19,7 +19,7 @@
                 <h1>Add <span class="highlight">Security Guard</span></h1>
                 <p class="subtitle">Register a new security personnel account</p>
             </div>
-            <a href="{{ route('security.user.table.section') }}" class="btn-secondary">← Back to Guards</a>
+            <a href="{{ route('security.user.table.section') }}" class="btn-secondary">Back to Guards</a>
         </div>
 
         <div class="glass-card fade-in" style="animation-delay:0.1s; max-width:620px;">

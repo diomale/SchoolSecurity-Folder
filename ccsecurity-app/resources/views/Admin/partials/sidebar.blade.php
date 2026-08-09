@@ -1,7 +1,6 @@
 <aside class="sidebar">
     <div class="sidebar-header">
-        <div class="logo-circle">CCSS</div>
-        <div class="sidebar-brand"><strong>Columban College</strong><span>Admin Portal</span></div>
+        <div class="sidebar-brand"><strong>KitaKits</strong><span>Columban College Security System</span></div>
     </div>
     <nav class="sidebar-nav">
         <a href="{{ route('admin.dashboard') }}" class="nav-link {{ $activePage === 'dashboard' ? 'active' : '' }}">
@@ -54,13 +53,6 @@
         </a>
     </nav>
     <div class="sidebar-footer">
-        <div class="user-profile-mini">
-            <span style="color: #000; font-weight: 600;">{{ auth('admin')->user()->name }}</span>
-            <div class="profile-info">
-                <span class="profile-name">{{ auth('admin')->user()->name }}</span>
-                <span class="profile-role">Admin</span>
-            </div>
-        </div>
         <form method="POST" action="{{ route('admin.logout') }}">@csrf
             <button type="submit" class="logout-btn">
                 <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>

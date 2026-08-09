@@ -159,6 +159,16 @@ class OutsideUserController extends Controller
             }
             
             $request->session()->regenerate();
+
+            // Only honor the intended URL if it's within the outsideuser routes;
+            // otherwise (e.g. a different guard's portal) go to the outsideuser dashboard.
+            $intended = $request->session()->get('url.intended');
+            $path = $intended ? parse_url($intended, PHP_URL_PATH) : null;
+            if (!$path || !str_starts_with($path, '/outsideuser')) {
+                $request->session()->forget('url.intended');
+                return redirect()->route('outsider.dashboard');
+            }
+
             return redirect()->intended(route('outsider.dashboard'));
         }
 

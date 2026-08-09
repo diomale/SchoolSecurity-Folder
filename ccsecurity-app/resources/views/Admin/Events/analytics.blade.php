@@ -29,7 +29,7 @@
                     <p style="margin: 5px 0 0 0; color: #666;">System-wide event statistics</p>
                 </div>
                 <div>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Dashboard</a>
                     <a href="{{ route('admin.events.all') }}" class="btn btn-primary">All Events</a>
                 </div>
             </div>

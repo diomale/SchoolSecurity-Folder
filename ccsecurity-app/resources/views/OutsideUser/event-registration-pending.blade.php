@@ -45,35 +45,14 @@
             {{-- Steps --}}
             <div class="erp-steps">
                 <p class="erp-steps-title">What Happens Next?</p>
-
-                <div class="erp-step">
-                    <div class="erp-step-number">1</div>
-                    <div class="erp-step-content">
-                        <strong>Your registration has been submitted</strong>
-                        <p>The event creator has received your registration request.</p>
-                    </div>
-                </div>
-
-                <div class="erp-step">
-                    <div class="erp-step-number">2</div>
-                    <div class="erp-step-content">
-                        <strong>Awaiting Creator Approval</strong>
-                        <p>The event creator will review and approve your registration.</p>
-                    </div>
-                </div>
-
-                <div class="erp-step">
-                    <div class="erp-step-number">3</div>
-                    <div class="erp-step-content">
-                        <strong>Receive QR Code via Email</strong>
-                        <p>Once approved, your QR code will be sent to <strong>{{ $registration->email }}</strong>.</p>
-                    </div>
+                <div class="erp-step-content">
+                    <p>Your registration has been submitted to the event creator. Once approved, your QR code will be sent to <strong>{{ $registration->email }}</strong>.</p>
                 </div>
             </div>
 
             {{-- Info Alerts --}}
             <div class="erp-alert erp-alert-info">
-                <strong>What to Expect:</strong> You will receive an email with your QR code once the event creator approves your registration. Please check your inbox (and spam folder) regularly.
+                You will receive an email with your QR code once the event creator approves your registration. Please check your inbox (and spam folder) regularly.
             </div>
 
             <div class="erp-alert erp-alert-warning">
@@ -82,7 +61,7 @@
 
             {{-- Actions --}}
             <div class="erp-actions">
-                <a href="{{ route('welcome.page') }}" class="erp-btn erp-btn-primary">← Back to Home</a>
+                <a href="{{ route('welcome.page') }}" class="erp-btn erp-btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back to Home</a>
             </div>
 
         </div>{{-- /.erp-card --}}

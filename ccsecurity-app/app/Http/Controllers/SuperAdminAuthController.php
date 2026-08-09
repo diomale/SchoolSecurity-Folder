@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin;
+use App\Models\admin;
 use App\Models\SuperAdmin;
+use App\Models\SuperAdminActivityLog;
 use App\Models\SuperadminDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DeviceVerificationMail;
+use App\Services\SuperAdminActivityLogger;
 
 class SuperAdminAuthController extends Controller
 {
@@ -22,7 +24,7 @@ class SuperAdminAuthController extends Controller
         $totalAdmins = Admin::count();
         $totalGuards = \App\Models\securityguard::count();
         $totalInsideUsers = \App\Models\InsideUser::count();
-        $totalOutsideUsers = \App\Models\outsideuser::count();
+        $totalOutsideUsers = \App\Models\OutsideUser::count();
         $totalEntryLogs = \App\Models\EntryLog::count();
         $totalEvents = \App\Models\Event::count();
         $totalShifts = \App\Models\Shift::count();
@@ -43,6 +45,14 @@ class SuperAdminAuthController extends Controller
             'pendingVisitRequests',
             'activeGuards'
         ));
+    }
+
+    public function showLogs()
+    {
+        $logs = SuperAdminActivityLog::orderByDesc('created_at')->paginate(15);
+        $totalLogs = SuperAdminActivityLog::count();
+
+        return view('superadmin.logs', compact('logs', 'totalLogs'));
     }
 
     // Create, Read, Update, Delete,
@@ -66,6 +76,8 @@ class SuperAdminAuthController extends Controller
             'status' => 1,
         ]);
 
+        SuperAdminActivityLogger::adminManagement('Created Admin', "Created new admin: {$validated['name']} ({$validated['email']})");
+
         return redirect()->route('superadmin.dashboard')
             ->with('success', 'New Admin created successfully!');
     }
@@ -81,6 +93,8 @@ class SuperAdminAuthController extends Controller
     {
         $admin = Admin::findOrFail($id);
         $admin->delete();
+
+        SuperAdminActivityLogger::adminManagement('Deleted Admin', "Deleted admin: {$admin->name} ({$admin->email})");
 
         return redirect()->route('superadmin.dashboard')
         ->with('success', 'Admin deleted successfully!');
@@ -111,6 +125,8 @@ class SuperAdminAuthController extends Controller
         }
 
         $admin->update($data);
+
+        SuperAdminActivityLogger::adminManagement('Updated Admin', "Updated admin: {$admin->name} ({$admin->email})");
 
         return redirect()->route('superadmin.dashboard')->with('Success', 'Admin updated successfully');
     }
@@ -238,9 +254,9 @@ class SuperAdminAuthController extends Controller
                 'superadmin_device_verification_created_at',
             ]);
             
-            return back()->withErrors([
+            return redirect()->route('superadmin.login')->withErrors([
                 'verification_code' => 'Verification code has expired. Please login again.'
-            ])->route('superadmin.login');
+            ]);
         }
         
         // Rate limiting for verification code attempts
@@ -259,9 +275,9 @@ class SuperAdminAuthController extends Controller
                 'superadmin_device_verification_created_at',
             ]);
             
-            return back()->withErrors([
+            return redirect()->route('superadmin.login')->withErrors([
                 'verification_code' => 'Too many failed attempts. Please login again.'
-            ])->route('superadmin.login');
+            ]);
         }
         
         // Verify code
@@ -311,8 +327,11 @@ class SuperAdminAuthController extends Controller
         ]);
         
         // Log the user in
-        Auth::guard('superadmin')->login(SuperAdmin::find($userId));
-        
+        $superadmin = SuperAdmin::find($userId);
+        Auth::guard('superadmin')->login($superadmin);
+
+        SuperAdminActivityLogger::auth('Logged In', "Super Admin logged in: {$superadmin->name} ({$superadmin->email})");
+
         return redirect()->route('superadmin.dashboard');
     }
 
@@ -331,9 +350,9 @@ class SuperAdminAuthController extends Controller
 
         $attempts = cache()->get($rateLimitKey, 0);
         if ($attempts >= $maxAttempts) {
-            return back()->withErrors([
+            return redirect()->route('superadmin.login')->withErrors([
                 'verification_code' => 'Too many resend attempts. Please login again.'
-            ])->route('superadmin.login');
+            ]);
         }
         
         // Increment resend rate limit
@@ -347,7 +366,7 @@ class SuperAdminAuthController extends Controller
         // Update session
         session([
             'superadmin_device_verification_code' => $verificationCode,
-            'superadmin_device_verification_created_at' => now(),
+            'superadmin_device_verification_created_at' => now()->timestamp,
         ]);
         
         // Get device info
@@ -422,6 +441,12 @@ class SuperAdminAuthController extends Controller
 
     public function logout()
     {
+        $superadmin = Auth::guard('superadmin')->user();
+
+        if ($superadmin) {
+            SuperAdminActivityLogger::auth('Logged Out', "Super Admin logged out: {$superadmin->name} ({$superadmin->email})");
+        }
+
         Auth::guard('superadmin')->logout();
         return redirect()->route('superadmin.login');
     }

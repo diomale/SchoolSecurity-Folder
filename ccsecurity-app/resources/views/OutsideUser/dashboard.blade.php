@@ -16,7 +16,7 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">School Security</small></h2>
+                <h2 style="font-size:1.1rem; line-height:1.2;">KitaKits<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Columban College Security System</small></h2>
             </div>
 
             <nav class="sidebar-nav">
@@ -42,6 +42,11 @@
                     @if($pendingConnectionCount > 0)
                         <span class="notification-badge">{{ $pendingConnectionCount }}</span>
                     @endif
+                </button>
+                <button class="tab-button" onclick="switchTab('child-activity')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    </span> Child Activity
                 </button>
             </nav>
 
@@ -80,7 +85,9 @@
 
             @if(session('success'))
             <div class="alert alert-success">
-                <div class="alert-icon">✓</div>
+                <div class="alert-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
                 <div class="alert-content">
                     <strong>Success:</strong> {{ session('success') }}
                 </div>
@@ -221,23 +228,7 @@
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                         </div>
                         <h2>Request a Visit</h2>
-                        <p class="description">Planning to visit the school? Submit a formal request to receive a temporary QR pass for campus access.</p>
-                        <div class="feature-steps">
-                            <div class="step">
-                                <div class="step-num">1</div>
-                                <p>Fill Details</p>
-                            </div>
-                            <div class="step-divider"></div>
-                            <div class="step">
-                                <div class="step-num">2</div>
-                                <p>Admin Reviews</p>
-                            </div>
-                            <div class="step-divider"></div>
-                            <div class="step">
-                                <div class="step-num">3</div>
-                                <p>Get QR Pass</p>
-                            </div>
-                        </div>
+                        <p class="description">Submit a visit request to receive a temporary QR pass for campus access.</p>
                         <a href="{{ route('outsideuser.visit.request') }}" class="btn btn-primary btn-lg pulse-hover">Start New Request</a>
                     </div>
                 </div>
@@ -381,12 +372,44 @@
                     </div>
 
                     <!-- Children Entry/Exit Logs -->
-                    @if(isset($childrenEntryLogs) && count($childrenEntryLogs) > 0)
                     <div class="glass-card">
                         <h3>Recent Entry/Exit Activity</h3>
-                        <p class="subtitle mb-3">Track when your children enter or exit the school bounds.</p>
+                        <p class="subtitle mb-3">View your children's campus entry and exit logs in the Child Activity tab.</p>
+                        <a href="#" onclick="switchTabTo('child-activity'); return false;" class="btn btn-outline">Go to Child Activity</a>
+                    </div>
+                </div>
+
+                <!-- Child Activity Tab -->
+                <div id="child-activity" class="tab-content fade-in">
+                    <div class="actions-header">
+                        <div>
+                            <h2>Child Activity</h2>
+                            <p class="subtitle">Track when your connected children enter or exit the school bounds.</p>
+                        </div>
+                        <div class="header-buttons">
+                            <a href="{{ route('outsideuser.connections.history') }}" class="btn btn-outline">View History</a>
+                        </div>
+                    </div>
+
+                    @if($approvedConnections->count() > 0)
+                    <div class="glass-card mb-4">
+                        <h3>Filter by Child</h3>
                         <div class="table-responsive">
-                            <table class="modern-table logs-table">
+                            <select id="childFilter" class="child-filter-select" onchange="filterChildActivity()">
+                                <option value="all">All Children</option>
+                                @foreach($approvedConnections as $connection)
+                                    <option value="{{ $connection->inside_user_id }}">{{ $connection->insideUser->fullname ?? 'Unknown' }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="glass-card">
+                        <h3>Entry / Exit Logs</h3>
+                        <div class="table-responsive">
+                            @if(isset($childrenEntryLogs) && count($childrenEntryLogs) > 0)
+                            <table class="modern-table logs-table" id="activityTable">
                                 <thead>
                                     <tr>
                                         <th>Student</th>
@@ -397,7 +420,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($childrenEntryLogs as $log)
-                                    <tr>
+                                    <tr class="activity-row" data-child-id="{{ $log->inside_user_id }}">
                                         <td><strong>{{ $log->insideUser->fullname ?? 'Unknown' }}</strong></td>
                                         <td>
                                             @if($log->scan_type === 'entry')
@@ -425,9 +448,16 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            @else
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            </div>
+                                <p>No entry/exit activity for your connected children yet.</p>
+                            </div>
+                            @endif
                         </div>
                     </div>
-                    @endif
                 </div>
 
             </div>
@@ -488,6 +518,27 @@
                 eventTarget.classList.add('active');
             } else {
                 eventTarget.closest('.tab-button').classList.add('active');
+            }
+        }
+
+        function switchTabTo(tabName) {
+            switchTab(tabName);
+            var buttons = document.getElementsByClassName('tab-button');
+            for (var i = 0; i < buttons.length; i++) {
+                var onclick = buttons[i].getAttribute('onclick') || '';
+                if (onclick.indexOf("switchTab('" + tabName + "')") !== -1) {
+                    buttons[i].classList.add('active');
+                }
+            }
+        }
+
+        function filterChildActivity() {
+            var filter = document.getElementById('childFilter');
+            var selected = filter ? filter.value : 'all';
+            var rows = document.querySelectorAll('#activityTable .activity-row');
+            for (var i = 0; i < rows.length; i++) {
+                var childId = rows[i].getAttribute('data-child-id');
+                rows[i].style.display = (selected === 'all' || childId === selected) ? '' : 'none';
             }
         }
         

@@ -96,14 +96,14 @@
                     @elseif($isClosed)
                         Registration Closed
                     @else
-                        Register Now →
+                        Register Now
                     @endif
                 </button>
             </form>
 
             {{-- Back Link --}}
             <div class="er-footer">
-                <a href="{{ route('welcome.page') }}" class="er-back-link">← Back to Home</a>
+                <a href="{{ route('welcome.page') }}" class="er-back-link">Back to Home</a>
             </div>
 
             {{-- Security Note --}}

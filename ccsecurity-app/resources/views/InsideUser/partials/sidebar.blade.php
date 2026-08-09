@@ -2,8 +2,7 @@
 
 <aside class="sidebar">
     <div class="sidebar-header">
-        <div class="logo-circle">CCSS</div>
-        <h2 style="font-size:1.1rem; line-height:1.2;">Columban College<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Security System</small></h2>
+        <h2 style="font-size:1.1rem; line-height:1.2;">KitaKits<br><small style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">Columban College Security System</small></h2>
     </div>
 
     <nav class="sidebar-nav">
