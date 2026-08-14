@@ -9,6 +9,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/welcome.css', 'resources/js/app.js'])
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    <script>
+        var SITE_KEY = '{{ config('services.recaptcha.site_key') }}';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('login-btn');
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof grecaptcha === 'undefined') {
+                        alert('reCAPTCHA is still loading. Please try again in a moment.');
+                        return;
+                    }
+                    grecaptcha.ready(function() {
+                        grecaptcha.execute(SITE_KEY, {action: 'submit'}).then(function(token) {
+                            document.getElementById('g-recaptcha-response').value = token;
+                            document.getElementById('loginForm').submit();
+                        });
+                    });
+                });
+            }
+        });
+    </script>
 </head>
 <body>
     <!-- Animated Background -->
@@ -34,8 +57,9 @@
                     <p class="text-muted">Manage system administrators</p>
                 </div>
 
-                <form method="POST" action="{{ route('superadmin.login.submit') }}">
+                <form method="POST" action="{{ route('superadmin.login.submit') }}" id="loginForm">
                     @csrf
+                    <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
                     <div class="form-group">
                         <label>Email Address</label>
                         <div class="input-wrap">
@@ -60,13 +84,17 @@
                         @error('password')
                             <span class="error-text">{{ $message }}</span>
                         @enderror
+
+                        @error('g-recaptcha-response')
+                            <span class="error-text">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     @if (session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
 
-                    <button type="submit" class="btn btn-primary btn-block">
+                    <button type="submit" id="login-btn" class="btn btn-primary btn-block">
                         Secure Login
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </button>

@@ -131,7 +131,7 @@ class AdminController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        $qrValue = 'OUT-ADMIN-' . strtoupper(uniqid() . rand(1000, 9999));
+        $qrValue = 'OUT-ADMIN-' . strtoupper(bin2hex(random_bytes(16)));
 
         OutsideUser::create([
             'first_name' => $request->first_name,
@@ -688,7 +688,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
+            'g-recaptcha-response' => ['required', new \App\Rules\Recaptcha],
         ]);
 
         // Rate limiting: Check for too many failed attempts

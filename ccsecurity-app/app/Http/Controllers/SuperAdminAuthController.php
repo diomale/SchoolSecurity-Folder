@@ -89,9 +89,21 @@ class SuperAdminAuthController extends Controller
         return view('superadmin.SuperadminCrudSection.superadmin_details', compact('admin'));
     }
 
-    public function deleteAdmin($id)
+    public function deleteAdmin(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
+
+        // Prevent super admin from deleting their own account
+        if (Auth::guard('superadmin')->user()?->email === $admin->email) {
+            return redirect()->route('superadmin.dashboard')
+                ->with('error', 'You cannot delete your own administrator account.');
+        }
+
+        // Verify current password
+        $request->validate([
+            'admin_password' => ['required', new \App\Rules\CurrentAdminPassword('superadmin')]
+        ]);
+
         $admin->delete();
 
         SuperAdminActivityLogger::adminManagement('Deleted Admin', "Deleted admin: {$admin->name} ({$admin->email})");
@@ -142,7 +154,8 @@ class SuperAdminAuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
+            'g-recaptcha-response' => ['required', new \App\Rules\Recaptcha],
         ]);
 
         // Rate limiting: Check for too many failed attempts

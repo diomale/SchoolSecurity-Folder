@@ -246,10 +246,10 @@
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                             Edit
                                         </a>
-                                        <form action="{{ route('superadmin.admin.delete', $admin->id) }}" method="POST" style="margin:0;">
+                                        <form id="delete-form-{{ $admin->id }}" action="{{ route('superadmin.admin.delete', $admin->id) }}" method="POST" style="margin:0;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="action-btn btn-delete" onclick="return confirm('WARNING: Are you sure you want to delete administrator {{ $admin->name }}? This action cannot be undone.')" title="Delete Admin">
+                                            <button type="button" class="action-btn btn-delete" onclick="openPasswordModal('delete-form-{{ $admin->id }}', '{{ $admin->name }}')" title="Delete Admin">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                                 Delete
                                             </button>
@@ -278,5 +278,42 @@
             </footer>
         </main>
     </div>
+
+    <!-- Password Confirmation Modal -->
+    <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#ffffff; border-radius:14px; max-width:420px; width:90%; padding:28px; box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="margin:0; font-size:1.15rem; color:#0f172a;">Confirm Your Identity</h3>
+                <button type="button" onclick="closePasswordModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b; line-height:1;">&times;</button>
+            </div>
+            <p style="margin:0 0 18px; color:#64748b; font-size:0.9rem;" id="passwordModalDesc">Please enter your password to authorize this deletion.</p>
+            <form id="passwordConfirmForm" method="POST">
+                @csrf
+                @method('DELETE')
+                <div style="margin-bottom:18px;">
+                    <input type="password" id="admin_password" name="admin_password" style="width:100%; padding:11px 14px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" placeholder="Enter password" required>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="closePasswordModal()" style="padding:9px 18px; border:1px solid #e2e8f0; background:#fff; border-radius:8px; cursor:pointer; color:#334155;">Cancel</button>
+                    <button type="submit" style="padding:9px 18px; border:none; background:#dc2626; color:#fff; border-radius:8px; cursor:pointer;">Confirm Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openPasswordModal(formId, adminName) {
+            const sourceForm = document.getElementById(formId);
+            const targetForm = document.getElementById('passwordConfirmForm');
+            targetForm.action = sourceForm.action;
+            document.getElementById('passwordModalDesc').textContent = 'Deleting administrator "' + adminName + '". This action cannot be undone. Enter your password to authorize.';
+            document.getElementById('admin_password').value = '';
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('admin_password').focus();
+        }
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+    </script>
 </body>
 </html>

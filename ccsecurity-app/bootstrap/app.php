@@ -12,8 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Trust Caddy reverse proxy for HTTPS
-        $middleware->trustProxies(at: '*');
+        // Trust Caddy reverse proxy for HTTPS (127.0.0.1:8000)
+        $middleware->trustProxies(at: ['127.0.0.1', '::1']);
 
         // Register custom middleware for redirecting authenticated users
         $middleware->alias([

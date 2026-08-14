@@ -27,7 +27,7 @@ class OutsideUserController extends Controller
         
         // Generate QR value if missing
         if (!$outsideUser->qr_value) {
-            $outsideUser->qr_value = 'OUT-' . strtoupper(uniqid() . rand(1000, 9999));
+            $outsideUser->qr_value = 'OUT-' . strtoupper(bin2hex(random_bytes(16)));
             $outsideUser->save();
         }
         
@@ -130,6 +130,7 @@ class OutsideUserController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'g-recaptcha-response' => ['required', new Recaptcha],
         ]);
 
         $credentials = [
@@ -215,7 +216,7 @@ class OutsideUserController extends Controller
         // Increment rate limit
         Cache::put($rateKey, $attempts + 1, now()->addMinutes(15));
 
-        $qrValue = 'OUT-' . strtoupper(uniqid() . rand(1000, 9999));
+        $qrValue = 'OUT-' . strtoupper(bin2hex(random_bytes(16)));
         $verificationToken = Str::random(64);
 
         $user = OutsideUser::create([

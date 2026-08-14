@@ -74,9 +74,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Columban College Security System</h1>
+            <h1>KitaKits:Columban College Security System</h1>
         </div>
         <div class="content">
+            
             <h2>New Device Detected</h2>
             <p class="info-text">
                 We detected a login attempt from a new device or browser.

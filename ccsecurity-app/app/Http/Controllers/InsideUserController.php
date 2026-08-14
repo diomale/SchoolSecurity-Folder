@@ -83,7 +83,8 @@ class InsideUserController extends Controller
     {
         $request->validate([
             'email'=>'required|email',
-            'password'=>'required'
+            'password'=>'required',
+            'g-recaptcha-response' => ['required', new \App\Rules\Recaptcha],
         ]);
 
         // Rate limiting: Check for too many failed attempts

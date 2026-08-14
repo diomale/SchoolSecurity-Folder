@@ -223,7 +223,7 @@ Route::prefix('insideuser')->group(function(){
         Route::get('/events/{id}/pending-approvals', [EventCreatorApprovalController::class, 'pendingApprovals'])->name('insideuser.events.pending-approvals');
         Route::post('/events/{id}/register-walkin', [InsideUserEventController::class, 'registerWalkin'])->name('insideuser.events.registerWalkin');
         Route::get('/events/registrations/{registrationId}/download-qr', [InsideUserEventController::class, 'downloadQR'])->name('insideuser.events.downloadQR');
-        Route::get('/events/registrations/{registrationId}/resend-qr', [InsideUserEventController::class, 'resendQR'])->name('insideuser.events.resendQR');
+        Route::post('/events/registrations/{registrationId}/resend-qr', [InsideUserEventController::class, 'resendQR'])->name('insideuser.events.resendQR');
         Route::get('/events/{id}/export-registrations', [InsideUserEventController::class, 'exportRegistrations'])->name('insideuser.events.exportRegistrations');
         Route::post('/events/{id}/toggle-welcome', [InsideUserEventController::class, 'toggleWelcomeVisibility'])->name('insideuser.events.toggle-welcome');
 

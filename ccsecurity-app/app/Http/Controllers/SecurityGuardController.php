@@ -169,7 +169,7 @@ class SecurityGuardController extends Controller
             'purpose_of_visit' => 'required|string|max:255',
         ]);
 
-        $qrValue = 'OUT-GUARD-' . strtoupper(uniqid() . rand(1000, 9999));
+        $qrValue = 'OUT-GUARD-' . strtoupper(bin2hex(random_bytes(16)));
 
         OutsideUser::create([
             'first_name' => $request->first_name,
@@ -265,10 +265,13 @@ class SecurityGuardController extends Controller
     //function
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
+            'g-recaptcha-response' => ['required', new \App\Rules\Recaptcha],
         ]);
+
+        $credentials = $request->only(['email', 'password']);
 
         // Rate limiting: Check for too many failed attempts
         $email = $request->email;
@@ -351,7 +354,7 @@ class SecurityGuardController extends Controller
             $userType = 'inside';
             $user = null;
 
-            \Log::info('QR Scan attempt: ' . $qrValue);
+            \Log::info('QR Scan attempt (hash): ' . sha1($qrValue));
 
             // If not found, try outside user
             if (!$insideUser) {
@@ -1265,7 +1268,7 @@ class SecurityGuardController extends Controller
         ]);
 
         // Generate unique QR code: QUICK-YYYYMMDD-RANDOM
-        $qrValue = 'QUICK-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid() . rand(1000, 9999), -6));
+        $qrValue = 'QUICK-' . now()->format('Ymd') . '-' . strtoupper(bin2hex(random_bytes(6)));
 
         // Handle custom expiration time (for testing or early expiry)
         $expiresAt = today()->endOfDay();

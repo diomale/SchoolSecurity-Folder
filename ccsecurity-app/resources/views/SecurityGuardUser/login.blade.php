@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Guard Login - CCSS</title>
     @vite(['resources/css/SecurityGuardUser/securityguard_style_login.css','resources/js/app.js'])
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    <script>
+        var SITE_KEY = '{{ config('services.recaptcha.site_key') }}';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('login-btn');
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof grecaptcha === 'undefined') {
+                        alert('reCAPTCHA is still loading. Please try again in a moment.');
+                        return;
+                    }
+                    grecaptcha.ready(function() {
+                        grecaptcha.execute(SITE_KEY, {action: 'submit'}).then(function(token) {
+                            document.getElementById('g-recaptcha-response').value = token;
+                            document.getElementById('loginForm').submit();
+                        });
+                    });
+                });
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="login-card">
@@ -33,6 +56,7 @@
 
         <form method="POST" action="{{ route('security.login.submit') }}" id="loginForm">
             @csrf
+            <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
 
             <div class="login-form-group">
                 <label for="email">
@@ -64,7 +88,11 @@
                 <div class="login-validation-error">{{ $message }}</div>
             @enderror
 
-            <button type="submit" class="login-btn">
+            @error('g-recaptcha-response')
+                <div class="login-validation-error">{{ $message }}</div>
+            @enderror
+
+            <button type="submit" id="login-btn" class="login-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                 Login
             </button>
