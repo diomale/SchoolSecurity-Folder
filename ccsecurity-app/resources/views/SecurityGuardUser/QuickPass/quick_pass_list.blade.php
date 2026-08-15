@@ -77,7 +77,6 @@
                                 <td>
                                     <div class="user-cell">
                                         <span style="color: #000; font-weight: 600;">{{ $pass->visitor_name }}</span>
-                                        <span class="full-name">{{ $pass->visitor_name }}</span>
                                     </div>
                                 </td>
                                 <td><span style="font-family: monospace; font-weight: 500;">{{ $pass->vehicle_plate ?? '—' }}</span></td>

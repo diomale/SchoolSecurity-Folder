@@ -97,7 +97,6 @@
                                 <td>
                                     <div class="user-cell">
                                         <span style="color: #000; font-weight: 600;">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
-                                        <span class="full-name">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
                                     </div>
                                 </td>
                                 <td><span style="color: var(--text-muted); font-size: 0.95rem;">{{ $user->email }}</span></td>
@@ -163,7 +162,6 @@
                                 <td>
                                     <div class="user-cell">
                                         <span style="color: #000; font-weight: 600;">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
-                                        <span class="full-name">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
                                     </div>
                                 </td>
                                 <td><span style="color: var(--text-muted); font-size: 0.95rem;">{{ $user->email }}</span></td>
@@ -230,7 +228,6 @@
                                 <td>
                                     <div class="user-cell">
                                         <span style="color: #000; font-weight: 600;">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
-                                        <span class="full-name">{{ $user->fullname ?? ($user->first_name . ' ' . $user->last_name) }}</span>
                                     </div>
                                 </td>
                                 <td>

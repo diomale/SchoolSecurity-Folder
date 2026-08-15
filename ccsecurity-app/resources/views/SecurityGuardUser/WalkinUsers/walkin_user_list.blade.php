@@ -90,7 +90,6 @@
                                 <td>
                                     <div class="user-cell">
                                         <span style="color: #000; font-weight: 600;">{{ $outside_user->fullname ?? ($outside_user->first_name . ' ' . $outside_user->last_name) }}</span>
-                                        <span class="full-name">{{ $outside_user->fullname ?? ($outside_user->first_name . ' ' . $outside_user->last_name) }}</span>
                                     </div>
                                 </td>
                                 <td>

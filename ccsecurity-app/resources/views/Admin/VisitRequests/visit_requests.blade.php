@@ -54,7 +54,6 @@
                             <tr>
                                 <td>
                                     <div class="user-name">
-                                        <span style="color: #000; font-weight: 600;">{{ $request->outsideUser->fullname ?? '?' }}</span>
                                         {{ $request->outsideUser->fullname ?? 'N/A' }}
                                     </div>
                                 </td>

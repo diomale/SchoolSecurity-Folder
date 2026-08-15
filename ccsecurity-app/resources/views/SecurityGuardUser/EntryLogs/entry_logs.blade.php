@@ -66,7 +66,6 @@
                                 <td>
                                     <div class="user-cell">
                                         <span style="color: #000; font-weight: 600;">{{ $person['fullname'] ?? 'U' }}</span>
-                                        <span class="full-name">{{ $person['fullname'] ?? 'Unknown' }}</span>
                                     </div>
                                 </td>
                                 <td><span style="color: var(--text-muted); font-size: 0.9rem;">{{ $person['email'] ?? 'N/A' }}</span></td>
@@ -174,7 +173,6 @@
                                         @endphp
                                         <span style="color: #000; font-weight: 600;">{{ $uName }}</span>
                                         <div>
-                                            <div class="full-name">{{ $uName }}</div>
                                             <div style="font-size: 0.8rem; font-weight: 600; color: {{ $roleColor }};">{{ $uRoleType }}</div>
                                         </div>
                                     </div>

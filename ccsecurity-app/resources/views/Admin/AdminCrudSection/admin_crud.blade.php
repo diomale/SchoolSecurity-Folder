@@ -77,7 +77,6 @@
                                 <input type="checkbox" value="{{ $inside_user->id }}" class="user-checkbox custom-checkbox">
                             </td>
                             <td class="user-name">
-                                <span style="color: #000; font-weight: 600;">{{ $inside_user->fullname ?? $inside_user->first_name }}</span>
                                 {{ $inside_user->fullname ?? ($inside_user->first_name . ' ' . $inside_user->last_name) }}
                             </td>
                             <td>{{ $inside_user->email }}</td>
